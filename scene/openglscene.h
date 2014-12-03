@@ -1,19 +1,18 @@
 #ifndef OPENGLSCENE_H
 #define OPENGLSCENE_H
 
-#include <Common.h>
-#include "CS123SceneData.h"
-#include <QHash>
+#include "Common.h"
+#include "SceneData.h"
+#include <map>
 
 
 // Maximum number of lights, as defined in shader.
 #define MAX_NUM_LIGHTS 10
 
-class Sphere;
-class Canvas;
+class View;
+class Camera;
 
-//using namespace std;
-
+using std::string;
 
 struct SceneElement
 {
@@ -38,9 +37,7 @@ public:
     virtual void init();
 
     // Render the scene.
-    void render(Canvas *context);
-
-    bool isInit();
+    void render(Camera *cam);
 
 protected:
     // Set all lights to black.
@@ -59,39 +56,18 @@ protected:
     // Set the necessary uniforms for the light properties.
     void setLight(const CS123SceneLightData &light);
 
-    // initialize the shapes with the given parameters
-    void initShapes(int p1, int p2, float p3);
-
-    // updates all the shape parameters
-    void setShapeParams(int p1, int p2, float p3);
-
-    // updates the current shape
-    void updateShape(Sphere *shape);
-
-    // updates all the shapes
-    void updateShapes();
-
-    // load textures
-    int loadTexture(const QString &filename);
-
     // The program ID for OpenGL.
     GLuint m_shader;
-
-//    Shape *m_cone;
-//    Shape *m_cube;
-//    Shape *m_cylinder;
-    Sphere *m_water;
-//    Shape *m_torus;
-
-    bool m_initialized;
-    bool m_initializedShapes;
 
     CS123SceneGlobalData m_global;
     QList<CS123SceneLightData*> m_lights;
     QList<SceneElement *> m_elements;
 
 private:
-    QHash<QString, GLint> m_uniformLocs;
+    std::map<string, GLint> m_uniformLocs;
+
+    bool m_drawWireframe;
+    bool m_useLighting;
 };
 
 #endif // OPENGLSCENE_H

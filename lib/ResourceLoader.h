@@ -1,13 +1,13 @@
-#ifndef SHADERLOADER_H
-#define SHADERLOADER_H
+#ifndef RESOURCELOADER_H
+#define RESOURCELOADER_H
 
 #include "GL/glew.h"
 
-class ShaderLoader
+class ResourceLoader
 {
 public:
-    ShaderLoader();
+    ResourceLoader();
     static GLuint loadShaders(const char * vertex_file_path,const char * fragment_file_path);
 };
 
-#endif // SHADERLOADER_H
+#endif // RESOURCELOADER_H

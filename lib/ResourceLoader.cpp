@@ -1,12 +1,12 @@
-#include "shaderloader.h"
+#include "ResourceLoader.h"
 #include <QFile>
 #include <QTextStream>
 
-ShaderLoader::ShaderLoader()
+ResourceLoader::ResourceLoader()
 {
 }
 
-GLuint ShaderLoader::loadShaders(const char * vertex_file_path,const char * fragment_file_path){
+GLuint ResourceLoader::loadShaders(const char * vertex_file_path,const char * fragment_file_path){
 
     // Create the shaders
     GLuint VertexShaderID = glCreateShader(GL_VERTEX_SHADER);
@@ -41,11 +41,12 @@ GLuint ShaderLoader::loadShaders(const char * vertex_file_path,const char * frag
     // Check Vertex Shader
     glGetShaderiv(VertexShaderID, GL_COMPILE_STATUS, &Result);
     glGetShaderiv(VertexShaderID, GL_INFO_LOG_LENGTH, &InfoLogLength);
-    std::vector<char> VertexShaderErrorMessage(InfoLogLength);
-    glGetShaderInfoLog(VertexShaderID, InfoLogLength, NULL, &VertexShaderErrorMessage[0]);
-    if (!Result)
+    if (!Result && InfoLogLength > 0) {
+        std::vector<char> VertexShaderErrorMessage(InfoLogLength);
+        glGetShaderInfoLog(VertexShaderID, InfoLogLength, NULL, &VertexShaderErrorMessage[0]);
         fprintf(stderr, "Error compiling shader: %s\n%s\n",
                 vertex_file_path, &VertexShaderErrorMessage[0]);
+    }
 
     // Compile Fragment Shader
     char const * FragmentSourcePointer = FragmentShaderCode.c_str();
@@ -55,11 +56,12 @@ GLuint ShaderLoader::loadShaders(const char * vertex_file_path,const char * frag
     // Check Fragment Shader
     glGetShaderiv(FragmentShaderID, GL_COMPILE_STATUS, &Result);
     glGetShaderiv(FragmentShaderID, GL_INFO_LOG_LENGTH, &InfoLogLength);
-    std::vector<char> FragmentShaderErrorMessage(InfoLogLength);
-    glGetShaderInfoLog(FragmentShaderID, InfoLogLength, NULL, &FragmentShaderErrorMessage[0]);
-    if (!Result)
+    if (!Result && InfoLogLength > 0) {
+        std::vector<char> FragmentShaderErrorMessage(InfoLogLength);
+        glGetShaderInfoLog(FragmentShaderID, InfoLogLength, NULL, &FragmentShaderErrorMessage[0]);
         fprintf(stderr, "Error compiling shader: %s\n%s\n",
                 fragment_file_path, &FragmentShaderErrorMessage[0]);
+    }
 
     // Link the program
     GLuint programId = glCreateProgram();
@@ -70,10 +72,11 @@ GLuint ShaderLoader::loadShaders(const char * vertex_file_path,const char * frag
     // Check the program
     glGetProgramiv(programId, GL_LINK_STATUS, &Result);
     glGetProgramiv(programId, GL_INFO_LOG_LENGTH, &InfoLogLength);
-    std::vector<char> ProgramErrorMessage( std::max(InfoLogLength, int(1)) );
-    glGetProgramInfoLog(programId, InfoLogLength, NULL, &ProgramErrorMessage[0]);
-    if (!Result)
+    if (!Result && InfoLogLength > 0) {
+        std::vector<char> ProgramErrorMessage(InfoLogLength);
+        glGetProgramInfoLog(programId, InfoLogLength, NULL, &ProgramErrorMessage[0]);
         fprintf(stderr, "Error linking shader: %s\n", &ProgramErrorMessage[0]);
+    }
 
     glDeleteShader(VertexShaderID);
     glDeleteShader(FragmentShaderID);

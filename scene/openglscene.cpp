@@ -1,39 +1,22 @@
 #include "openglscene.h"
 #include "camera.h"
-#include "CS123SceneData.h"
-#include <QtGlobal>
-#include <QFile>
-#include <QGLWidget>
-#include "shaderloader.h"
-#include "scene/canvas.h"
+#include "ResourceLoader.h"
+#include "view.h"
 #include <string>
 #include <sstream>
 #include "QCoreApplication"
-#include "objects/watersphere.h"
 
 #define SHAPE_RADIUS 0.5f
 
 OpenGLScene::OpenGLScene()
 {
-//    m_cone = NULL;
-//    m_cube = NULL;
-//    m_cylinder = NULL;
-    m_water = NULL;
-//    m_torus = NULL;
-
-    m_initializedShapes = false;
+    m_drawWireframe = true;
+    m_useLighting = true;
 }
 
 OpenGLScene::~OpenGLScene()
 {
-    // delete shapes
-    if (m_initializedShapes) {
-//        delete m_cone;
-//        delete m_cube;
-//        delete m_cylinder;
-        delete m_water;
-//        delete m_torus;
-    }
+    // delete primitives
     int i;
     int num = m_elements.size();
     for (i = 0; i < num; i++)
@@ -57,70 +40,9 @@ OpenGLScene::~OpenGLScene()
 }
 
 
-bool OpenGLScene::isInit()
-{
-    return m_initialized;
-}
-
-
-void OpenGLScene::initShapes(int p1, int p2, float p3)
-{
-    if (!m_initializedShapes) {
-//        m_cone = new Cone(p1, p2, SHAPE_RADIUS, SHAPE_RADIUS);
-//        m_cube = new Cube(p1, SHAPE_RADIUS);
-//        m_cylinder = new Cylinder(p1, p2, SHAPE_RADIUS, SHAPE_RADIUS);
-//        m_sphere = new WaterSphere(p1, p2, SHAPE_RADIUS);
-        m_water = new WaterSphere(p1, p2, SHAPE_RADIUS, m_shader);
-//        m_torus = new Torus(p1, p2, p3, SHAPE_RADIUS);
-
-        m_initializedShapes = true;
-    }
-}
-
-
-void OpenGLScene::setShapeParams(int p1, int p2, float p3)
-{
-    if (m_initializedShapes) {
-//        m_cone->setParam1(p1);
-//        m_cone->setParam2(p2);
-
-//        m_cube->setParam1(p1);
-
-//        m_cylinder->setParam1(p1);
-//        m_cylinder->setParam2(p2);
-
-        m_water->setParam1(p1);
-        m_water->setParam2(p2);
-
-//        m_torus->setParam1(p1);
-//        m_torus->setParam2(p2);
-//        m_torus->setParam3(p3);
-    }
-}
-
-
-void OpenGLScene::updateShape(Sphere *shape)
-{
-    if (shape) {
-        shape->calcVerts();
-        shape->updateGL(m_shader);
-        shape->cleanUp();
-    }
-}
-
-
-void OpenGLScene::updateShapes()
-{
-//    updateShape(m_cone);
-//    updateShape(m_cube);
-//    updateShape(m_cylinder);
-    updateShape(m_water);
-//    updateShape(m_torus);
-}
-
 void OpenGLScene::init()
 {
-    m_shader = ShaderLoader::loadShaders(
+    m_shader = ResourceLoader::loadShaders(
             ":/shaders/default.vert",
             ":/shaders/default.frag");
 
@@ -141,28 +63,27 @@ void OpenGLScene::init()
     m_uniformLocs["repeatV"] = glGetUniformLocation(m_shader, "repeatV");
 }
 
-void OpenGLScene::render(Canvas *context)
+void OpenGLScene::render(Camera *cam)
 {
     // Clear the screen in preparation for the next frame. (Use a gray background instead of a
     // black one for drawing wireframe or normals so they will show up against the background.)
-    if (true) glClearColor(0.5f, 0.5f, 0.5f, 0.5f);
+    if (m_drawWireframe) glClearColor(0.5f, 0.5f, 0.5f, 0.5f);
     else glClearColor(0, 0, 0, 0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    // Get the active camera
-    Camera *camera = context->getCamera();
-    assert(camera);
-    glm::mat4 viewMatrix = camera->getViewMatrix();
+    // Get the view matrix from the camera
+    assert(cam);
+    glm::mat4 viewMatrix = cam->getViewMatrix();
 
     glUseProgram(m_shader);
 
     // Set scene uniforms.
     clearLights();
     setLights(viewMatrix);
-    glUniform1i(m_uniformLocs["useLighting"], false); // no lighting yet
+    glUniform1i(m_uniformLocs["useLighting"], m_useLighting);
     glUniform1i(m_uniformLocs["useArrowOffsets"], GL_FALSE);
     glUniformMatrix4fv(m_uniformLocs["p"], 1, GL_FALSE,
-            glm::value_ptr(camera->getProjectionMatrix()));
+            glm::value_ptr(cam->getProjectionMatrix()));
     glUniformMatrix4fv(m_uniformLocs["v"], 1, GL_FALSE,
             glm::value_ptr(viewMatrix));
     glUniformMatrix4fv(m_uniformLocs["m"], 1, GL_FALSE,
@@ -172,7 +93,7 @@ void OpenGLScene::render(Canvas *context)
 
     renderGeometry();
 
-    if (true) // draw wireframe
+    if (m_drawWireframe)
     {
         glUniform3f(m_uniformLocs["allBlack"], 0, 0, 0);
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -184,6 +105,7 @@ void OpenGLScene::render(Canvas *context)
 
     glUseProgram(0);
 }
+
 
 void OpenGLScene::applyMaterial(const CS123SceneMaterial &material)
 {
@@ -255,40 +177,3 @@ void OpenGLScene::setLight(const CS123SceneLightData &light)
     glUniform3f(glGetUniformLocation(m_shader, ("lightAttenuations" + indexString).c_str()),
             light.function.x, light.function.y, light.function.z);
 }
-
-
-// Copied from lab04
-int OpenGLScene::loadTexture(const QString &filename)
-{
-    // make sure file exists
-    QFile file(filename);
-    if (!file.exists())
-        return -1;
-
-    // load file into memory
-    QImage image;
-    image.load(file.fileName());
-    image = image.mirrored(false, true);
-    QImage texture = QGLWidget::convertToGLFormat(image);
-
-    // generate texture ID
-    GLuint id = 0;
-    glGenTextures(1, &id);
-
-    // make the texture
-    glBindTexture(GL_TEXTURE_2D, id);
-
-    // copy image data into texture
-    gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGBA, texture.width(), texture.height(), GL_RGBA, GL_UNSIGNED_BYTE, texture.bits());
-
-    // filtering options
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-    // coordinate wrapping options
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-    return id;
-}
-

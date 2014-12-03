@@ -1,8 +1,5 @@
 #include "scene.h"
-#include "camera.h"
-#include <canvas.h>
-#include <QFileDialog>
-#include "objects/watersphere.h"
+#include "musicshape.h"
 
 glm::vec4 lightDirection = glm::normalize(glm::vec4(1.f, -1.f, -1.f, 0.f));
 
@@ -55,49 +52,24 @@ Scene::Scene()
     light->id = 0;
 
     // Store old settings and set shape pointer
-    m_sphere = NULL;
-//    m_oldSettings = glm::vec4(
-//                settings.shapeType,
-//                settings.shapeParameter1,
-//                settings.shapeParameter2,
-//                settings.shapeParameter3
-//                );
+    m_shape = NULL;
 
     m_lights.clear();
     m_elements.clear();
 
     SceneElement *element = new SceneElement();
     element->primitive = prim;
-    element->trans = glm::mat4();
+    element->trans = glm::rotate(glm::mat4(), (float) (-M_PI /5.0), glm::vec3(1, 0, 0));
+//    element->trans = glm::mat4();
     element->inv = glm::mat4();
     m_lights.append(light);
     m_elements.append(element);
-
 
     m_initialized = false;
 }
 
 Scene::~Scene()
 {
-//    if (m_square)
-//        delete m_square;
-//    if (m_ripplePlane)
-//        delete m_ripplePlane;
-//    if (m_rippleSphere)
-//        delete m_rippleSphere;
-//    if (m_music)
-//        delete m_music;
-    // Do not delete m_camera, it is owned by SupportScene3D
-
-    // delete primitives
-
-    delete m_sphere;
-}
-
-
-void Scene::updateCurrentShape() {
-//    if (m_sphere != m_music)
-        this->updateShape(m_sphere);
 }
 
 void Scene::init()
@@ -107,129 +79,14 @@ void Scene::init()
 
     OpenGLScene::init(); // Call the superclass's init()
 
-//    this->initShapes(settings.shapeParameter1,
-//                     settings.shapeParameter2,
-//                     settings.shapeParameter3);
-//    m_square = new Shape();
-//    m_ripplePlane = new Ripple(settings.shapeParameter1,
-//                               settings.shapeParameter2,
-//                               0.5f);
-//    m_rippleSphere = new RippleSphere(settings.shapeParameter1,
-//                                      settings.shapeParameter2,
-//                                      settings.shapeParameter3,
-//                                      0.5f);
-//    m_music = new MusicTracker(settings.shapeParameter1,
-////    m_music = new MusicSphere(settings.shapeParameter1,
-//                               settings.shapeParameter2,
-//                               0.5f, m_shader, m_normalRenderer);
-
-    updateShapes();
-//    this->updateShape(m_square);
-//    this->updateShape(m_ripplePlane);
-//    this->updateShape(m_rippleSphere);
-//    this->updateShape(m_music);
-
-    this->setShape();
-
-    CS123SceneMaterial& mat = m_elements.at(0)->primitive->material;
-    int texId = loadTexture(QString::fromStdString(mat.textureMap->filename));
-    if (texId == -1) {
-        cout << "Texture '" << mat.textureMap->filename << "' does not exist" << endl;
-        mat.textureMap->isUsed = 0;
-    } else {
-        mat.textureMap->texid = texId;
-        mat.textureMap->isUsed = true;
-    }
+    m_shape = new MusicShape(25, 25, 1.f, m_shader);
+    m_shape->calcVerts();
+    m_shape->updateGL(m_shader);
+    m_shape->cleanUp();
 
     m_initialized = true;
 }
 
-
-void Scene::setShape()
-{
-//    switch (settings.shapeType) {
-//    case SHAPE_CUBE:
-//        m_shape = m_cube;
-//        m_elements.at(0)->primitive->type = PRIMITIVE_CUBE;
-//        break;
-//    case SHAPE_CONE:
-//        m_shape = m_cone;
-//        m_elements.at(0)->primitive->type = PRIMITIVE_CONE;
-//        break;
-//    case SHAPE_SPHERE:
-//        m_shape = m_sphere;
-//        m_elements.at(0)->primitive->type = PRIMITIVE_SPHERE;
-//        break;
-//    case SHAPE_CYLINDER:
-//        m_shape = m_cylinder;
-//        m_elements.at(0)->primitive->type = PRIMITIVE_CYLINDER;
-//        break;
-//    case SHAPE_TORUS:
-//        m_shape = m_torus;
-//        m_elements.at(0)->primitive->type = PRIMITIVE_TORUS;
-//        break;
-//    case SHAPE_SPECIAL_1:
-////        m_shape = m_square;
-////        m_elements.at(0)->primitive->type = PRIMITIVE_CUBE;
-        m_sphere = m_water;
-        m_elements.at(0)->primitive->type = PRIMITIVE_CUBE;
-//        break;
-//    case SHAPE_SPECIAL_2:
-//        m_shape = m_ripplePlane;
-//        m_elements.at(0)->primitive->type = PRIMITIVE_CUBE;
-//        break;
-//    case SHAPE_SPECIAL_3:
-//        m_shape = m_rippleSphere;
-//        m_elements.at(0)->primitive->type = PRIMITIVE_CUBE;
-//        break;
-//    default: // basic square shape
-//        m_shape = m_square;
-//        m_elements.at(0)->primitive->type = PRIMITIVE_CUBE;
-//        break;
-//    }
-//    if (m_shape) {
-//        m_shape->setParam1(settings.shapeParameter1);
-//        m_shape->setParam2(settings.shapeParameter2);
-//        m_shape->setParam3(settings.shapeParameter3);
-//    }
-}
-
-/**
- * @brief Scene::update - checks for parameter or shape changes and updates
- * the appropriate objects.
- */
-void Scene::update()
-{
-//    if (m_oldSettings[0] != settings.shapeType) {
-
-//        m_oldSettings[0] = settings.shapeType;
-//        setShape();
-//        updateShape(m_sphere);
-//    }
-//    else if (m_oldSettings[1] != settings.shapeParameter1 &&
-//             m_sphere->usesParam(1)) {
-
-//        m_oldSettings[1] = settings.shapeParameter1;
-//        m_sphere->setParam1(settings.shapeParameter1);
-//        this->updateShape(m_sphere);
-
-//    }
-//    else if (m_oldSettings[2] != settings.shapeParameter2 &&
-//               m_sphere->usesParam(2)) {
-
-//        m_oldSettings[2] = settings.shapeParameter2;
-//        m_sphere->setParam2(settings.shapeParameter2);
-//        this->updateShape(m_sphere);
-
-//    }
-//    else if (m_oldSettings[3] != settings.shapeParameter3 &&
-//               m_sphere->usesParam(3)) {
-
-//        m_oldSettings[3] = settings.shapeParameter3;
-//        m_sphere->setParam3(settings.shapeParameter3);
-//        this->updateShape(m_sphere);
-//    }
-}
 
 void Scene::renderGeometry()
 {
@@ -240,19 +97,11 @@ void Scene::renderGeometry()
     applyMaterial(m_elements.at(0)->primitive->material);
 
     // Draw the shape.
-    if (m_sphere)
-        m_sphere->render();
+    if (m_shape)
+        m_shape->transformAndRender(m_shader, m_elements.at(0)->trans);
 
 }
 
-
-bool Scene::animate()
-{
-    // return whether or not the shape is capable of animation
-    if (m_sphere)
-        return m_sphere->animate();
-    return false;
-}
 
 void Scene::setLights(const glm::mat4 viewMatrix)
 {
@@ -264,4 +113,5 @@ void Scene::setLights(const glm::mat4 viewMatrix)
     clearLights();
     setLight(light);
 }
+
 
