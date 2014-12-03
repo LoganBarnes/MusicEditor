@@ -151,7 +151,7 @@ void View::keyReleaseEvent(QKeyEvent *event)
 void View::tick()
 {
     // Get the number of seconds since the last tick (variable update rate)
-    float seconds = time.restart() * 0.001f;
+//    float seconds = time.restart() * 0.001f;
 
     // TODO: Implement the demo update here
 
