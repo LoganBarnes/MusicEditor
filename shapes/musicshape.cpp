@@ -1,19 +1,20 @@
 #include "musicshape.h"
-#include "udphandler.h"
+#include <math.h>
 #include <glm/gtx/rotate_vector.hpp>
+#include <glm/gtx/vector_angle.hpp>
 
 MusicShape::MusicShape(int p1, int p2, float radius, GLuint shader, QObject *parent) :
     QObject(parent)
 {
-    setParamMax(1, 2, -1);
+    setParamMax(2, 3, -1);
     setParam1(p1);
     setParam2(p2);
 
     m_radius = radius;
-    m_rate = 1;
-    m_udp = new UDPHandler(this);
     m_shader = shader;
+    m_udp = new UDPHandler(this);
 }
+
 
 MusicShape::~MusicShape()
 {
@@ -22,103 +23,89 @@ MusicShape::~MusicShape()
 
 void MusicShape::calcVerts()
 {
-    int p2 = m_p2 * 2;
-    int p1 = m_p1 * 2;
-    m_numVerts = p1 * 2 * p2 * 2 + 2;
-    int size = m_numVerts * 8;
+    // ((slices * verts per slice) - first and last vert) * 2 for normals
+    m_numVerts = ((m_p2 * (m_p1 + 1) * 2) - 2);
+    int size = m_numVerts * 8; // 3 points per vertex
     m_vertexData = new GLfloat[size];
 
-    // for rotation
-    float angleSpacing = 2.f * M_PI / p2;
-    float cosine = cos(angleSpacing);
-    float sine = sin(angleSpacing);
+    float prev = 0;
+    float curr;
 
-    float x = m_radius;
-    float y = 0;
-    float temp;
+    int index = 0;
 
-    glm::vec2 outer = glm::vec2(x, y);
-    glm::vec2 inner;
+    glm::vec3 top = glm::vec3(0, m_radius + f(0).y, 0);
+    glm::vec3 bottom = glm::vec3(0, -m_radius + f(M_PI).y, 0);
 
-    // rotation matrix
-    temp = x;
-    x = cosine * x - sine * y;
-    y = sine * temp + cosine * y;
+    // iterate through the slices
+    for (int i = 1; i <= m_p2; i++) {
+        curr = i * M_PI * 2.f / m_p2;
 
-    int indexf = 0;
-    int indexb = (m_numVerts / 2) * 8;
+        // top point
+        glm::vec2 tex = glm::vec2(1.f - (prev / (2 * M_PI)), 0.f);
+        addVertexT(&index, top, glm::vec3(0, 1, 0), tex);
 
-    float scale;
-    glm::vec4 ef1, ef2;
+        make3Dslice(&index, curr, prev);
 
-    ef1 = f(0, 0);
-    glm::vec3 center = glm::vec3(0, 0, ef1.w);
+        // bottom point
+        tex.y = 1.f;
+        addVertexT(&index, bottom, glm::vec3(0, -1, 0), tex);
 
-    ef2 = fv(outer);
-    addVertex(&indexf, glm::vec3(outer, ef2.w), glm::vec3(ef2));
-    addVertex(&indexb, glm::vec3(outer, -ef2.w), glm::vec3(ef2.x, ef2.y, -ef2.z));
-
-    for (int i = 1; i <= p2; i++)
-    {
-
-        if (i % 2 == 0)
-        {
-            outer.x = x;
-            outer.y = y;
-
-            float s = 1.f / p1;
-            for (int j = 1; j <= p1; j++)
-            {
-                scale = j * s;
-
-                ef1 = fv(inner * scale);
-                ef2 = fv(outer * scale);
-
-                // frontside
-                addVertex(&indexf, glm::vec3(inner * scale, ef1.w), glm::vec3(ef1));
-                addVertex(&indexf, glm::vec3(outer * scale, ef2.w), glm::vec3(ef2));
-
-                // backside
-                addVertex(&indexb, glm::vec3(inner * scale, -ef1.w), glm::vec3(ef1.x, ef1.y, -ef1.z));
-                addVertex(&indexb, glm::vec3(outer * scale, -ef2.w), glm::vec3(ef2.x, ef2.y, -ef2.z));
-            }
-        }
-        else
-        {
-            inner.x = x;
-            inner.y = y;
-
-            ef2 = fv(inner);
-            addVertex(&indexf, glm::vec3(inner, ef2.w), glm::vec3(ef2));
-            addVertex(&indexb, glm::vec3(inner, -ef2.w), glm::vec3(ef2.x, ef2.y, -ef2.z));
-
-            float s = 1.f / p1;
-
-            for (int j = p1 - 1; j > 0; j--)
-            {
-                scale = j * s;
-
-                ef1 = fv(outer * scale);
-                ef2 = fv(inner * scale);
-
-                // frontside
-                addVertex(&indexf, glm::vec3(outer * scale, ef1.w), glm::vec3(ef1));
-                addVertex(&indexf, glm::vec3(inner * scale, ef2.w), glm::vec3(ef2));
-
-                // backside
-                addVertex(&indexb, glm::vec3(outer * scale, -ef1.w), glm::vec3(ef1.x, ef1.y, -ef1.z));
-                addVertex(&indexb, glm::vec3(inner * scale, -ef2.w), glm::vec3(ef2.x, ef2.y, -ef2.z));
-            }
-            addVertex(&indexf, center, glm::vec3(0, 0, 1));
-            addVertex(&indexb, -center, glm::vec3(0, 0, -1));
+        // repeat the last point of this slice and the first point of the next
+        // slice so the renderer won't connect the two points
+        if (i != m_p2) {
+            addVertex(&index, bottom, glm::vec3(0, -1, 0));
+            addVertex(&index, top, glm::vec3(0, 1, 0));
         }
 
-        // rotation matrix
-        temp = x;
-        x = cosine * x - sine * y;
-        y = sine * temp + cosine * y;
-
+        prev = curr;
     }
+}
+
+
+void MusicShape::make3Dslice(int *index, float thetaL, float thetaR)
+{
+    double spacing = M_PI / m_p1;
+    float phi;
+
+    // iterate through sub blocks of slice
+    for (int i = 1; i < m_p1; i++) {
+        phi = i * spacing;
+        calcSliceSeg(index, thetaL, thetaR, phi);
+    }
+}
+
+void MusicShape::calcSliceSeg(int *index, float thetaL, float thetaR, float phi)
+{
+    glm::vec2 ef = f(phi);
+
+    // parametric sphere equations
+    glm::vec3 vl = glm::vec3(m_radius * sin(phi) * cos(thetaL),
+                        m_radius * cos(phi),
+                        m_radius * sin(phi) * sin(thetaL));
+    glm::vec3 vr = glm::vec3(m_radius * sin(phi) * cos(thetaR),
+                        m_radius * cos(phi),
+                        m_radius * sin(phi) * sin(thetaR));
+
+    glm::vec2 texl = glm::vec2(1.f - thetaL / (2 * M_PI), phi / M_PI);
+    glm::vec2 texr = glm::vec2(1.f - thetaR / (2 * M_PI), phi / M_PI);
+
+    glm::vec3 nl = glm::normalize(vl);
+    glm::vec3 nr = glm::normalize(vr);
+
+    vl += glm::normalize(vl) * ef.y;
+    vr += glm::normalize(vr) * ef.y;
+
+    nl = glm::rotate(nl, ef.x, glm::rotate(glm::vec3(0, 0, -1), thetaL, glm::vec3(0, -1, 0)));
+    nr = glm::rotate(nr, ef.x, glm::rotate(glm::vec3(0, 0, -1), thetaR, glm::vec3(0, -1, 0)));
+
+    addVertexT(index, vl, nl, texl);
+    addVertexT(index, vr, nr, texr);
+}
+
+
+bool MusicShape::animate()
+{
+    return true;
 }
 
 
@@ -131,45 +118,20 @@ void MusicShape::setFunction(QList<float> function)
 }
 
 
-bool MusicShape::animate()
+glm::vec2 MusicShape::f(float angle)
 {
-    return true;
-}
-
-
-
-/**
- * @brief MusicShape::f the bezier curve used to draw the shape
- * @param x - the x location
- * @param y - the y location
- * @return the z location based on the function
- */
-glm::vec4 MusicShape::f(float x, float y)
-{
-    return fv(glm::vec2(x, y));
-}
-
-
-/**
- * @brief MusicShape::f the bezier curve used to draw the shape
- * @param x - the x location
- * @param y - the y location
- * @return the z location based on the function
- */
-glm::vec4 MusicShape::fv(glm::vec2 v)
-{
-    m_function.clear();
-    m_function.append(0.5f);
-    m_function.append(0.1f);
-    m_function.append(0.3f);
-    m_function.append(0.0f);
-    m_function.append(0.0f);
+//    m_function.clear();
+//    m_function.append(0.5f);
+//    m_function.append(0.1f);
+//    m_function.append(0.3f);
+//    m_function.append(0.0f);
+//    m_function.append(0.0f);
 
     if (m_function.isEmpty())
-        return glm::vec4(0.f);
+        return glm::vec2(0, 0.f);
 
     double sizeMinus = m_function.size() - 1.f;
-    double di = sqrt(v.x*v.x + v.y*v.y) * m_function.size() - 0.5f;
+    double di = (angle / M_PI) * m_function.size() - 0.5f;
     float f = modf(di, &di);
     int li, ri;
     float t;
@@ -204,11 +166,12 @@ glm::vec4 MusicShape::fv(glm::vec2 v)
     glm::vec2 tangent = 2 * t_1 * (mid - left) + 2 * t * (right - mid);
     tangent.x /= sizeMinus;
 
-    glm::vec2 n = glm::rotate(tangent, (float)(M_PI / 2.0));
-    v = glm::normalize(v);
-    glm::vec3 norm = glm::normalize(glm::vec3(v.x * n.x, v.y * n.x, n.y));
+    glm::vec2 n = glm::rotate(tangent, (float) (M_PI / 2.0));
 
-    return glm::vec4(norm.x, norm.y, norm.z, curve);
+    float a = glm::angle(glm::normalize(n), glm::vec2(0, 1));
+    a = (n.x < 0 ? -a : a);
+
+    return glm::vec2(a, curve);
 
 }
 

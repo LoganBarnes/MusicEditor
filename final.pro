@@ -43,7 +43,10 @@ FORMS += ui/mainwindow.ui
 INCLUDEPATH += glm lib ui scene camera shapes networking
 DEPENDPATH += glm lib ui scene camera shapes networking
 DEFINES += TIXML_USE_STL
-OTHER_FILES += shaders/shader.frag shaders/shader.vert
+OTHER_FILES += \
+    shaders/shader.frag shaders/shader.vert\
+    shaders/glass.frag shaders/glass.vert\
+    shaders/metal.frag shaders/metal.vert
 
 # Don't add the -pg flag unless you know what you are doing. It makes QThreadPool freeze on Mac OS X
 QMAKE_CXXFLAGS_RELEASE -= -O2

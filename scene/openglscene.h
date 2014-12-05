@@ -56,6 +56,9 @@ protected:
     // Set the necessary uniforms for the light properties.
     void setLight(const CS123SceneLightData &light);
 
+    // Load a texture
+    int loadTexture(const QString &filename);
+
     // The program ID for OpenGL.
     GLuint m_shader;
 

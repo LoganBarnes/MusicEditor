@@ -40,26 +40,18 @@ void UDPHandler::readyRead()
     QStringList strings = data.split(" ");
     QList<float> function, floats;
 
-    float oldMax = -96.f;
-    float oldMin = 30.f;
     float f;
     for (int i = 0; i < strings.length(); i++) {
         f = strings.value(i).toFloat();
         floats.append(f);
-        oldMin = min(oldMin, f);
-        oldMax = max(oldMax, f);
     }
     /*
      * equation to map from one set of values to another:
      * (((val - oldMin) / (oldMax - oldMin)) * (newMax - newMin)) + newMin;
      */
-
-//    float diff = oldMax - oldMin;
     for (int i = 0; i < strings.length(); i++) {
-//        function.append((floats.value(i) - oldMin) / (diff * 1.5f));
         function.append(glm::max(0.f, (floats.value(i) + 96) / (120 * 1.5f)));
     }
-    function.append(0.f);
 
    emit sendFunction(function);
 }

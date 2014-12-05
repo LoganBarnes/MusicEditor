@@ -5,12 +5,13 @@
 #include <string>
 #include <sstream>
 #include "QCoreApplication"
+#include <QFile>
 
 #define SHAPE_RADIUS 0.5f
 
 OpenGLScene::OpenGLScene()
 {
-    m_drawWireframe = true;
+    m_drawWireframe = false;
     m_useLighting = true;
 }
 
@@ -45,6 +46,12 @@ void OpenGLScene::init()
     m_shader = ResourceLoader::loadShaders(
             ":/shaders/default.vert",
             ":/shaders/default.frag");
+//    m_shader = ResourceLoader::loadShaders(
+//                ":/shaders/glass.vert",
+//                ":/shaders/glass.frag");
+//    m_shader = ResourceLoader::loadShaders(
+//                ":/shaders/metal.vert",
+//                ":/shaders/metal.frag");
 
     m_uniformLocs["p"]= glGetUniformLocation(m_shader, "p");
     m_uniformLocs["m"]= glGetUniformLocation(m_shader, "m");
@@ -87,9 +94,18 @@ void OpenGLScene::render(Camera *cam)
     glUniformMatrix4fv(m_uniformLocs["v"], 1, GL_FALSE,
             glm::value_ptr(viewMatrix));
     glUniformMatrix4fv(m_uniformLocs["m"], 1, GL_FALSE,
-            glm::value_ptr(glm::mat4()));
+            glm::value_ptr(m_elements.value(0)->trans));
     glUniform3f(m_uniformLocs["allBlack"], 1, 1, 1);
 
+    // metal stuffs
+//    glUniformMatrix4fv(glGetUniformLocation(m_shader, "view"), 1, GL_FALSE,
+//                       glm::value_ptr(viewMatrix));
+//    glUniformMatrix4fv(glGetUniformLocation(m_shader, "projection"), 1, GL_FALSE,
+//                       glm::value_ptr(cam->getProjectionMatrix()));
+//    glUniformMatrix4fv(glGetUniformLocation(m_shader, "model"), 1, GL_FALSE,
+//                       glm::value_ptr(m_elements.value(0)->trans));
+
+//    glUniform4fv(glGetUniformLocation(m_shader, "lightPosition"), 1, glm::value_ptr(glm::vec4(-5, 5, 5, 1)));
 
     renderGeometry();
 
@@ -116,6 +132,9 @@ void OpenGLScene::applyMaterial(const CS123SceneMaterial &material)
     glUniform3fv(m_uniformLocs["diffuse_color"], 1, &material.cDiffuse.r);
     glUniform3fv(m_uniformLocs["specular_color"], 1, &material.cSpecular.r);
     glUniform1f(m_uniformLocs["shininess"], material.shininess);
+//    glUniform1f(glGetUniformLocation(m_shader, "m"), 0.15);
+//    glUniform1f(glGetUniformLocation(m_shader, "r0"), 0.3f);
+
     if (material.textureMap && material.textureMap->isUsed && material.textureMap->texid) {
         glUniform1i(m_uniformLocs["useTexture"], 1);
         glUniform1i(m_uniformLocs["tex"], 1);
@@ -176,4 +195,40 @@ void OpenGLScene::setLight(const CS123SceneLightData &light)
                 color.r, color.g, color.b);
     glUniform3f(glGetUniformLocation(m_shader, ("lightAttenuations" + indexString).c_str()),
             light.function.x, light.function.y, light.function.z);
+}
+
+
+// Copied from lab04
+int OpenGLScene::loadTexture(const QString &filename)
+{
+    // make sure file exists
+    QFile file(filename);
+    if (!file.exists())
+        return -1;
+
+    // load file into memory
+    QImage image;
+    image.load(file.fileName());
+    image = image.mirrored(false, true);
+    QImage texture = QGLWidget::convertToGLFormat(image);
+
+    // generate texture ID
+    GLuint id = 0;
+    glGenTextures(1, &id);
+
+    // make the texture
+    glBindTexture(GL_TEXTURE_2D, id);
+
+    // copy image data into texture
+    gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGBA, texture.width(), texture.height(), GL_RGBA, GL_UNSIGNED_BYTE, texture.bits());
+
+    // filtering options
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    // coordinate wrapping options
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+    return id;
 }

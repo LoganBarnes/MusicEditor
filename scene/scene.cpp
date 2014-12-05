@@ -59,7 +59,7 @@ Scene::Scene()
 
     SceneElement *element = new SceneElement();
     element->primitive = prim;
-    element->trans = glm::rotate(glm::mat4(), (float) (-M_PI /5.0), glm::vec3(1, 0, 0));
+    element->trans = glm::rotate(glm::mat4(), (float) (M_PI / 4.0), glm::vec3(1, 1, -.1f));
 //    element->trans = glm::mat4();
     element->inv = glm::mat4();
     m_lights.append(light);
@@ -79,10 +79,20 @@ void Scene::init()
 
     OpenGLScene::init(); // Call the superclass's init()
 
-    m_shape = new MusicShape(25, 25, 1.f, m_shader);
+    m_shape = new MusicShape(25, 25, 0.15f, m_shader);
     m_shape->calcVerts();
     m_shape->updateGL(m_shader);
     m_shape->cleanUp();
+
+    CS123SceneMaterial& mat = m_elements.at(0)->primitive->material;
+    int texId = loadTexture(QString::fromStdString(mat.textureMap->filename));
+    if (texId == -1) {
+        cout << "Texture '" << mat.textureMap->filename << "' does not exist" << endl;
+        mat.textureMap->isUsed = 0;
+    } else {
+        mat.textureMap->texid = texId;
+        mat.textureMap->isUsed = true;
+    }
 
     m_initialized = true;
 }
