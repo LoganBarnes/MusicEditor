@@ -45,8 +45,8 @@ DEPENDPATH += glm lib ui scene camera shapes networking
 DEFINES += TIXML_USE_STL
 OTHER_FILES += \
     shaders/shader.frag shaders/shader.vert\
-    shaders/glass.frag shaders/glass.vert\
-    shaders/metal.frag shaders/metal.vert
+#    shaders/glass.frag shaders/glass.vert\
+#    shaders/metal.frag shaders/metal.vert
 
 # Don't add the -pg flag unless you know what you are doing. It makes QThreadPool freeze on Mac OS X
 QMAKE_CXXFLAGS_RELEASE -= -O2
@@ -69,8 +69,8 @@ else:win32:CONFIG(debug, debug|release): LIBS += -L/course/cs123/lib/glew/glew-1
 else:unix: LIBS += -L/usr/local/Cellar/glew/1.11.0/lib/ -lGLEW
 
 #TODO (Windows or Mac): If you are setting up local development on Windows OR Mac, fill in the correct path to your glew and uncomment the following lines:
-INCLUDEPATH+=/usr/local/Cellar/glew/1.11.0/include
-DEPENDPATH+=/usr/local/Cellar/glew/1.11.0/include
+#INCLUDEPATH+=/usr/local/Cellar/glew/1.11.0/include
+#DEPENDPATH+=/usr/local/Cellar/glew/1.11.0/include
 
 RESOURCES += \
     resources.qrc
