@@ -1,4 +1,5 @@
 #include "scene.h"
+#include "grid.h"
 #include "musicshape.h"
 
 glm::vec4 lightDirection = glm::normalize(glm::vec4(1.f, -1.f, -1.f, 0.f));
@@ -51,7 +52,8 @@ Scene::Scene()
     light->color.r = light->color.g = light->color.b = 1.f;
     light->id = 0;
 
-    // Store old settings and set shape pointer
+    // set shape pointer
+    m_grid = NULL;
     m_shape = NULL;
 
     m_lights.clear();
@@ -78,6 +80,11 @@ void Scene::init()
         return;
 
     OpenGLScene::init(); // Call the superclass's init()
+
+    m_grid = new Grid(1.f);
+    m_grid->calcVerts();
+    m_grid->updateGL(m_shader);
+    m_grid->cleanUp();
 
     m_shape = new MusicShape(25, 25, 0.15f, m_shader);
     m_shape->calcVerts();
@@ -106,9 +113,12 @@ void Scene::renderGeometry()
 
     applyMaterial(m_elements.at(0)->primitive->material);
 
+    // Draw the grid.
+//    glUniform3f(m_uniformLocs["allBlack"], 0, 0, 0);
+    m_grid->transformAndRender(m_shader, glm::mat4());
+
     // Draw the shape.
-    if (m_shape)
-        m_shape->transformAndRender(m_shader, m_elements.at(0)->trans);
+    m_shape->transformAndRender(m_shader, m_elements.at(0)->trans);
 
 }
 
