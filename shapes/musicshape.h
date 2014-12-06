@@ -3,7 +3,7 @@
 
 #include <QObject>
 #include <QList>
-#include "Shape.h"
+#include "shape.h"
 #include "udphandler.h"
 #include "openglscene.h"
 

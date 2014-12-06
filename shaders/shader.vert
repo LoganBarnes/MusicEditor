@@ -1,3 +1,4 @@
+
 #version 330 core
 
 in vec3 position; // Position of the vertex
