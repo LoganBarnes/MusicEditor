@@ -71,8 +71,8 @@ else:win32:CONFIG(debug, debug|release): LIBS += -L/course/cs123/lib/glew/glew-1
 else:unix: LIBS += -L/usr/local/Cellar/glew/1.11.0/lib/ -lGLEW
 
 #TODO (Windows or Mac): If you are setting up local development on Windows OR Mac, fill in the correct path to your glew and uncomment the following lines:
-#INCLUDEPATH+=/usr/local/Cellar/glew/1.11.0/include
-#DEPENDPATH+=/usr/local/Cellar/glew/1.11.0/include
+INCLUDEPATH+=/usr/local/Cellar/glew/1.11.0/include
+DEPENDPATH+=/usr/local/Cellar/glew/1.11.0/include
 
 RESOURCES += \
     resources.qrc

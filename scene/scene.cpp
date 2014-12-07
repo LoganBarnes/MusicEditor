@@ -81,12 +81,12 @@ void Scene::init()
 
     OpenGLScene::init(); // Call the superclass's init()
 
-    m_grid = new Grid(1.f);
+    m_grid = new Grid(5.f);
     m_grid->calcVerts();
     m_grid->updateGL(m_shader);
     m_grid->cleanUp();
 
-    m_shape = new MusicShape(25, 25, 0.15f, m_shader);
+    m_shape = new MusicShape(50, 30, 0.15f, m_shader);
     m_shape->calcVerts();
     m_shape->updateGL(m_shader);
     m_shape->cleanUp();
@@ -114,11 +114,18 @@ void Scene::renderGeometry()
     applyMaterial(m_elements.at(0)->primitive->material);
 
     // Draw the grid.
-//    glUniform3f(m_uniformLocs["allBlack"], 0, 0, 0);
+    glUniform3f(glGetUniformLocation(m_shader, "allWhite"), 1, 1, 1); // make white
     m_grid->transformAndRender(m_shader, glm::mat4());
 
-    // Draw the shape.
+    // Draw the shapes.
+    glUniform3f(glGetUniformLocation(m_shader, "allWhite"), 0, 0, 0); // not white
     m_shape->transformAndRender(m_shader, m_elements.at(0)->trans);
+
+    glUniform3f(glGetUniformLocation(m_shader, "allWhite"), 0, 0, 0); // not white
+    m_shape->transformAndRender(m_shader, glm::translate(glm::mat4(), glm::vec3(-2, 0, 0)));
+
+    glUniform3f(glGetUniformLocation(m_shader, "allWhite"), 0, 0, 0); // not white
+    m_shape->transformAndRender(m_shader, glm::translate(glm::mat4(), glm::vec3(2, 0, 0)));
 
 }
 

@@ -22,18 +22,46 @@ Grid::~Grid()
 
 void Grid::calcVerts()
 {
-    m_numVerts = 5;
+    m_numVerts = (12 * 2) * 2 + 3;
     int size = m_numVerts * 8;
     m_vertexData = new GLfloat[size];
 
     int index = 0;
     glm::vec3 norm = glm::vec3(0, 0, 1);
 
-    addVertex(&index, glm::vec3( m_radius, -1.0,  m_radius), norm);
-    addVertex(&index, glm::vec3(-m_radius, -1.0,  m_radius), norm);
-    addVertex(&index, glm::vec3(-m_radius, -1.0, -m_radius), norm);
-    addVertex(&index, glm::vec3( m_radius, -1.0, -m_radius), norm);
-    addVertex(&index, glm::vec3( m_radius, -1.0,  m_radius), norm);
+    int lines = 12; // should be even
+    float spacing = m_radius * 2.f / lines;
+    float x;
+    for (int i = 0; i < lines; i += 2) {
+        x = i * spacing - m_radius;
+
+        addVertex(&index, glm::vec3( x, -1.0,  -m_radius), norm);
+        addVertex(&index, glm::vec3( x, -1.0,  m_radius), norm);
+
+        x += spacing;
+
+        addVertex(&index, glm::vec3( x, -1.0,  m_radius), norm);
+        addVertex(&index, glm::vec3( x, -1.0,  -m_radius), norm);
+
+    }
+    addVertex(&index, glm::vec3(  m_radius, -1.0,  -m_radius), norm);
+    addVertex(&index, glm::vec3(  m_radius, -1.0,   m_radius), norm);
+    addVertex(&index, glm::vec3( -m_radius, -1.0,   m_radius), norm);
+
+    float z;
+    for (int i = lines - 1; i > 0; i -= 2) {
+        z = i * spacing - m_radius;
+
+        addVertex(&index, glm::vec3( -m_radius, -1.0, z), norm);
+        addVertex(&index, glm::vec3(  m_radius, -1.0, z), norm);
+
+        z -= spacing;
+
+        addVertex(&index, glm::vec3(  m_radius, -1.0, z), norm);
+        addVertex(&index, glm::vec3( -m_radius, -1.0, z), norm);
+    }
+
+    cout << index << ", " << size << endl;
 }
 
 

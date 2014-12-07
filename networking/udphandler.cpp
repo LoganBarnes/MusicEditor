@@ -10,7 +10,7 @@ UDPHandler::UDPHandler(MusicShape *ms, QObject *parent) :
     m_socket = new QUdpSocket(this);
     m_socket->bind(QHostAddress::LocalHost, PORT_RECV);
     connect(m_socket, SIGNAL(readyRead()), this, SLOT(readyRead()));
-    connect(this, SIGNAL(sendFunction(QList<float>)), ms, SLOT(setFunction(QList<float>)));
+    connect(this, SIGNAL(sendFunction(QVector<float>)), ms, SLOT(setFunction(QVector<float>)));
 }
 
 
@@ -38,13 +38,14 @@ void UDPHandler::readyRead()
 
     QString data(buffer);
     QStringList strings = data.split(" ");
-    QList<float> function, floats;
+    QList<float> floats;
 
     float f;
     for (int i = 0; i < strings.length(); i++) {
         f = strings.value(i).toFloat();
         floats.append(f);
     }
+    QVector<float> function;
     /*
      * equation to map from one set of values to another:
      * (((val - oldMin) / (oldMax - oldMin)) * (newMax - newMin)) + newMin;
