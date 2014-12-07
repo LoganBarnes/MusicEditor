@@ -45,6 +45,8 @@ protected:
 
     int m_numVerts;
 
+    QVector<float> m_function;
+
 private:
     int m_p1max;
     int m_p2max;

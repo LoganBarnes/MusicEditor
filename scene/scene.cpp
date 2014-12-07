@@ -63,7 +63,8 @@ Scene::Scene()
     element->primitive = prim;
     element->trans = glm::rotate(glm::mat4(), (float) (M_PI / 4.0), glm::vec3(1, 1, -.1f));
 //    element->trans = glm::mat4();
-    element->inv = glm::mat4();
+//    element->inv = glm::mat4();
+    element->inv = glm::inverse(element->trans);
     m_lights.append(light);
     m_elements.append(element);
 
@@ -86,7 +87,7 @@ void Scene::init()
     m_grid->updateGL(m_shader);
     m_grid->cleanUp();
 
-    m_shape = new MusicShape(50, 30, 0.15f, m_shader);
+    m_shape = new MusicShape(200, 100, 0.15f, m_shader);
     m_shape->calcVerts();
     m_shape->updateGL(m_shader);
     m_shape->cleanUp();
@@ -114,6 +115,7 @@ void Scene::renderGeometry()
     applyMaterial(m_elements.at(0)->primitive->material);
 
     // Draw the grid.
+    glUniform1i(glGetUniformLocation(m_shader, "functionSize"), 0);
     glUniform3f(glGetUniformLocation(m_shader, "allWhite"), 1, 1, 1); // make white
     m_grid->transformAndRender(m_shader, glm::mat4());
 

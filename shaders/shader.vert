@@ -1,7 +1,5 @@
-
 #version 330 core
 
-#define PI 3.1415926535897932384626433832795
 
 in vec3 position; // Position of the vertex
 in vec3 normal;   // Normal of the vertex
@@ -41,10 +39,8 @@ uniform vec3 allWhite = vec3(0);
 uniform int functionSize = 0;
 uniform float function[25]; // max/msp doesn't send data larger than 25
 
-vec2 rotateVec2(vec2 v, float sine, float cosine)
-{
-    return vec2(v.x * cosine - v.y * sine, v.x * sine + v.y * cosine);
-}
+#define PI 3.1415926535897932384626433832795
+
 
 mat4 rotationMatrix(vec3 axis, float angle)
 {
@@ -69,8 +65,9 @@ void calcVertex(inout vec3 v, inout vec3 n) {
     float angle = acos(dot(normalize(position), vec3(0, 1, 0)));
 
     float sizeMinus = functionSize - 1.0;
-    float di = (angle / PI) * functionSize - 0.5;
-    float f = modf(di, di);
+    float di = (angle / 3.1415926535897932384626433832795) * functionSize - 0.5;
+    float f = mod(di, 1.0);
+    di -= f;
     int li, ri;
     float t;
     vec2 mid, left, right;
@@ -104,22 +101,38 @@ void calcVertex(inout vec3 v, inout vec3 n) {
     vec2 tangent = 2 * t_1 * (mid - left) + 2 * t * (right - mid);
     tangent.x /= sizeMinus;
 
-    vec2 norm = rotateVec2(tangent, 1.0, 0.0);
+    float a = -atan(tangent.y, tangent.x);
 
-//    float a = glm::angle(glm::normalize(n), glm::vec2(0, 1));
-//    a = (n.x < 0 ? -a : a);
+    v += n * curve;
 
-//    return glm::vec4(glm::normalize(v) * curve, a);
+    vec3 axis = normalize(cross(vec3(0, 1, 0), n));
+
+    float s = sin(-a);
+    float c = cos(-a);
+    float oc = 1.0 - c;
+
+     mat4 rot = mat4(oc * axis.x * axis.x + c, oc * axis.x * axis.y - axis.z * s, oc * axis.z * axis.x + axis.y * s, 0.0,
+                     oc * axis.x * axis.y + axis.z * s, oc * axis.y * axis.y + c, oc * axis.y * axis.z - axis.x * s, 0.0,
+                     oc * axis.z * axis.x - axis.y * s, oc * axis.y * axis.z + axis.x * s, oc * axis.z * axis.z + c, 0.0,
+                     0.0, 0.0, 0.0, 1.0);
+
+    n = vec3(rot * vec4(normalize(n), 0));
 }
 
 void main(){
+
+    vec3 pos = vec3(position);
+    vec3 norm = vec3(normal);
+
+    calcVertex(pos, norm);
+
     texc = vec2(texCoord.x * repeatU, texCoord.y * repeatV);
 
-    vec4 position_cameraSpace = v * m * vec4(position, 1.0);
-    vec4 normal_cameraSpace = vec4(normalize(mat3(transpose(inverse(v * m))) * normal), 0);
+    vec4 position_cameraSpace = v * m * vec4(pos, 1.0);
+    vec4 normal_cameraSpace = vec4(normalize(mat3(transpose(inverse(v * m))) * norm), 0);
 
-    vec4 position_worldSpace = m * vec4(position, 1.0);
-    vec4 normal_worldSpace = vec4(normalize(mat3(transpose(inverse(m))) * normal), 0);
+    vec4 position_worldSpace = m * vec4(pos, 1.0);
+    vec4 normal_worldSpace = vec4(normalize(mat3(transpose(inverse(m))) * norm), 0);
 
     if (useArrowOffsets) {
         // Figure out the axis to use in order for the triangle to be billboarded correctly

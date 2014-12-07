@@ -32,12 +32,12 @@ protected:
     float m_radius;
 
 private:
-    glm::vec4 f(glm::vec3 v);
+    glm::vec4 f(glm::vec3 *v, glm::vec3 *n);
 
     GLuint m_shader;
 
     UDPHandler *m_udp;
-    QVector<float> m_function;
+//    QVector<float> m_function;
 };
 
 #endif // MUSICSHAPE_H
