@@ -42,7 +42,7 @@ void Camera::updateProjectionMatrix()
 void Camera::updateViewMatrix()
 {
     m_viewMatrix =
-            glm::translate(glm::vec3(0.f, 0.f, m_zoomZ)) *
+            glm::translate(glm::vec3(0.f, -0.0f, m_zoomZ)) *
             glm::rotate(glm::radians(m_angleY), glm::vec3(0.f, 1.f, 0.f)) *
-            glm::rotate(glm::radians(m_angleX), glm::vec3(1.f, 0.f, 0.f));
+            glm::rotate(glm::radians(15.f), glm::vec3(1.f, 0.f, 0.f));
 }

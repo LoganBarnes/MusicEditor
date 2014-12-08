@@ -13,8 +13,8 @@ class MusicShape : public QObject, public Shape
 
     Q_OBJECT
 public:
-    explicit MusicShape(int p1, int p2, float radius,
-               GLuint shader, QObject *parent = 0);
+    explicit MusicShape(int p1, int p2, float radius, int port,
+                        QObject *parent = 0);
     virtual ~MusicShape();
 
     virtual void calcVerts();
@@ -33,8 +33,6 @@ protected:
 
 private:
 //    glm::vec4 f(glm::vec3 *v, glm::vec3 *n);
-
-    GLuint m_shader;
 
     UDPHandler *m_udp;
 //    QVector<float> m_function;

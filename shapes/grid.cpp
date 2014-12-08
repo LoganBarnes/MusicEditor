@@ -139,7 +139,7 @@ void Grid::render()
 void Grid::transformAndRender(GLuint shader, glm::mat4 trans)
 {
         glBindVertexArray(m_vaoID);
-        glUniformMatrix4fv(glGetUniformLocation(shader, "m"), 1, GL_FALSE, glm::value_ptr(trans));
+        glUniformMatrix4fv(glGetUniformLocation(shader, "model"), 1, GL_FALSE, glm::value_ptr(trans));
         glDrawArrays(GL_LINE_STRIP, 0, m_numVerts); /* Number of vertices to draw (w/o normals) */
         glBindVertexArray(0);
 }

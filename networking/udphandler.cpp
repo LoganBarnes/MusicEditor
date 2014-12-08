@@ -1,14 +1,13 @@
 #include "udphandler.h"
 #include "musicshape.h"
 
-#define PORT_RECV 7000
 #define PORT_SEND 7003
 
-UDPHandler::UDPHandler(MusicShape *ms, QObject *parent) :
+UDPHandler::UDPHandler(MusicShape *ms, int port, QObject *parent) :
     QObject(parent)
 {
     m_socket = new QUdpSocket(this);
-    m_socket->bind(QHostAddress::LocalHost, PORT_RECV);
+    m_socket->bind(QHostAddress::LocalHost, port);
     connect(m_socket, SIGNAL(readyRead()), this, SLOT(readyRead()));
     connect(this, SIGNAL(sendFunction(QVector<float>)), ms, SLOT(setFunction(QVector<float>)));
 }
@@ -41,8 +40,12 @@ void UDPHandler::readyRead()
     QList<float> floats;
 
     float f;
+    bool converted;
     for (int i = 0; i < strings.length(); i++) {
-        f = strings.value(i).toFloat();
+
+        f = strings.value(i).toFloat(&converted);
+        if (!converted)
+            f = -96;
         floats.append(f);
     }
     QVector<float> function;

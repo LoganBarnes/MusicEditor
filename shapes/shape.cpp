@@ -99,11 +99,11 @@ void Shape::updateGL(GLuint shader)
     glEnableVertexAttribArray(position);
     glVertexAttribPointer(
         position,
-        3,                   // Num coordinates per position
-        GL_FLOAT,            // Type
-        GL_FALSE,            // Normalized
-        sizeof(GLfloat) * 8, // Stride
-        (void*) 0            // Array buffer offset
+        3,                              // Num coordinates per position
+        GL_FLOAT,                       // Type
+        GL_FALSE,                       // Normalized
+        sizeof(GLfloat) * 8,            // Stride
+        (void*) 0                       // Array buffer offset
     );
     glEnableVertexAttribArray(normal);
     glVertexAttribPointer(

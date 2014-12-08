@@ -3,7 +3,7 @@
 #include "grid.h"
 #include "musicshape.h"
 
-glm::vec4 lightDirection = glm::normalize(glm::vec4(1.f, -1.f, -1.f, 0.f));
+glm::vec4 lightDirection = glm::normalize(glm::vec4(0.5f, -0.8f, 1.f, 0.f));
 
 Scene::Scene()
 {
@@ -20,9 +20,9 @@ Scene::Scene()
 
     // Use a shiny orange material
     memset(&mat, 0, sizeof(CS123SceneMaterial));
-    mat.cAmbient.r = 0.1f;
-    mat.cAmbient.g = 0.1f;
-    mat.cAmbient.b = 0.2f;
+    mat.cAmbient.r = 0.2f;
+    mat.cAmbient.g = 0.2f;
+    mat.cAmbient.b = 0.4f;
     mat.cDiffuse.r = 0.5f;
     mat.cDiffuse.g = 0.5f;
     mat.cDiffuse.b = 1.0f;
@@ -56,7 +56,8 @@ Scene::Scene()
     // set shape pointer
     m_room = NULL;
     m_grid = NULL;
-    m_shape = NULL;
+    m_solidShape = NULL;
+    m_waterShape = NULL;
 
     m_lights.clear();
     m_elements.clear();
@@ -90,13 +91,18 @@ void Scene::init()
 
     m_grid = new Grid(5.f);
     m_grid->calcVerts();
-    m_grid->updateGL(m_shader2);
+    m_grid->updateGL(m_solidShader);
     m_grid->cleanUp();
 
-    m_shape = new MusicShape(150, 70, 0.15f, m_shader2);
-    m_shape->calcVerts();
-    m_shape->updateGL(m_shader2);
-    m_shape->cleanUp();
+    m_solidShape = new MusicShape(150, 70, 0.15f, 7001);
+    m_solidShape->calcVerts();
+    m_solidShape->updateGL(m_solidShader);
+    m_solidShape->cleanUp();
+
+    m_waterShape = new MusicShape(150, 70, 0.15f, 7002);
+    m_waterShape->calcVerts();
+    m_waterShape->updateGL(m_waterShader);
+    m_waterShape->cleanUp();
 
     CS123SceneMaterial& mat = m_elements.at(0)->primitive->material;
     int texId = loadTexture(QString::fromStdString(mat.textureMap->filename));
@@ -112,7 +118,17 @@ void Scene::init()
 }
 
 
-void Scene::renderGeometry()
+void Scene::renderSetting()
+{
+
+    if (!m_initialized)
+        return;
+
+    m_room->render();
+}
+
+
+void Scene::renderSolids()
 {
 
     if (!m_initialized)
@@ -121,35 +137,44 @@ void Scene::renderGeometry()
     applyMaterial(m_elements.at(0)->primitive->material);
 
 //    // Draw the grid.
-//    glUniform1i(glGetUniformLocation(m_shader, "functionSize"), 0);
-//    glUniform3f(glGetUniformLocation(m_shader, "allWhite"), 1, 1, 1); // make white
-//    m_grid->transformAndRender(m_shader, glm::mat4());
+    glUniform1i(m_solidUniforms["functionSize"], 0);
+    glUniform3f(m_solidUniforms["allWhite"], 1, 1, 1); // make white
+    m_grid->transformAndRender(m_solidShader, glm::mat4());
 
-    m_room->bindTexture();
 
     // Draw the shapes.
-//    glUniform3f(glGetUniformLocation(m_shader, "allWhite"), 0, 0, 0); // not white
-    m_shape->transformAndRender(m_shader2, m_elements.at(0)->trans);
+//    glUniform3f(m_solidUniforms["allWhite"], 0, 0, 0); // not white
+//    m_solidShape->transformAndRender(m_solidShader, m_elements.at(0)->trans);
 
-    m_shape->transformAndRender(m_shader2, glm::translate(
-                                    glm::rotate(glm::mat4(), (float) M_PI / 4.f, glm::vec3(1, 0, 0)),
-                                    glm::vec3(-2, 0, 0)));
-//    m_shape->transformAndRender(m_shader2, glm::rotate(
+//    m_solidShape->transformAndRender(m_solidShader, glm::translate(
+//                                    glm::rotate(glm::mat4(), (float) M_PI / 4.f, glm::vec3(1, 0, 0)),
+//                                    glm::vec3(-2, 0, 0)));
+//    m_solidShape->transformAndRender(m_solidShader, glm::rotate(
 //                                    glm::translate(glm::mat4(), glm::vec3(-2, 0, 0)),
 //                                    (float) M_PI / 2.f, glm::vec3(1, 0, 0)));
 
-    m_shape->transformAndRender(m_shader2, glm::translate(glm::mat4(), glm::vec3(2, 0, 0)));
+//    m_solidShape->transformAndRender(m_solidShader, glm::translate(glm::mat4(), glm::vec3(2, 0, 0)));
 
 }
 
 
-void Scene::renderSetting()
+void Scene::renderTransparents()
 {
 
-    if (!m_initialized)
-        return;
+    glUniform1f(m_waterUniforms["r0"], 0.25f);
+    glUniform3f(m_waterUniforms["eta"], 1.f / 1.3312f, 1.f / 1.333f, 1.f / 1.3381);
+    m_room->bindTexture();
 
-    m_room->render();
+    m_waterShape->transformAndRender(m_waterShader, m_elements.at(0)->trans);
+
+    m_waterShape->transformAndRender(m_waterShader, glm::translate(
+                                    glm::rotate(glm::mat4(), (float) M_PI / 4.f, glm::vec3(1, 0, 0)),
+                                    glm::vec3(-2, 0, 0)));
+    //    m_waterShape->transformAndRender(m_waterShader, glm::rotate(
+    //                                    glm::translate(glm::mat4(), glm::vec3(-2, 0, 0)),
+    //                                    (float) M_PI / 2.f, glm::vec3(1, 0, 0)));
+
+    m_waterShape->transformAndRender(m_waterShader, glm::translate(glm::mat4(), glm::vec3(2, 0, 0)));
 }
 
 

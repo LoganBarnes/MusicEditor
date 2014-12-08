@@ -12,7 +12,7 @@ class UDPHandler : public QObject
 {
     Q_OBJECT
 public:
-    UDPHandler(MusicShape *ms, QObject *parent = 0);
+    UDPHandler(MusicShape *ms, int port, QObject *parent = 0);
     virtual ~UDPHandler();
 
     void requestData();
