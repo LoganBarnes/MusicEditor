@@ -2,8 +2,8 @@
 #include <QGLWidget>
 #include <QFile>
 
-#define BACK ":/images/front.png"
-#define FRONT ":/images/back.png"
+#define FRONT ":/images/front.png"
+#define BACK ":/images/back.png"
 #define BOTTOM ":/images/bottom.png"
 #define TOP ":/images/top.png"
 #define LEFT ":/images/left.png"
@@ -76,13 +76,19 @@ void Room::makeCubeMap()
 
 void Room::render()
 {
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_CUBE_MAP, m_texID);
-    glActiveTexture(GL_TEXTURE0);
+    bindTexture();
 
     glBindVertexArray(m_vaoID);
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 14);
     glBindVertexArray(0);
+}
+
+
+void Room::bindTexture()
+{
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, m_texID);
+    glActiveTexture(GL_TEXTURE0);
 }
 
 

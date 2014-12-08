@@ -43,31 +43,31 @@ OpenGLScene::~OpenGLScene()
 
 void OpenGLScene::init()
 {
-    m_shader = ResourceLoader::loadShaders(
-            ":/shaders/default.vert",
-            ":/shaders/default.frag");
+//    m_shader = ResourceLoader::loadShaders(
+//            ":/shaders/default.vert",
+//            ":/shaders/default.frag");
     m_cubeShader = ResourceLoader::loadShaders(
                 ":/shaders/cube.vert",
                 ":/shaders/cube.frag");
-//    m_shader = ResourceLoader::loadShaders(
-//                ":/shaders/metal.vert",
-//                ":/shaders/metal.frag");
+    m_shader2 = ResourceLoader::loadShaders(
+                ":/shaders/glass.vert",
+                ":/shaders/glass.frag");
 
-    m_uniformLocs["p"]= glGetUniformLocation(m_shader, "p");
-    m_uniformLocs["m"]= glGetUniformLocation(m_shader, "m");
-    m_uniformLocs["v"]= glGetUniformLocation(m_shader, "v");
-    m_uniformLocs["allBlack"]= glGetUniformLocation(m_shader, "allBlack");
-    m_uniformLocs["useLighting"]= glGetUniformLocation(m_shader, "useLighting");
-    m_uniformLocs["ambient_color"] = glGetUniformLocation(m_shader, "ambient_color");
-    m_uniformLocs["diffuse_color"] = glGetUniformLocation(m_shader, "diffuse_color");
-    m_uniformLocs["specular_color"] = glGetUniformLocation(m_shader, "specular_color");
-    m_uniformLocs["shininess"] = glGetUniformLocation(m_shader, "shininess");
-    m_uniformLocs["useTexture"] = glGetUniformLocation(m_shader, "useTexture");
-    m_uniformLocs["tex"] = glGetUniformLocation(m_shader, "tex");
-    m_uniformLocs["useArrowOffsets"] = glGetUniformLocation(m_shader, "useArrowOffsets");
-    m_uniformLocs["blend"] = glGetUniformLocation(m_shader, "blend");
-    m_uniformLocs["repeatU"] = glGetUniformLocation(m_shader, "repeatU");
-    m_uniformLocs["repeatV"] = glGetUniformLocation(m_shader, "repeatV");
+//    m_uniformLocs["p"]= glGetUniformLocation(m_shader, "p");
+//    m_uniformLocs["m"]= glGetUniformLocation(m_shader, "m");
+//    m_uniformLocs["v"]= glGetUniformLocation(m_shader, "v");
+//    m_uniformLocs["allBlack"]= glGetUniformLocation(m_shader, "allBlack");
+//    m_uniformLocs["useLighting"]= glGetUniformLocation(m_shader, "useLighting");
+//    m_uniformLocs["ambient_color"] = glGetUniformLocation(m_shader, "ambient_color");
+//    m_uniformLocs["diffuse_color"] = glGetUniformLocation(m_shader, "diffuse_color");
+//    m_uniformLocs["specular_color"] = glGetUniformLocation(m_shader, "specular_color");
+//    m_uniformLocs["shininess"] = glGetUniformLocation(m_shader, "shininess");
+//    m_uniformLocs["useTexture"] = glGetUniformLocation(m_shader, "useTexture");
+//    m_uniformLocs["tex"] = glGetUniformLocation(m_shader, "tex");
+//    m_uniformLocs["useArrowOffsets"] = glGetUniformLocation(m_shader, "useArrowOffsets");
+//    m_uniformLocs["blend"] = glGetUniformLocation(m_shader, "blend");
+//    m_uniformLocs["repeatU"] = glGetUniformLocation(m_shader, "repeatU");
+//    m_uniformLocs["repeatV"] = glGetUniformLocation(m_shader, "repeatV");
 }
 
 void OpenGLScene::render(Camera *cam)
@@ -89,34 +89,37 @@ void OpenGLScene::render(Camera *cam)
     glUniformMatrix4fv(glGetUniformLocation(m_cubeShader, "p"), 1, GL_FALSE,
             glm::value_ptr(projMatrix));
     glUniformMatrix4fv(glGetUniformLocation(m_cubeShader, "v"), 1, GL_FALSE,
-                       glm::value_ptr(glm::rotate(viewMatrix, (float) M_PI, glm::vec3(0, 1, 0))));
+                       glm::value_ptr(viewMatrix));
+//    glUniformMatrix4fv(glGetUniformLocation(m_cubeShader, "v"), 1, GL_FALSE,
+//                       glm::value_ptr(glm::rotate(viewMatrix, (float) M_PI, glm::vec3(0, 1, 0))));
     glUniform1i(glGetUniformLocation(m_cubeShader, "envMap"), 1);
 
     renderSetting();
 
     glDepthMask(GL_TRUE);
-    glUseProgram(m_shader);
+    glUseProgram(m_shader2);
 
     // Set scene uniforms.
     clearLights();
     setLights(viewMatrix);
-    glUniform1i(m_uniformLocs["useLighting"], m_useLighting);
-    glUniform1i(m_uniformLocs["useArrowOffsets"], GL_FALSE);
-    glUniformMatrix4fv(m_uniformLocs["p"], 1, GL_FALSE,
-            glm::value_ptr(projMatrix));
-    glUniformMatrix4fv(m_uniformLocs["v"], 1, GL_FALSE,
-            glm::value_ptr(viewMatrix));
-    glUniformMatrix4fv(m_uniformLocs["m"], 1, GL_FALSE,
-            glm::value_ptr(m_elements.value(0)->trans));
-    glUniform3f(m_uniformLocs["allBlack"], 1, 1, 1);
+//    glUniform1i(m_uniformLocs["useLighting"], m_useLighting);
+//    glUniform1i(m_uniformLocs["useArrowOffsets"], GL_FALSE);
+//    glUniformMatrix4fv(m_uniformLocs["p"], 1, GL_FALSE,
+//            glm::value_ptr(projMatrix));
+//    glUniformMatrix4fv(m_uniformLocs["v"], 1, GL_FALSE,
+//            glm::value_ptr(viewMatrix));
+//    glUniformMatrix4fv(m_uniformLocs["m"], 1, GL_FALSE,
+//            glm::value_ptr(m_elements.value(0)->trans));
+//    glUniform3f(m_uniformLocs["allBlack"], 1, 1, 1);
 
     // metal stuffs
-//    glUniformMatrix4fv(glGetUniformLocation(m_shader, "view"), 1, GL_FALSE,
-//                       glm::value_ptr(viewMatrix));
-//    glUniformMatrix4fv(glGetUniformLocation(m_shader, "projection"), 1, GL_FALSE,
-//                       glm::value_ptr(cam->getProjectionMatrix()));
-//    glUniformMatrix4fv(glGetUniformLocation(m_shader, "model"), 1, GL_FALSE,
+    glUniformMatrix4fv(glGetUniformLocation(m_shader2, "view"), 1, GL_FALSE,
+                       glm::value_ptr(viewMatrix));
+    glUniformMatrix4fv(glGetUniformLocation(m_shader2, "projection"), 1, GL_FALSE,
+                       glm::value_ptr(cam->getProjectionMatrix()));
+//    glUniformMatrix4fv(glGetUniformLocation(m_shader2, "model"), 1, GL_FALSE,
 //                       glm::value_ptr(m_elements.value(0)->trans));
+    glUniform1i(glGetUniformLocation(m_shader2, "envMap"), 1);
 
 //    glUniform4fv(glGetUniformLocation(m_shader, "lightPosition"), 1, glm::value_ptr(glm::vec4(-5, 5, 5, 1)));
 
@@ -141,26 +144,27 @@ void OpenGLScene::applyMaterial(const CS123SceneMaterial &material)
     // Make sure the members of CS123SceneColor are packed tightly
     COMPILE_TIME_ASSERT(sizeof(CS123SceneColor) == sizeof(float) * 4);
 
-    glUniform3fv(m_uniformLocs["ambient_color"], 1, &material.cAmbient.r);
-    glUniform3fv(m_uniformLocs["diffuse_color"], 1, &material.cDiffuse.r);
-    glUniform3fv(m_uniformLocs["specular_color"], 1, &material.cSpecular.r);
-    glUniform1f(m_uniformLocs["shininess"], material.shininess);
+//    glUniform3fv(m_uniformLocs["ambient_color"], 1, &material.cAmbient.r);
+//    glUniform3fv(m_uniformLocs["diffuse_color"], 1, &material.cDiffuse.r);
+//    glUniform3fv(m_uniformLocs["specular_color"], 1, &material.cSpecular.r);
+//    glUniform1f(m_uniformLocs["shininess"], material.shininess);
 //    glUniform1f(glGetUniformLocation(m_shader, "m"), 0.15);
-//    glUniform1f(glGetUniformLocation(m_shader, "r0"), 0.3f);
+    glUniform1f(glGetUniformLocation(m_shader2, "r0"), 0.25f);
+    glUniform1f(glGetUniformLocation(m_shader2, "eta1D"), 1.f / 1.333f);
 
-    if (material.textureMap && material.textureMap->isUsed && material.textureMap->texid) {
-        glUniform1i(m_uniformLocs["useTexture"], 1);
-        glUniform1i(m_uniformLocs["tex"], 1);
-        glUniform1f(m_uniformLocs["blend"], material.blend);
-        glUniform1f(m_uniformLocs["repeatU"], material.textureMap->repeatU);
-        glUniform1f(m_uniformLocs["repeatV"], material.textureMap->repeatV);
+//    if (material.textureMap && material.textureMap->isUsed && material.textureMap->texid) {
+//        glUniform1i(m_uniformLocs["useTexture"], 1);
+//        glUniform1i(m_uniformLocs["tex"], 1);
+//        glUniform1f(m_uniformLocs["blend"], material.blend);
+//        glUniform1f(m_uniformLocs["repeatU"], material.textureMap->repeatU);
+//        glUniform1f(m_uniformLocs["repeatV"], material.textureMap->repeatV);
 
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, material.textureMap->texid);
-        glActiveTexture(GL_TEXTURE0);
-    } else {
-        glUniform1i(m_uniformLocs["useTexture"], 0);
-    }
+//        glActiveTexture(GL_TEXTURE1);
+//        glBindTexture(GL_TEXTURE_2D, material.textureMap->texid);
+//        glActiveTexture(GL_TEXTURE0);
+//    } else {
+//        glUniform1i(m_uniformLocs["useTexture"], 0);
+//    }
 }
 
 void OpenGLScene::clearLights()
@@ -169,7 +173,7 @@ void OpenGLScene::clearLights()
         std::ostringstream os;
         os << i;
         std::string indexString = "[" + os.str() + "]"; // e.g. [0], [1], etc.
-        glUniform3f(glGetUniformLocation(m_shader, ("lightColors" + indexString).c_str()), 0, 0, 0);
+//        glUniform3f(glGetUniformLocation(m_shader, ("lightColors" + indexString).c_str()), 0, 0, 0);
     }
 }
 
@@ -186,13 +190,13 @@ void OpenGLScene::setLight(const CS123SceneLightData &light)
     {
     case LIGHT_POINT:
         lightType = 0;
-        glUniform3fv(glGetUniformLocation(m_shader, ("lightPositions" + indexString).c_str()), 1,
-                glm::value_ptr(light.pos));
+//        glUniform3fv(glGetUniformLocation(m_shader, ("lightPositions" + indexString).c_str()), 1,
+//                glm::value_ptr(light.pos));
         break;
     case LIGHT_DIRECTIONAL:
         lightType = 1;
-        glUniform3fv(glGetUniformLocation(m_shader, ("lightDirections" + indexString).c_str()), 1,
-                glm::value_ptr(glm::normalize(light.dir)));
+//        glUniform3fv(glGetUniformLocation(m_shader, ("lightDirections" + indexString).c_str()), 1,
+//                glm::value_ptr(glm::normalize(light.dir)));
         break;
     default:
         lightType = -1;
@@ -203,11 +207,11 @@ void OpenGLScene::setLight(const CS123SceneLightData &light)
     CS123SceneColor color = light.color;
     if (ignoreLight) color.r = color.g = color.b = 0;
 
-    glUniform1i(glGetUniformLocation(m_shader, ("lightTypes" + indexString).c_str()), lightType);
-    glUniform3f(glGetUniformLocation(m_shader, ("lightColors" + indexString).c_str()),
-                color.r, color.g, color.b);
-    glUniform3f(glGetUniformLocation(m_shader, ("lightAttenuations" + indexString).c_str()),
-            light.function.x, light.function.y, light.function.z);
+//    glUniform1i(glGetUniformLocation(m_shader, ("lightTypes" + indexString).c_str()), lightType);
+//    glUniform3f(glGetUniformLocation(m_shader, ("lightColors" + indexString).c_str()),
+//                color.r, color.g, color.b);
+//    glUniform3f(glGetUniformLocation(m_shader, ("lightAttenuations" + indexString).c_str()),
+//            light.function.x, light.function.y, light.function.z);
 }
 
 

@@ -13,6 +13,7 @@ public:
     void makeCubeMap();
 
     void render();
+    void bindTexture();
 
 private:
     bool loadTexture(GLuint tex, GLenum side, const QString &filename);

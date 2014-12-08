@@ -90,12 +90,12 @@ void Scene::init()
 
     m_grid = new Grid(5.f);
     m_grid->calcVerts();
-    m_grid->updateGL(m_shader);
+    m_grid->updateGL(m_shader2);
     m_grid->cleanUp();
 
-    m_shape = new MusicShape(150, 70, 0.15f, m_shader);
+    m_shape = new MusicShape(150, 70, 0.15f, m_shader2);
     m_shape->calcVerts();
-    m_shape->updateGL(m_shader);
+    m_shape->updateGL(m_shader2);
     m_shape->cleanUp();
 
     CS123SceneMaterial& mat = m_elements.at(0)->primitive->material;
@@ -120,18 +120,25 @@ void Scene::renderGeometry()
 
     applyMaterial(m_elements.at(0)->primitive->material);
 
-    // Draw the grid.
-    glUniform1i(glGetUniformLocation(m_shader, "functionSize"), 0);
-    glUniform3f(glGetUniformLocation(m_shader, "allWhite"), 1, 1, 1); // make white
-    m_grid->transformAndRender(m_shader, glm::mat4());
+//    // Draw the grid.
+//    glUniform1i(glGetUniformLocation(m_shader, "functionSize"), 0);
+//    glUniform3f(glGetUniformLocation(m_shader, "allWhite"), 1, 1, 1); // make white
+//    m_grid->transformAndRender(m_shader, glm::mat4());
+
+    m_room->bindTexture();
 
     // Draw the shapes.
-    glUniform3f(glGetUniformLocation(m_shader, "allWhite"), 0, 0, 0); // not white
-    m_shape->transformAndRender(m_shader, m_elements.at(0)->trans);
+//    glUniform3f(glGetUniformLocation(m_shader, "allWhite"), 0, 0, 0); // not white
+    m_shape->transformAndRender(m_shader2, m_elements.at(0)->trans);
 
-    m_shape->transformAndRender(m_shader, glm::translate(glm::mat4(), glm::vec3(-2, 0, 0)));
+    m_shape->transformAndRender(m_shader2, glm::translate(
+                                    glm::rotate(glm::mat4(), (float) M_PI / 4.f, glm::vec3(1, 0, 0)),
+                                    glm::vec3(-2, 0, 0)));
+//    m_shape->transformAndRender(m_shader2, glm::rotate(
+//                                    glm::translate(glm::mat4(), glm::vec3(-2, 0, 0)),
+//                                    (float) M_PI / 2.f, glm::vec3(1, 0, 0)));
 
-    m_shape->transformAndRender(m_shader, glm::translate(glm::mat4(), glm::vec3(2, 0, 0)));
+    m_shape->transformAndRender(m_shader2, glm::translate(glm::mat4(), glm::vec3(2, 0, 0)));
 
 }
 

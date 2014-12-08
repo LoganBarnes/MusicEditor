@@ -65,6 +65,7 @@ protected:
     // The program ID for OpenGL.
     GLuint m_shader;
     GLuint m_cubeShader;
+    GLuint m_shader2;
 
     CS123SceneGlobalData m_global;
     QList<CS123SceneLightData*> m_lights;
