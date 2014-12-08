@@ -22,7 +22,8 @@ SOURCES += \
     camera/camera.cpp \
     shapes/shape.cpp \
     shapes/musicshape.cpp \
-    networking/udphandler.cpp
+    networking/udphandler.cpp \
+    shapes/grid.cpp
 
 HEADERS += \
     lib/Common.h \
@@ -35,7 +36,8 @@ HEADERS += \
     camera/camera.h \
     shapes/shape.h \
     shapes/musicshape.h \
-    networking/udphandler.h
+    networking/udphandler.h \
+    shapes/grid.h
 
 FORMS += ui/mainwindow.ui
 

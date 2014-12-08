@@ -1,4 +1,5 @@
 #include "musicshape.h"
+#include "udphandler.h"
 #include <math.h>
 #include <glm/gtx/rotate_vector.hpp>
 #include <glm/gtx/vector_angle.hpp>
@@ -33,8 +34,13 @@ void MusicShape::calcVerts()
 
     int index = 0;
 
-    glm::vec3 top = glm::vec3(0, m_radius + f(0).y, 0);
-    glm::vec3 bottom = glm::vec3(0, -m_radius + f(M_PI).y, 0);
+    glm::vec3 topN, bottomN;
+
+    glm::vec3 top = glm::vec3(0, m_radius, 0);
+    glm::vec3 bottom = glm::vec3(0, -m_radius, 0);
+
+    f(&top, &topN);
+    f(&bottom, &bottomN);
 
     // iterate through the slices
     for (int i = 1; i <= m_p2; i++) {
@@ -76,7 +82,6 @@ void MusicShape::make3Dslice(int *index, float thetaL, float thetaR)
 
 void MusicShape::calcSliceSeg(int *index, float thetaL, float thetaR, float phi)
 {
-    glm::vec2 ef = f(phi);
 
     // parametric sphere equations
     glm::vec3 vl = glm::vec3(m_radius * sin(phi) * cos(thetaL),
@@ -92,11 +97,8 @@ void MusicShape::calcSliceSeg(int *index, float thetaL, float thetaR, float phi)
     glm::vec3 nl = glm::normalize(vl);
     glm::vec3 nr = glm::normalize(vr);
 
-    vl += glm::normalize(vl) * ef.y;
-    vr += glm::normalize(vr) * ef.y;
-
-    nl = glm::rotate(nl, ef.x, glm::rotate(glm::vec3(0, 0, -1), thetaL, glm::vec3(0, -1, 0)));
-    nr = glm::rotate(nr, ef.x, glm::rotate(glm::vec3(0, 0, -1), thetaR, glm::vec3(0, -1, 0)));
+//    f(&vl, &nl);
+//    f(&vr, &nr);
 
     addVertexT(index, vl, nl, texl);
     addVertexT(index, vr, nr, texr);
@@ -109,26 +111,31 @@ bool MusicShape::animate()
 }
 
 
-void MusicShape::setFunction(QList<float> function)
+void MusicShape::setFunction(QVector<float> function)
 {
-    m_function = function;
-    calcVerts();
-    updateGL(m_shader);
-    cleanUp();
+    m_function = QVector<float>(function);
+//    cout << m_function.size() << endl;
+//    calcVerts();
+//    updateGL(m_shader);
+//    cleanUp();
+
 }
 
 
-glm::vec2 MusicShape::f(float angle)
+void MusicShape::transformAndRender(GLuint shader, glm::mat4 trans)
 {
-//    m_function.clear();
-//    m_function.append(0.5f);
-//    m_function.append(0.1f);
-//    m_function.append(0.3f);
-//    m_function.append(0.0f);
-//    m_function.append(0.0f);
+//    glUniform1i(glGetUniformLocation(shader, "functionSize"), m_function.size());
+//    glUniform1fv(glGetUniformLocation(shader, "function"), m_function.size(), m_function.data());
+    Shape::transformAndRender(shader, trans);
+}
 
+
+glm::vec4 MusicShape::f(glm::vec3 *v, glm::vec3 *n)
+{
     if (m_function.isEmpty())
-        return glm::vec2(0, 0.f);
+        return glm::vec4(0,0,0, 0.f);
+
+    float angle = glm::acos(glm::dot(glm::normalize(*v), glm::vec3(0, 1, 0)));
 
     double sizeMinus = m_function.size() - 1.f;
     double di = (angle / M_PI) * m_function.size() - 0.5f;
@@ -166,12 +173,28 @@ glm::vec2 MusicShape::f(float angle)
     glm::vec2 tangent = 2 * t_1 * (mid - left) + 2 * t * (right - mid);
     tangent.x /= sizeMinus;
 
-    glm::vec2 n = glm::rotate(tangent, (float) (M_PI / 2.0));
+//    glm::vec2 n = glm::vec2(-tangent.y, tangent.x);
 
-    float a = glm::angle(glm::normalize(n), glm::vec2(0, 1));
-    a = (n.x < 0 ? -a : a);
+    float a = -atan2(tangent.y, tangent.x);
 
-    return glm::vec2(a, curve);
+    *v += *n * curve;
+
+    glm::vec3 axis = glm::normalize(glm::cross(glm::vec3(0, 1, 0), *n));
+
+    float s = sin(-a);
+    float c = cos(-a);
+    float oc = 1.0 - c;
+
+     glm::mat4 rot = glm::mat4(oc * axis.x * axis.x + c, oc * axis.x * axis.y - axis.z * s, oc * axis.z * axis.x + axis.y * s, 0.0,
+                                oc * axis.x * axis.y + axis.z * s, oc * axis.y * axis.y + c, oc * axis.y * axis.z - axis.x * s, 0.0,
+                                oc * axis.z * axis.x - axis.y * s, oc * axis.y * axis.z + axis.x * s, oc * axis.z * axis.z + c, 0.0,
+                                0.0, 0.0, 0.0, 1.0);
+
+    *n = glm::vec3(rot * glm::vec4(*n, 0));
+//     *n = glm::rotate(*n, a, axis);
+
+
+    return glm::vec4(0, 0, 0, a);
 
 }
 

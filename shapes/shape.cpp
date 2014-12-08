@@ -150,6 +150,8 @@ void Shape::transformAndRender(GLuint shader, glm::mat4 trans)
 {
         glBindVertexArray(m_vaoID);
         glUniformMatrix4fv(glGetUniformLocation(shader, "m"), 1, GL_FALSE, glm::value_ptr(trans));
+        glUniform1i(glGetUniformLocation(shader, "functionSize"), m_function.size());
+        glUniform1fv(glGetUniformLocation(shader, "function"), m_function.size(), m_function.data());
         glDrawArrays(GL_TRIANGLE_STRIP, 0, m_numVerts); /* Number of vertices to draw (w/o normals) */
         glBindVertexArray(0);
 }

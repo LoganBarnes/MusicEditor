@@ -3,6 +3,7 @@
 
 #include "openglscene.h"
 
+class Grid;
 class Shape;
 
 class Scene : public OpenGLScene
@@ -27,6 +28,7 @@ protected:
 private:
     bool m_initialized;
 
+    Grid *m_grid;
     Shape *m_shape;
 };
 

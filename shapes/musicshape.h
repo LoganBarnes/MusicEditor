@@ -4,8 +4,9 @@
 #include <QObject>
 #include <QList>
 #include "shape.h"
-#include "udphandler.h"
 #include "openglscene.h"
+
+class UDPHandler;
 
 class MusicShape : public QObject, public Shape
 {
@@ -19,8 +20,10 @@ public:
     virtual void calcVerts();
     virtual bool animate();
 
+    virtual void transformAndRender(GLuint shader, glm::mat4 trans);
+
 public slots:
-    void setFunction(QList<float> function);
+    void setFunction(QVector<float> function);
 
 protected:
     virtual void make3Dslice(int *index, float thetaR, float thetaL);
@@ -29,12 +32,12 @@ protected:
     float m_radius;
 
 private:
-    glm::vec2 f(float angle);
+    glm::vec4 f(glm::vec3 *v, glm::vec3 *n);
 
     GLuint m_shader;
 
     UDPHandler *m_udp;
-    QList<float> m_function;
+//    QVector<float> m_function;
 };
 
 #endif // MUSICSHAPE_H

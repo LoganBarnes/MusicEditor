@@ -1,4 +1,5 @@
 #include "scene.h"
+#include "grid.h"
 #include "musicshape.h"
 
 glm::vec4 lightDirection = glm::normalize(glm::vec4(1.f, -1.f, -1.f, 0.f));
@@ -51,7 +52,8 @@ Scene::Scene()
     light->color.r = light->color.g = light->color.b = 1.f;
     light->id = 0;
 
-    // Store old settings and set shape pointer
+    // set shape pointer
+    m_grid = NULL;
     m_shape = NULL;
 
     m_lights.clear();
@@ -61,7 +63,8 @@ Scene::Scene()
     element->primitive = prim;
     element->trans = glm::rotate(glm::mat4(), (float) (M_PI / 4.0), glm::vec3(1, 1, -.1f));
 //    element->trans = glm::mat4();
-    element->inv = glm::mat4();
+//    element->inv = glm::mat4();
+    element->inv = glm::inverse(element->trans);
     m_lights.append(light);
     m_elements.append(element);
 
@@ -79,7 +82,12 @@ void Scene::init()
 
     OpenGLScene::init(); // Call the superclass's init()
 
-    m_shape = new MusicShape(25, 25, 0.15f, m_shader);
+    m_grid = new Grid(5.f);
+    m_grid->calcVerts();
+    m_grid->updateGL(m_shader);
+    m_grid->cleanUp();
+
+    m_shape = new MusicShape(200, 100, 0.15f, m_shader);
     m_shape->calcVerts();
     m_shape->updateGL(m_shader);
     m_shape->cleanUp();
@@ -106,9 +114,20 @@ void Scene::renderGeometry()
 
     applyMaterial(m_elements.at(0)->primitive->material);
 
-    // Draw the shape.
-    if (m_shape)
-        m_shape->transformAndRender(m_shader, m_elements.at(0)->trans);
+    // Draw the grid.
+    glUniform1i(glGetUniformLocation(m_shader, "functionSize"), 0);
+    glUniform3f(glGetUniformLocation(m_shader, "allWhite"), 1, 1, 1); // make white
+    m_grid->transformAndRender(m_shader, glm::mat4());
+
+    // Draw the shapes.
+    glUniform3f(glGetUniformLocation(m_shader, "allWhite"), 0, 0, 0); // not white
+    m_shape->transformAndRender(m_shader, m_elements.at(0)->trans);
+
+    glUniform3f(glGetUniformLocation(m_shader, "allWhite"), 0, 0, 0); // not white
+    m_shape->transformAndRender(m_shader, glm::translate(glm::mat4(), glm::vec3(-2, 0, 0)));
+
+    glUniform3f(glGetUniformLocation(m_shader, "allWhite"), 0, 0, 0); // not white
+    m_shape->transformAndRender(m_shader, glm::translate(glm::mat4(), glm::vec3(2, 0, 0)));
 
 }
 
