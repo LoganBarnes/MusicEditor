@@ -3,6 +3,7 @@
 
 #include "openglscene.h"
 
+class Room;
 class Grid;
 class Shape;
 
@@ -22,9 +23,13 @@ protected:
     // Render geometry for Shapes and Sceneview.
     virtual void renderGeometry();
 
+    // Render cubemap
+    virtual void renderSetting();
+
 private:
     bool m_initialized;
 
+    Room *m_room;
     Grid *m_grid;
     Shape *m_shape;
 };

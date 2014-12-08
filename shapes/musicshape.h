@@ -32,7 +32,7 @@ protected:
     float m_radius;
 
 private:
-    glm::vec4 f(glm::vec3 *v, glm::vec3 *n);
+//    glm::vec4 f(glm::vec3 *v, glm::vec3 *n);
 
     GLuint m_shader;
 

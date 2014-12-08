@@ -46,9 +46,9 @@ void OpenGLScene::init()
     m_shader = ResourceLoader::loadShaders(
             ":/shaders/default.vert",
             ":/shaders/default.frag");
-//    m_shader = ResourceLoader::loadShaders(
-//                ":/shaders/glass.vert",
-//                ":/shaders/glass.frag");
+    m_cubeShader = ResourceLoader::loadShaders(
+                ":/shaders/cube.vert",
+                ":/shaders/cube.frag");
 //    m_shader = ResourceLoader::loadShaders(
 //                ":/shaders/metal.vert",
 //                ":/shaders/metal.frag");
@@ -81,7 +81,20 @@ void OpenGLScene::render(Camera *cam)
     // Get the view matrix from the camera
     assert(cam);
     glm::mat4 viewMatrix = cam->getViewMatrix();
+    glm::mat4 projMatrix = cam->getProjectionMatrix();
 
+    glDepthMask(GL_FALSE);
+    glUseProgram(m_cubeShader);
+
+    glUniformMatrix4fv(glGetUniformLocation(m_cubeShader, "p"), 1, GL_FALSE,
+            glm::value_ptr(projMatrix));
+    glUniformMatrix4fv(glGetUniformLocation(m_cubeShader, "v"), 1, GL_FALSE,
+                       glm::value_ptr(glm::rotate(viewMatrix, (float) M_PI, glm::vec3(0, 1, 0))));
+    glUniform1i(glGetUniformLocation(m_cubeShader, "envMap"), 1);
+
+    renderSetting();
+
+    glDepthMask(GL_TRUE);
     glUseProgram(m_shader);
 
     // Set scene uniforms.
@@ -90,7 +103,7 @@ void OpenGLScene::render(Camera *cam)
     glUniform1i(m_uniformLocs["useLighting"], m_useLighting);
     glUniform1i(m_uniformLocs["useArrowOffsets"], GL_FALSE);
     glUniformMatrix4fv(m_uniformLocs["p"], 1, GL_FALSE,
-            glm::value_ptr(cam->getProjectionMatrix()));
+            glm::value_ptr(projMatrix));
     glUniformMatrix4fv(m_uniformLocs["v"], 1, GL_FALSE,
             glm::value_ptr(viewMatrix));
     glUniformMatrix4fv(m_uniformLocs["m"], 1, GL_FALSE,

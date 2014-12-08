@@ -3,9 +3,9 @@
 in vec3 position;
 in vec3 normal;
 
-out vec3 vertex;	// The position of the vertex, in eye space
+out vec3 vertex;		// The position of the vertex, in eye space
 out vec3 vertexToEye;	// Vector from the vertex to the eye
-out vec3 eyeNormal;	// Normal of the vertex, in eye space
+out vec3 eyeNormal;		// Normal of the vertex, in eye space
 
 uniform mat4 view;
 uniform mat4 projection;

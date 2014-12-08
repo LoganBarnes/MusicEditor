@@ -50,6 +50,9 @@ protected:
     // Render geometry for Shapes and Sceneview.
     virtual void renderGeometry() = 0;
 
+    // Render cubemap
+    virtual void renderSetting() = 0;
+
     // Set the necessary uniforms to switch materials.
     void applyMaterial(const CS123SceneMaterial &material);
 
@@ -61,6 +64,7 @@ protected:
 
     // The program ID for OpenGL.
     GLuint m_shader;
+    GLuint m_cubeShader;
 
     CS123SceneGlobalData m_global;
     QList<CS123SceneLightData*> m_lights;

@@ -1,4 +1,5 @@
 #include "scene.h"
+#include "room.h"
 #include "grid.h"
 #include "musicshape.h"
 
@@ -53,6 +54,7 @@ Scene::Scene()
     light->id = 0;
 
     // set shape pointer
+    m_room = NULL;
     m_grid = NULL;
     m_shape = NULL;
 
@@ -82,12 +84,16 @@ void Scene::init()
 
     OpenGLScene::init(); // Call the superclass's init()
 
+    m_room = new Room(5.f);
+    m_room->init();
+    m_room->makeCubeMap();
+
     m_grid = new Grid(5.f);
     m_grid->calcVerts();
     m_grid->updateGL(m_shader);
     m_grid->cleanUp();
 
-    m_shape = new MusicShape(200, 100, 0.15f, m_shader);
+    m_shape = new MusicShape(150, 70, 0.15f, m_shader);
     m_shape->calcVerts();
     m_shape->updateGL(m_shader);
     m_shape->cleanUp();
@@ -123,12 +129,20 @@ void Scene::renderGeometry()
     glUniform3f(glGetUniformLocation(m_shader, "allWhite"), 0, 0, 0); // not white
     m_shape->transformAndRender(m_shader, m_elements.at(0)->trans);
 
-    glUniform3f(glGetUniformLocation(m_shader, "allWhite"), 0, 0, 0); // not white
     m_shape->transformAndRender(m_shader, glm::translate(glm::mat4(), glm::vec3(-2, 0, 0)));
 
-    glUniform3f(glGetUniformLocation(m_shader, "allWhite"), 0, 0, 0); // not white
     m_shape->transformAndRender(m_shader, glm::translate(glm::mat4(), glm::vec3(2, 0, 0)));
 
+}
+
+
+void Scene::renderSetting()
+{
+
+    if (!m_initialized)
+        return;
+
+    m_room->render();
 }
 
 

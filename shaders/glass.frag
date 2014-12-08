@@ -1,11 +1,11 @@
 #version 330
 
-in vec3 vertex;                 // The position of the vertex, in eye space!
-in vec3 vertexToEye;            // Vector from the vertex to the eye
+in vec3 vertex;         // The position of the vertex, in eye space!
+in vec3 vertexToEye;    // Vector from the vertex to the eye
 in vec3 eyeNormal;		// Normal of the vertex, in eye space!
 
 uniform float r0;		// The R0 value to use in Schlick's approximation
-uniform float eta1D;		// The eta value to use initially
+uniform float eta1D;	// The eta value to use initially
 uniform vec3  eta;		// Contains one eta for each channel (use eta.r, eta.g, eta.b in your code)
 
 uniform mat4 view;
@@ -18,8 +18,7 @@ out vec4 fragColor;
 void main()
 {
     vec3 n = normalize(eyeNormal);
-    vec3 eyeToVertex = normalize(vertex); //remember we are in eye space!\
-    // TODO: fill the rest in
+    vec3 eyeToVertex = normalize(vertex); //remember we are in eye space!
     
     fragColor = vec4(0.0);    
     float F = r0 + (1.0 - r0) * pow(1.0 - dot(n, normalize(-eyeToVertex)), 5.0);
