@@ -4,7 +4,7 @@
 #include <glm/gtx/rotate_vector.hpp>
 #include <glm/gtx/vector_angle.hpp>
 
-MusicShape::MusicShape(int p1, int p2, float radius, int port, QObject *parent) :
+MusicShape::MusicShape(int p1, int p2, float radius, QObject *parent) :
     QObject(parent)
 {
     setParamMax(2, 3, -1);
@@ -12,7 +12,6 @@ MusicShape::MusicShape(int p1, int p2, float radius, int port, QObject *parent) 
     setParam2(p2);
 
     m_radius = radius;
-    m_udp = new UDPHandler(this, port);
 }
 
 
@@ -102,12 +101,6 @@ void MusicShape::calcSliceSeg(int *index, float thetaL, float thetaR, float phi)
 bool MusicShape::animate()
 {
     return true;
-}
-
-
-void MusicShape::setFunction(QVector<float> function)
-{
-    m_function = QVector<float>(function);
 }
 
 

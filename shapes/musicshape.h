@@ -6,15 +6,12 @@
 #include "shape.h"
 #include "openglscene.h"
 
-class UDPHandler;
-
 class MusicShape : public QObject, public Shape
 {
 
     Q_OBJECT
 public:
-    explicit MusicShape(int p1, int p2, float radius, int port,
-                        QObject *parent = 0);
+    explicit MusicShape(int p1, int p2, float radius, QObject *parent = 0);
     virtual ~MusicShape();
 
     virtual void calcVerts();
@@ -22,20 +19,12 @@ public:
 
     virtual void transformAndRender(GLuint shader, glm::mat4 trans);
 
-public slots:
-    void setFunction(QVector<float> function);
-
 protected:
     virtual void make3Dslice(int *index, float thetaR, float thetaL);
     virtual void calcSliceSeg(int *index, float thetaR, float thetaL, float phi);
 
     float m_radius;
 
-private:
-//    glm::vec4 f(glm::vec3 *v, glm::vec3 *n);
-
-    UDPHandler *m_udp;
-//    QVector<float> m_function;
 };
 
 #endif // MUSICSHAPE_H

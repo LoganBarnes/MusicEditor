@@ -6,13 +6,17 @@
 class Room;
 class Grid;
 class Shape;
+class UDPHandler;
 
-class Scene : public OpenGLScene
+class Scene : public QObject, public OpenGLScene
 {
+
+    Q_OBJECT
 public:
-    Scene();
+    explicit Scene(QObject *parent = 0);
     virtual ~Scene();
 
+    void setUp();
     virtual void init();
 
 protected:
@@ -29,6 +33,11 @@ protected:
     // Render see-through shapes
     virtual void renderTransparents();
 
+public slots:
+    void setF1(QVector<float> f);
+    void setF2(QVector<float> f);
+    void setF3(QVector<float> f);
+
 private:
     bool m_initialized;
 
@@ -36,6 +45,14 @@ private:
     Grid *m_grid;
     Shape *m_waterShape;
     Shape *m_solidShape;
+
+    UDPHandler *m_udp1;
+    UDPHandler *m_udp2;
+    UDPHandler *m_udp3;
+
+    QVector<float> m_f1;
+    QVector<float> m_f2;
+    QVector<float> m_f3;
 };
 
 #endif // SCENE_H

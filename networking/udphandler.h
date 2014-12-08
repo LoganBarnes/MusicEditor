@@ -4,7 +4,8 @@
 #include <QObject>
 #include <QUdpSocket>
 #include <QList>
-#include "musicshape.h"
+#include "scene.h"
+//#include "musicshape.h"
 
 //class MusicShape;
 
@@ -12,9 +13,11 @@ class UDPHandler : public QObject
 {
     Q_OBJECT
 public:
-    UDPHandler(MusicShape *ms, int port, QObject *parent = 0);
+    UDPHandler(Scene *scene, const char *slot, int port, QObject *parent = 0);
     virtual ~UDPHandler();
 
+    int getFunctionSize();
+    QVector<float> getFunction();
     void requestData();
 
 signals:
@@ -22,9 +25,11 @@ signals:
 
 public slots:
     void readyRead();
+    void setFunction(QVector<float> function);
 
 private:
     QUdpSocket *m_socket;
+    QVector<float> m_function;
 
 };
 
