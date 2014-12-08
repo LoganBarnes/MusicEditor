@@ -124,4 +124,51 @@ void Scene::setLights(const glm::mat4 viewMatrix)
     setLight(light);
 }
 
+int shapeClickIntersect(glm::vec4 ey, glm::vec4 dr) {
+    for (int i = 0; i < m_sceneRef; ++i) {
+        if (i != currInd) {
+            glm::vec4 eye = m_inv[i] * ey;
+            glm::vec4 dir = m_inv[i] * dr;
+
+            glm::vec3 eye3 = glm::vec3(eye);
+            glm::vec3 dir3 = glm::vec3(dir);
+
+            CS123RayIntersect tempInt;
+
+            if (m_sceneRef->m_shapes->at(i).type == PRIMITIVE_SPHERE) {
+                tempInt = m_impSphere->calcIntersect(eye3, dir3);
+            }
+            else if (m_sceneRef->m_shapes->at(i).type == PRIMITIVE_CUBE) {
+                tempInt = m_impCube->calcIntersect(eye3, dir3);
+            }
+            else if (m_sceneRef->m_shapes->at(i).type == PRIMITIVE_CYLINDER) {
+                tempInt = m_impCylinder->calcIntersect(eye3, dir3);
+            }
+            else if (m_sceneRef->m_shapes->at(i).type == PRIMITIVE_CONE) {
+                tempInt = m_impCone->calcIntersect(eye3, dir3);
+            }
+
+            if (tempInt.t > 0.0f) {
+                if(currIntersect.t < 0.0f) {
+                    currIntersect = tempInt;
+                    currIntersect.shapeInd = i;
+                }
+                else if (tempInt.t < currIntersect.t) {
+                    currIntersect = tempInt;
+                    currIntersect.shapeInd = i;
+                }
+            }
+        }
+    }
+
+    if (currIntersect.t > 0.0f) {
+        return illuminate(ey, dr, currIntersect, recurs);
+
+    }
+    else {
+
+        return glm::vec3(0.0f, 0.0f, 0.0f);
+    }
+}
+
 

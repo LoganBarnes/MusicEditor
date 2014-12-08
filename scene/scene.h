@@ -13,6 +13,9 @@ public:
 
     virtual void init();
 
+
+    int shapeClickIntersect(glm::vec4 ey, glm::vec4 dr);
+
 protected:
     // Set the light uniforms for the lights in the scene. (View matrix is used in cases where a
     // light follows the camera, as in ShapesScene.)

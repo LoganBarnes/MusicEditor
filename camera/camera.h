@@ -22,6 +22,12 @@ public:
 
     void updateMatrices();
 
+    //get camera trans
+    glm::mat4x4 getM3();
+    glm::mat4x4 getM2();
+    glm::mat4x4 getM4();
+
+
 private:
     void updateProjectionMatrix();
     void updateViewMatrix();

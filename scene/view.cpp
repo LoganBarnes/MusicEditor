@@ -114,6 +114,31 @@ void View::resizeGL(int w, int h)
 
 void View::mousePressEvent(QMouseEvent *event)
 {
+    std::cout << event->x() << std::endl;
+
+    std::cout << event->pos().x() << std::endl;
+
+    int x = event->x();
+    int y = event->y();
+    glm::vec4 camPos = glm::inverse(m_camera->getViewMatrix()) * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+
+    float xPos = ((2.0f * x)/width()) - 1.0f;
+    float yPos = 1.0f - ((2.0f * y)/height());
+    glm::vec4 filmPos = glm::vec4(xPos, yPos, -1.0f, 1.0f);
+
+
+    glm::vec4 fWorld = (glm::inverse(camera->getM4()) * glm::inverse(camera->getM3()) * glm::inverse(camera->getM2()) * filmPos);
+
+
+    glm::vec4 direc = glm::normalize((fWorld - camPos));
+
+
+    //glm::vec3 colr = m_scene->castRay(camPos, direc, 4, -1);
+
+
+    std::cout << event->globalX() << std::endl;
+
+
 }
 
 void View::mouseMoveEvent(QMouseEvent *event)
