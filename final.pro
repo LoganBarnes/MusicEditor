@@ -23,7 +23,8 @@ SOURCES += \
     shapes/shape.cpp \
     shapes/musicshape.cpp \
     networking/udphandler.cpp \
-    shapes/grid.cpp
+    shapes/grid.cpp \
+    shapes/room.cpp
 
 HEADERS += \
     lib/Common.h \
@@ -37,7 +38,8 @@ HEADERS += \
     shapes/shape.h \
     shapes/musicshape.h \
     networking/udphandler.h \
-    shapes/grid.h
+    shapes/grid.h \
+    shapes/room.h
 
 FORMS += ui/mainwindow.ui
 
@@ -47,8 +49,11 @@ DEPENDPATH += glm lib ui scene camera shapes networking
 DEFINES += TIXML_USE_STL
 OTHER_FILES += \
     shaders/shader.frag shaders/shader.vert\
-#    shaders/glass.frag shaders/glass.vert\
-#    shaders/metal.frag shaders/metal.vert
+    shaders/cubemap.frag shader/cubemap.vert\
+    shaders/glass.frag shaders/glass.vert\
+#    shaders/metal.frag shaders/metal.vert\
+    images/front.png images/back.png images/top.png\
+    images/bottom.png images/left.png images/right.png
 
 # Don't add the -pg flag unless you know what you are doing. It makes QThreadPool freeze on Mac OS X
 QMAKE_CXXFLAGS_RELEASE -= -O2

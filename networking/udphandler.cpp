@@ -1,22 +1,41 @@
 #include "udphandler.h"
-#include "musicshape.h"
+//#include "scene.h"
 
-#define PORT_RECV 7000
-#define PORT_SEND 7003
+#define PORT_SEND 7000
 
-UDPHandler::UDPHandler(MusicShape *ms, QObject *parent) :
+UDPHandler::UDPHandler(Scene *scene, const char *slot, int port, QObject *parent) :
     QObject(parent)
 {
     m_socket = new QUdpSocket(this);
-    m_socket->bind(QHostAddress::LocalHost, PORT_RECV);
+    m_socket->bind(QHostAddress::LocalHost, port);
     connect(m_socket, SIGNAL(readyRead()), this, SLOT(readyRead()));
-    connect(this, SIGNAL(sendFunction(QVector<float>)), ms, SLOT(setFunction(QVector<float>)));
+    connect(this, SIGNAL(sendFunction(QVector<float>)), scene, slot);
 }
 
 
 UDPHandler::~UDPHandler()
 {
     delete m_socket;
+}
+
+
+void UDPHandler::setFunction(QVector<float> function)
+{
+//    cout << function.size() << endl;
+    m_function = QVector<float>(function);
+        cout << m_function.size() << endl;
+}
+
+int UDPHandler::getFunctionSize()
+{
+    return m_function.size();
+}
+
+
+QVector<float> UDPHandler::getFunction()
+{
+//    cout << m_function.size() << endl;
+    return m_function;
 }
 
 
@@ -41,8 +60,12 @@ void UDPHandler::readyRead()
     QList<float> floats;
 
     float f;
+    bool converted;
     for (int i = 0; i < strings.length(); i++) {
-        f = strings.value(i).toFloat();
+
+        f = strings.value(i).toFloat(&converted);
+        if (!converted)
+            f = -96;
         floats.append(f);
     }
     QVector<float> function;

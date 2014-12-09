@@ -10,9 +10,9 @@ out vec3 color; // Computed color for this vertex
 out vec2 texc;
 
 // Transformation matrices
-uniform mat4 p;
-uniform mat4 v;
-uniform mat4 m;
+uniform mat4 projection;
+uniform mat4 view;
+uniform mat4 model;
 
 // Light data
 const int MAX_LIGHTS = 10;
@@ -41,20 +41,6 @@ uniform float function[25]; // max/msp doesn't send data larger than 25
 
 #define PI 3.1415926535897932384626433832795
 
-
-mat4 rotationMatrix(vec3 axis, float angle)
-{
-    axis = normalize(axis);
-
-    float s = sin(angle);
-    float c = cos(angle);
-    float oc = 1.0 - c;
-
-    return mat4(oc * axis.x * axis.x + c, oc * axis.x * axis.y - axis.z * s, oc * axis.z * axis.x + axis.y * s, 0.0,
-                oc * axis.x * axis.y + axis.z * s, oc * axis.y * axis.y + c, oc * axis.y * axis.z - axis.x * s, 0.0,
-                oc * axis.z * axis.x - axis.y * s, oc * axis.y * axis.z + axis.x * s, oc * axis.z * axis.z + c, 0.0,
-                0.0, 0.0, 0.0, 1.0);
-}
 
 void calcVertex(inout vec3 v, inout vec3 n) {
 
@@ -128,11 +114,11 @@ void main(){
 
     texc = vec2(texCoord.x * repeatU, texCoord.y * repeatV);
 
-    vec4 position_cameraSpace = v * m * vec4(pos, 1.0);
-    vec4 normal_cameraSpace = vec4(normalize(mat3(transpose(inverse(v * m))) * norm), 0);
+    vec4 position_cameraSpace = view * model * vec4(pos, 1.0);
+    vec4 normal_cameraSpace = vec4(normalize(mat3(transpose(inverse(view * model))) * norm), 0);
 
-    vec4 position_worldSpace = m * vec4(pos, 1.0);
-    vec4 normal_worldSpace = vec4(normalize(mat3(transpose(inverse(m))) * norm), 0);
+    vec4 position_worldSpace = model * vec4(pos, 1.0);
+    vec4 normal_worldSpace = vec4(normalize(mat3(transpose(inverse(model))) * norm), 0);
 
     if (useArrowOffsets) {
         // Figure out the axis to use in order for the triangle to be billboarded correctly
@@ -140,7 +126,7 @@ void main(){
         position_cameraSpace += arrowOffset * vec4(offsetAxis, 0);
     }
 
-    gl_Position = p * position_cameraSpace;
+    gl_Position = projection * position_cameraSpace;
 
     if (useLighting) {
         color = ambient_color.xyz; // Add ambient component
@@ -149,10 +135,10 @@ void main(){
             vec4 vertexToLight = vec4(0);
             // Point Light
             if (lightTypes[i] == 0) {
-                vertexToLight = normalize(v * vec4(lightPositions[i], 1) - position_cameraSpace);
+                vertexToLight = normalize(view * vec4(lightPositions[i], 1) - position_cameraSpace);
             } else if (lightTypes[i] == 1) {
                 // Dir Light
-                vertexToLight = normalize(v * vec4(-lightDirections[i], 0));
+                vertexToLight = normalize(view * vec4(-lightDirections[i], 0));
             }
 
             // Add diffuse component

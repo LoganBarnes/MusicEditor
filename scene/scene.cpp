@@ -1,16 +1,62 @@
 #include "scene.h"
+#include "room.h"
 #include "grid.h"
 #include "musicshape.h"
+#include "udphandler.h"
 
-glm::vec4 lightDirection = glm::normalize(glm::vec4(1.f, -1.f, -1.f, 0.f));
+glm::vec4 lightDirection = glm::normalize(glm::vec4(0.5f, -0.8f, 1.f, 0.f));
 
-Scene::Scene()
+Scene::Scene(QObject *parent)
 {
     m_global.ka = 1.f;
     m_global.kd = 1.f;
     m_global.ks = 1.f;
     m_global.kt = 1.f;
 
+    // set shape pointer
+    m_room = NULL;
+    m_grid = NULL;
+    m_solidShape = NULL;
+    m_waterShape = NULL;
+
+    m_lights.clear();
+    m_elements.clear();
+
+    // music data
+    m_udp1 = new UDPHandler(this, SLOT(setF1(QVector<float>)), 7001);
+    m_udp1 = new UDPHandler(this, SLOT(setF2(QVector<float>)), 7002);
+    m_udp1 = new UDPHandler(this, SLOT(setF3(QVector<float>)), 7003);
+
+    setUp();
+
+    m_initialized = false;
+}
+
+Scene::~Scene()
+{
+}
+
+
+void Scene::setF1(QVector<float> f)
+{
+    m_f1 = QVector<float>(f);
+}
+
+
+void Scene::setF2(QVector<float> f)
+{
+    m_f2 = QVector<float>(f);
+}
+
+
+void Scene::setF3(QVector<float> f)
+{
+    m_f3 = QVector<float>(f);
+}
+
+
+void Scene::setUp()
+{
     CS123ScenePrimitive *prim = new CS123ScenePrimitive();
     CS123SceneMaterial& mat = prim->material;
 
@@ -19,9 +65,9 @@ Scene::Scene()
 
     // Use a shiny orange material
     memset(&mat, 0, sizeof(CS123SceneMaterial));
-    mat.cAmbient.r = 0.1f;
-    mat.cAmbient.g = 0.1f;
-    mat.cAmbient.b = 0.2f;
+    mat.cAmbient.r = 0.2f;
+    mat.cAmbient.g = 0.2f;
+    mat.cAmbient.b = 0.4f;
     mat.cDiffuse.r = 0.5f;
     mat.cDiffuse.g = 0.5f;
     mat.cDiffuse.b = 1.0f;
@@ -52,13 +98,6 @@ Scene::Scene()
     light->color.r = light->color.g = light->color.b = 1.f;
     light->id = 0;
 
-    // set shape pointer
-    m_grid = NULL;
-    m_shape = NULL;
-
-    m_lights.clear();
-    m_elements.clear();
-
     SceneElement *element = new SceneElement();
     element->primitive = prim;
     element->trans = glm::rotate(glm::mat4(), (float) (M_PI / 4.0), glm::vec3(1, 1, -.1f));
@@ -88,11 +127,9 @@ Scene::Scene()
      //   m_shape->transformAndRender(m_shader, glm::translate(glm::mat4(), glm::vec3(2, 0, 0)));
 
     m_initialized = false;
+
 }
 
-Scene::~Scene()
-{
-}
 
 void Scene::init()
 {
@@ -101,15 +138,24 @@ void Scene::init()
 
     OpenGLScene::init(); // Call the superclass's init()
 
+    m_room = new Room(5.f);
+    m_room->init();
+    m_room->makeCubeMap();
+
     m_grid = new Grid(5.f);
     m_grid->calcVerts();
-    m_grid->updateGL(m_shader);
+    m_grid->updateGL(m_solidShader);
     m_grid->cleanUp();
 
-    m_shape = new MusicShape(200, 100, 0.15f, m_shader);
-    m_shape->calcVerts();
-    m_shape->updateGL(m_shader);
-    m_shape->cleanUp();
+    m_solidShape = new MusicShape(150, 70, 0.15f);
+    m_solidShape->calcVerts();
+    m_solidShape->updateGL(m_solidShader);
+    m_solidShape->cleanUp();
+
+    m_waterShape = new MusicShape(150, 70, 0.15f);
+    m_waterShape->calcVerts();
+    m_waterShape->updateGL(m_waterShader);
+    m_waterShape->cleanUp();
 
     CS123SceneMaterial& mat = m_elements.at(0)->primitive->material;
     int texId = loadTexture(QString::fromStdString(mat.textureMap->filename));
@@ -125,7 +171,17 @@ void Scene::init()
 }
 
 
-void Scene::renderGeometry()
+void Scene::renderSetting()
+{
+
+    if (!m_initialized)
+        return;
+
+    m_room->render();
+}
+
+
+void Scene::renderSolids()
 {
 
     if (!m_initialized)
@@ -133,10 +189,11 @@ void Scene::renderGeometry()
 
     applyMaterial(m_elements.at(0)->primitive->material);
 
-    // Draw the grid.
-    glUniform1i(glGetUniformLocation(m_shader, "functionSize"), 0);
-    glUniform3f(glGetUniformLocation(m_shader, "allWhite"), 1, 1, 1); // make white
-    m_grid->transformAndRender(m_shader, glm::mat4());
+//    // Draw the grid.
+    glUniform1i(m_solidUniforms["functionSize"], 0);
+    glUniform3f(m_solidUniforms["allWhite"], 1, 1, 1); // make white
+    m_grid->transformAndRender(m_solidShader, glm::mat4());
+
 
     // Draw the shapes.
     for (int i = 0; i < m_elements.size(); ++i) {
@@ -148,6 +205,34 @@ void Scene::renderGeometry()
 
 //        glUniform3f(glGetUniformLocation(m_shader, "allWhite"), 0, 0, 0); // not white
 //        m_shape->transformAndRender(m_shader, glm::translate(glm::mat4(), glm::vec3(2, 0, 0)));
+    }
+//    glUniform3f(m_solidUniforms["allWhite"], 0, 0, 0); // not white
+//    m_solidShape->transformAndRender(m_solidShader, m_elements.at(0)->trans);
+
+}
+
+
+void Scene::renderTransparents()
+{
+    for (int i = 0; i < m_elements.size(); ++i) {
+        glUniform1f(m_waterUniforms["r0"], 0.25f);
+        glUniform3f(m_waterUniforms["eta"], 1.f / 1.3312f, 1.f / 1.333f, 1.f / 1.3381);
+        m_room->bindTexture();
+
+        glUniform1i(m_waterUniforms["functionSize"], m_f1.size());
+        glUniform1fv(m_waterUniforms["function"], m_f1.size(), m_f1.data());
+        m_waterShape->transformAndRender(m_waterShader, m_elements.at(i)->trans);
+
+
+//        glUniform1i(m_waterUniforms["functionSize"], m_f2.size());
+//        glUniform1fv(m_waterUniforms["function"], m_f2.size(), m_f2.data());
+//        m_waterShape->transformAndRender(m_waterShader, glm::translate(
+//                                        glm::rotate(glm::mat4(), (float) M_PI / 4.f, glm::vec3(1, 0, 0)),
+//                                        glm::vec3(-2, 0, 0)));
+
+//        glUniform1i(m_waterUniforms["functionSize"], m_f3.size());
+//        glUniform1fv(m_waterUniforms["function"], m_f3.size(), m_f3.data());
+//        m_waterShape->transformAndRender(m_waterShader, glm::translate(glm::mat4(), glm::vec3(2, 0, 0)));
     }
 }
 

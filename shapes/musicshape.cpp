@@ -4,7 +4,7 @@
 #include <glm/gtx/rotate_vector.hpp>
 #include <glm/gtx/vector_angle.hpp>
 
-MusicShape::MusicShape(int p1, int p2, float radius, GLuint shader, QObject *parent) :
+MusicShape::MusicShape(int p1, int p2, float radius, QObject *parent) :
     QObject(parent)
 {
     setParamMax(2, 3, -1);
@@ -12,8 +12,6 @@ MusicShape::MusicShape(int p1, int p2, float radius, GLuint shader, QObject *par
     setParam2(p2);
 
     m_radius = radius;
-    m_shader = shader;
-    m_udp = new UDPHandler(this);
 }
 
 
@@ -34,13 +32,11 @@ void MusicShape::calcVerts()
 
     int index = 0;
 
-    glm::vec3 topN, bottomN;
+    glm::vec3 topN = glm::vec3(0, 1, 0);
+    glm::vec3 bottomN = glm::vec3(0, -1, 0);
 
     glm::vec3 top = glm::vec3(0, m_radius, 0);
     glm::vec3 bottom = glm::vec3(0, -m_radius, 0);
-
-    f(&top, &topN);
-    f(&bottom, &bottomN);
 
     // iterate through the slices
     for (int i = 1; i <= m_p2; i++) {
@@ -48,19 +44,19 @@ void MusicShape::calcVerts()
 
         // top point
         glm::vec2 tex = glm::vec2(1.f - (prev / (2 * M_PI)), 0.f);
-        addVertexT(&index, top, glm::vec3(0, 1, 0), tex);
+        addVertexT(&index, top, topN, tex);
 
         make3Dslice(&index, curr, prev);
 
         // bottom point
         tex.y = 1.f;
-        addVertexT(&index, bottom, glm::vec3(0, -1, 0), tex);
+        addVertexT(&index, bottom, bottomN, tex);
 
         // repeat the last point of this slice and the first point of the next
         // slice so the renderer won't connect the two points
         if (i != m_p2) {
-            addVertex(&index, bottom, glm::vec3(0, -1, 0));
-            addVertex(&index, top, glm::vec3(0, 1, 0));
+            addVertex(&index, bottom, bottomN);
+            addVertex(&index, top, topN);
         }
 
         prev = curr;
@@ -97,9 +93,6 @@ void MusicShape::calcSliceSeg(int *index, float thetaL, float thetaR, float phi)
     glm::vec3 nl = glm::normalize(vl);
     glm::vec3 nr = glm::normalize(vr);
 
-//    f(&vl, &nl);
-//    f(&vr, &nr);
-
     addVertexT(index, vl, nl, texl);
     addVertexT(index, vr, nr, texr);
 }
@@ -111,21 +104,8 @@ bool MusicShape::animate()
 }
 
 
-void MusicShape::setFunction(QVector<float> function)
-{
-    m_function = QVector<float>(function);
-//    cout << m_function.size() << endl;
-//    calcVerts();
-//    updateGL(m_shader);
-//    cleanUp();
-
-}
-
-
 void MusicShape::transformAndRender(GLuint shader, glm::mat4 trans)
 {
-//    glUniform1i(glGetUniformLocation(shader, "functionSize"), m_function.size());
-//    glUniform1fv(glGetUniformLocation(shader, "function"), m_function.size(), m_function.data());
     Shape::transformAndRender(shader, trans);
 }
 
@@ -253,5 +233,3 @@ float MusicShape::calcIntersect(glm::vec3 eye, glm::vec3 dir) {
     return retInt;
 
 }
-
-

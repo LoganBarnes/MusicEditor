@@ -62,8 +62,14 @@ protected:
     // light follows the camera, as in ShapesScene.)
     virtual void setLights(const glm::mat4 viewMatrix) = 0;
 
-    // Render geometry for Shapes and Sceneview.
-    virtual void renderGeometry() = 0;
+    // Render cubemap
+    virtual void renderSetting() = 0;
+
+    // Render solid geometry for Shapes and Sceneview.
+    virtual void renderSolids() = 0;
+
+    // Render see-through shapes
+    virtual void renderTransparents() = 0;
 
     // Set the necessary uniforms to switch materials.
     void applyMaterial(const CS123SceneMaterial &material);
@@ -75,14 +81,19 @@ protected:
     int loadTexture(const QString &filename);
 
     // The program ID for OpenGL.
-    GLuint m_shader;
+    GLuint m_solidShader;
+    GLuint m_cubeShader;
+    GLuint m_waterShader;
 
     CS123SceneGlobalData m_global;
     QList<CS123SceneLightData*> m_lights;
     QList<SceneElement *> m_elements;
 
+    std::map<string, GLint> m_solidUniforms;
+    std::map<string, GLint> m_cubeUniforms;
+    std::map<string, GLint> m_waterUniforms;
+
 private:
-    std::map<string, GLint> m_uniformLocs;
 
     bool m_drawWireframe;
     bool m_useLighting;

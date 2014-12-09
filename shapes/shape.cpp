@@ -99,11 +99,11 @@ void Shape::updateGL(GLuint shader)
     glEnableVertexAttribArray(position);
     glVertexAttribPointer(
         position,
-        3,                   // Num coordinates per position
-        GL_FLOAT,            // Type
-        GL_FALSE,            // Normalized
-        sizeof(GLfloat) * 8, // Stride
-        (void*) 0            // Array buffer offset
+        3,                              // Num coordinates per position
+        GL_FLOAT,                       // Type
+        GL_FALSE,                       // Normalized
+        sizeof(GLfloat) * 8,            // Stride
+        (void*) 0                       // Array buffer offset
     );
     glEnableVertexAttribArray(normal);
     glVertexAttribPointer(
@@ -149,9 +149,7 @@ void Shape::render()
 void Shape::transformAndRender(GLuint shader, glm::mat4 trans)
 {
         glBindVertexArray(m_vaoID);
-        glUniformMatrix4fv(glGetUniformLocation(shader, "m"), 1, GL_FALSE, glm::value_ptr(trans));
-        glUniform1i(glGetUniformLocation(shader, "functionSize"), m_function.size());
-        glUniform1fv(glGetUniformLocation(shader, "function"), m_function.size(), m_function.data());
+        glUniformMatrix4fv(glGetUniformLocation(shader, "model"), 1, GL_FALSE, glm::value_ptr(trans));
         glDrawArrays(GL_TRIANGLE_STRIP, 0, m_numVerts); /* Number of vertices to draw (w/o normals) */
         glBindVertexArray(0);
 }
