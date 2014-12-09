@@ -197,8 +197,8 @@ void Scene::renderSolids()
 
     // Draw the shapes.
     for (int i = 0; i < m_elements.size(); ++i) {
-        glUniform3f(glGetUniformLocation(m_shader, "allWhite"), 0, 0, 0); // not white
-        m_shape->transformAndRender(m_shader, m_elements.at(i)->trans);
+        glUniform3f(glGetUniformLocation(m_solidShader, "allWhite"), 0, 0, 0); // not white
+        m_solidShape->transformAndRender(m_solidShader, m_elements.at(i)->trans);
 
 //        glUniform3f(glGetUniformLocation(m_shader, "allWhite"), 0, 0, 0); // not white
 //        m_shape->transformAndRender(m_shader, glm::translate(glm::mat4(), glm::vec3(-2, 0, 0)));
@@ -289,7 +289,7 @@ IntersectElement Scene::shapeClickIntersect(glm::vec4 ey, glm::vec4 dr) {
 
 
 
-        float tempDist = m_shape->calcIntersect(eye3, dir3);
+        float tempDist = m_waterShape->calcIntersect(eye3, dir3);
 
         if (tempDist > 0.0f) {
             if(finDist < 0.0f) {
