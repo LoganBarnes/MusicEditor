@@ -77,8 +77,6 @@ Doxyfile
 
 # Graphics #
 ############
-*.frag
-*.vert
 *.hpp
 *.inl
 
