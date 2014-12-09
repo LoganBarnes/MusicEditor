@@ -14,8 +14,10 @@ public:
 
     virtual void init();
 
+    IntersectElement shapeClickIntersect(glm::vec4 ey, glm::vec4 dr);
 
-    int shapeClickIntersect(glm::vec4 ey, glm::vec4 dr);
+    void updateShape(int ind, float x, float y);
+
 
 protected:
     // Set the light uniforms for the lights in the scene. (View matrix is used in cases where a

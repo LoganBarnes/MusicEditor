@@ -27,6 +27,11 @@ public:
     glm::mat4x4 getM2();
     glm::mat4x4 getM4();
 
+    glm::vec3 getEye();
+
+    glm::vec3 getLook();
+
+
 
 private:
     void updateProjectionMatrix();

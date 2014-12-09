@@ -68,6 +68,25 @@ Scene::Scene()
     m_lights.append(light);
     m_elements.append(element);
 
+//    glm::mat4x4 rots = glm::rotate(glm::mat4(), (float) (M_PI / 4.0), glm::vec3(1, 1, -.1f));
+
+    SceneElement *element2 = new SceneElement();
+    element2->primitive = prim;
+    element2->trans = glm::translate(glm::mat4(), glm::vec3(2, 0, 0));
+    element2->inv = glm::inverse(element2->trans);
+
+    SceneElement *element3 = new SceneElement();
+    element3->primitive = prim;
+    element3->trans = glm::translate(glm::mat4(), glm::vec3(-2, 0, 0));
+    element3->inv = glm::inverse(element3->trans);
+
+    m_elements.append(element2);
+    m_elements.append(element3);
+
+
+       // glUniform3f(glGetUniformLocation(m_shader, "allWhite"), 0, 0, 0); // not white
+     //   m_shape->transformAndRender(m_shader, glm::translate(glm::mat4(), glm::vec3(2, 0, 0)));
+
     m_initialized = false;
 }
 
@@ -120,15 +139,16 @@ void Scene::renderGeometry()
     m_grid->transformAndRender(m_shader, glm::mat4());
 
     // Draw the shapes.
-    glUniform3f(glGetUniformLocation(m_shader, "allWhite"), 0, 0, 0); // not white
-    m_shape->transformAndRender(m_shader, m_elements.at(0)->trans);
+    for (int i = 0; i < m_elements.size(); ++i) {
+        glUniform3f(glGetUniformLocation(m_shader, "allWhite"), 0, 0, 0); // not white
+        m_shape->transformAndRender(m_shader, m_elements.at(i)->trans);
 
-    glUniform3f(glGetUniformLocation(m_shader, "allWhite"), 0, 0, 0); // not white
-    m_shape->transformAndRender(m_shader, glm::translate(glm::mat4(), glm::vec3(-2, 0, 0)));
+//        glUniform3f(glGetUniformLocation(m_shader, "allWhite"), 0, 0, 0); // not white
+//        m_shape->transformAndRender(m_shader, glm::translate(glm::mat4(), glm::vec3(-2, 0, 0)));
 
-    glUniform3f(glGetUniformLocation(m_shader, "allWhite"), 0, 0, 0); // not white
-    m_shape->transformAndRender(m_shader, glm::translate(glm::mat4(), glm::vec3(2, 0, 0)));
-
+//        glUniform3f(glGetUniformLocation(m_shader, "allWhite"), 0, 0, 0); // not white
+//        m_shape->transformAndRender(m_shader, glm::translate(glm::mat4(), glm::vec3(2, 0, 0)));
+    }
 }
 
 
@@ -143,51 +163,65 @@ void Scene::setLights(const glm::mat4 viewMatrix)
     setLight(light);
 }
 
-int shapeClickIntersect(glm::vec4 ey, glm::vec4 dr) {
-    for (int i = 0; i < m_sceneRef; ++i) {
-        if (i != currInd) {
-            glm::vec4 eye = m_inv[i] * ey;
-            glm::vec4 dir = m_inv[i] * dr;
+void Scene::updateShape(int ind, float x, float y) {
+    //std::cout << " ind  " << ind << " X " << x << " Y " << y << std::endl;
 
-            glm::vec3 eye3 = glm::vec3(eye);
-            glm::vec3 dir3 = glm::vec3(dir);
+    //glm::mat4 trns = glm::translate(glm::mat4(1.0f), glm::vec3((10.0f/15.0f), (10.0f/15.0f), 0.0f));
+   // m_elements.at(ind)->trans = (trns * m_elements.at(ind)->trans);
+   // m_elements.at(ind)->inv = glm::inverse(m_elements.at(ind)->trans);
 
-            CS123RayIntersect tempInt;
 
-            if (m_sceneRef->m_shapes->at(i).type == PRIMITIVE_SPHERE) {
-                tempInt = m_impSphere->calcIntersect(eye3, dir3);
-            }
-            else if (m_sceneRef->m_shapes->at(i).type == PRIMITIVE_CUBE) {
-                tempInt = m_impCube->calcIntersect(eye3, dir3);
-            }
-            else if (m_sceneRef->m_shapes->at(i).type == PRIMITIVE_CYLINDER) {
-                tempInt = m_impCylinder->calcIntersect(eye3, dir3);
-            }
-            else if (m_sceneRef->m_shapes->at(i).type == PRIMITIVE_CONE) {
-                tempInt = m_impCone->calcIntersect(eye3, dir3);
-            }
+//    glm::vec4 L = look; //gotten, passed in
+//    glm::vec4 R = mRay; //gotten, passed in
+//    glm::vec4 Iold = mHit; // passed in contact point
+//    glm::vec4 Vold = Iold - eye; // pass in eye
+//    glm::vec4 ANorm = glm::normalize(R);
+//    glm::vec4 BNorm = glm::normalize(L);
+//    float cosThet = glm::dot(ANorm, BNorm);
+//    float VnewMag = (glm::dot(Vold, L)/cosThet);
+//    glm::vec4 Inew = eye + (glm::normalize(R) * VnewMag);
+//    glm::vec4 translaVec = Inew - Iold;
 
-            if (tempInt.t > 0.0f) {
-                if(currIntersect.t < 0.0f) {
-                    currIntersect = tempInt;
-                    currIntersect.shapeInd = i;
-                }
-                else if (tempInt.t < currIntersect.t) {
-                    currIntersect = tempInt;
-                    currIntersect.shapeInd = i;
-                }
+//    float tranSpeed = (delt/15.0f);
+//    glm::mat4x4 transla = glm::mat4x4(1.0f, 0.0f, 0.0f, (translaVec.x),
+//                                     0.0f, 1.0f, 0.0f, (translaVec.y),
+//                                     0.0f, 0.0f, 1.0f, (translaVec.z),
+//                                    0.0f, 0.0f, 0.0f, 1.0f);
+//    glm::mat4x4 transfor = m_elements.at(ind)->trans;
+//    m_elements.at(ind)->trans = (glm::transpose(transla) * transfor);
+//   // m_hit = Inew;
+}
+
+IntersectElement Scene::shapeClickIntersect(glm::vec4 ey, glm::vec4 dr) {
+    float finDist = -1.0f;
+    int finInd = -1;
+    for (int i = 0; i < m_elements.size(); ++i) {
+        glm::vec4 eye = m_elements.at(i)->inv * ey;
+        glm::vec4 dir = m_elements.at(i)->inv * dr;
+
+        glm::vec3 eye3 = glm::vec3(eye);
+        glm::vec3 dir3 = glm::vec3(dir);
+
+
+
+        float tempDist = m_shape->calcIntersect(eye3, dir3);
+
+        if (tempDist > 0.0f) {
+            if(finDist < 0.0f) {
+                finDist = tempDist;
+                finInd = i;
+            }
+            else if (tempDist < finDist) {
+                finDist = tempDist;
+                finInd = i;
             }
         }
     }
-
-    if (currIntersect.t > 0.0f) {
-        return illuminate(ey, dr, currIntersect, recurs);
-
-    }
-    else {
-
-        return glm::vec3(0.0f, 0.0f, 0.0f);
-    }
+    IntersectElement intrRet = IntersectElement();
+    intrRet.indx = finInd;
+    intrRet.interT = finDist;
+    intrRet.mHit = (ey + (dr * finDist));
+    return intrRet;
 }
 
 

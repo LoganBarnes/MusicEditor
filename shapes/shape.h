@@ -22,6 +22,9 @@ public:
     void transformAndRender(GLuint shader, glm::mat4 trans);
 
     virtual bool animate();
+    virtual float calcIntersect(glm::vec3 eye, glm::vec3 dir) = 0;
+    glm::vec2 solveQuadr(float a, float b, float c);
+
 
     float map(const float val, const float oldMin, const float oldMax, const float newMin, const float newMax);
     glm::vec2 mapPoints(const glm::vec2 val, const glm::vec2 oldMin, const glm::vec2 oldMax,

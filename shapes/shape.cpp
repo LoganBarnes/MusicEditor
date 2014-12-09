@@ -210,3 +210,20 @@ float Shape::map(const float val, const float oldMin, const float oldMax, const 
 }
 
 
+glm::vec2 Shape::solveQuadr(float a, float b, float c) {
+    float disc = ((b * b) - (4.0f * (a * c)));
+
+    if (disc < 0.0f) {
+
+        return glm::vec2(-1.0f, -1.0f);
+    }
+    else {
+
+    float pos = (((b * -1.0f) + sqrt(disc))/(2.0f * a));
+    float neg = (((b * -1.0f) - sqrt(disc))/(2.0f * a));
+    return glm::vec2(pos, neg);
+
+    }
+
+}
+

@@ -19,6 +19,9 @@ View::View(QGLFormat format, QWidget *parent) : QGLWidget(format, parent)
     setFocusPolicy(Qt::StrongFocus);
 
     m_camera = new Camera();
+    m_oldX = 0;
+    m_oldY = 0;
+    m_clicked = false;
 
     // The game loop is implemented using a timer
     connect(&timer, SIGNAL(timeout()), this, SLOT(tick()));
@@ -127,18 +130,36 @@ void View::mousePressEvent(QMouseEvent *event)
     glm::vec4 filmPos = glm::vec4(xPos, yPos, -1.0f, 1.0f);
 
 
-    glm::vec4 fWorld = (glm::inverse(camera->getM4()) * glm::inverse(camera->getM3()) * glm::inverse(camera->getM2()) * filmPos);
+    glm::vec4 fWorld = (glm::inverse(m_camera->getM4()) * glm::inverse(m_camera->getM3()) * glm::inverse(m_camera->getM2()) * filmPos);
 
 
     glm::vec4 direc = glm::normalize((fWorld - camPos));
 
 
     //glm::vec3 colr = m_scene->castRay(camPos, direc, 4, -1);
+    m_currMove = m_scene->shapeClickIntersect(camPos, direc);
 
+    std::cout << "IND "  << std::endl;
 
-    std::cout << event->globalX() << std::endl;
+    std::cout << "width " << width() << std::endl;
+    if (m_currMove.indx >= 0) {
+        m_clicked = true;
+        m_currMove.xMax = calcBounds(width(), yPos, m_currMove.interT).x;
+        m_currMove.xMin = calcBounds(0, yPos, m_currMove.interT).x;
+        m_currMove.yMax = calcBounds(xPos, 0, m_currMove.interT).y;
+        m_currMove.yMin = calcBounds(xPos, height(), m_currMove.interT).y;
+        std:: cout << " XMIN " << m_currMove.xMin << " X MAX " << m_currMove.xMax << "  width " << width() << std::endl;
+    }
+}
 
-
+glm::vec2 View::calcBounds(int x, int y, float tVal) {
+    glm::vec4 camPos = glm::inverse(m_camera->getViewMatrix()) * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+    float xPos = ((2.0f * x)/width()) - 1.0f;
+    float yPos = 1.0f - ((2.0f * y)/height());
+    glm::vec4 filmPos = glm::vec4(xPos, yPos, -1.0f, 1.0f);
+    glm::vec4 fWorld = (glm::inverse(m_camera->getM4()) * glm::inverse(m_camera->getM3()) * glm::inverse(m_camera->getM2()) * filmPos);
+    glm::vec4 direc = glm::normalize((fWorld - camPos));
+    return glm::vec2(fWorld + (tVal * direc));
 }
 
 void View::mouseMoveEvent(QMouseEvent *event)
@@ -150,16 +171,50 @@ void View::mouseMoveEvent(QMouseEvent *event)
     // in that direction. Note that it is important to check that deltaX and
     // deltaY are not zero before recentering the mouse, otherwise there will
     // be an infinite loop of mouse move events.
-    int deltaX = event->x() - width() / 2;
-    int deltaY = event->y() - height() / 2;
-    if (!deltaX && !deltaY) return;
-//    QCursor::setPos(mapToGlobal(QPoint(width() / 2, height() / 2)));
+    //int deltaX = event->x() - width() / 2;
+    //int deltaY = event->y() - height() / 2;
+   // std::cout << " DELT X " << deltaX << std::endl;
+    //if (!deltaX && !deltaY) return;
+   // QCursor::setPos(mapToGlobal(QPoint(width() / 2, height() / 2)));
+
+    int deltX = event->x() - m_oldX;
+    int deltY = ((event->y() - m_oldY) *  -1);
+
+    //std::cout << " DELT X " << deltX << std::endl;
+   // std::cout << " DELT Y " << deltY << std::endl;
 
     // TODO: Handle mouse movements here
+    if (m_clicked) {
+        float xTot = (m_currMove.xMax - m_currMove.xMin);
+        float yTot = (m_currMove.yMax - m_currMove.yMin);
+        float xRat = (xTot / (1.0f * width()));
+        float yRat = (yTot / (1.0f * height()));
+
+//        glm::vec4 tLook = glm::vec4(m_camera->getLook(), 0.0f);
+//        glm::vec4 tEye = glm::vec4(m_camera->getEye(), 1.0f);
+
+//        int x = event->x();
+//        int y = event->y();
+//        glm::vec4 camPos = glm::inverse(m_camera->getViewMatrix()) * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+
+//        float xPos = ((2.0f * x)/width()) - 1.0f;
+//        float yPos = 1.0f - ((2.0f * y)/height());
+//        glm::vec4 filmPos = glm::vec4(xPos, yPos, -1.0f, 1.0f);
+//        glm::vec4 fWorld = (glm::inverse(m_camera->getM4()) * glm::inverse(m_camera->getM3()) * glm::inverse(m_camera->getM2()) * filmPos);
+//        glm::vec4 direc = glm::normalize((fWorld - camPos));
+
+        m_scene->updateShape(m_currMove.indx, (xRat * deltX), (yRat * deltY));
+        //m_scene->updateShape(m_currMove.indx, tLook, direc, tEye, m_currMove.mHit, deltX);
+
+    }
+
+    m_oldX = event->x();
+    m_oldY = event->y();
 }
 
 void View::mouseReleaseEvent(QMouseEvent *event)
 {
+    m_clicked = false;
 }
 
 void View::keyPressEvent(QKeyEvent *event)

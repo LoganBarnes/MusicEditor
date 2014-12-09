@@ -198,3 +198,60 @@ glm::vec4 MusicShape::f(glm::vec3 *v, glm::vec3 *n)
 
 }
 
+
+float MusicShape::calcIntersect(glm::vec3 eye, glm::vec3 dir) {
+
+    float aX = (dir.x * dir.x);
+    float bX = (2.0f * eye.x * dir.x);
+    float cX = (eye.x * eye.x);
+
+    float aY = (dir.y * dir.y);
+    float bY = (2.0f * eye.y * dir.y);
+    float cY = (eye.y * eye.y);
+
+    float aZ = (dir.z * dir.z);
+    float bZ = (2.0f * eye.z * dir.z);
+    float cZ = (eye.z * eye.z);
+
+    float a = (aX + aY + aZ);
+    float b = (bX + bY + bZ);
+    float c = (cX + cY + cZ - 0.25f);
+
+    float retInt = -1.0f;
+
+    bool setT = false;
+    glm::vec2 tInt = solveQuadr(a, b, c);
+    if (tInt.x > 0.0f) {
+        float yVal = (eye.y + (tInt.x * dir.y));
+        if (yVal >= -m_radius && yVal <= m_radius) {
+            if (setT) {
+                if (retInt > tInt.x) {
+                    retInt = tInt.x;
+                }
+            }
+            else {
+                retInt = tInt.x;
+                setT = true;
+            }
+        }
+    }
+    if (tInt.y > 0.0f) {
+        float yVal = (eye.y + (tInt.y * dir.y));
+        if (yVal >= -0.5001f && yVal <= 0.5001f) {
+            if (setT) {
+                if (retInt > tInt.y) {
+                    retInt = tInt.y;
+                }
+            }
+            else {
+                retInt = tInt.y;
+                setT = true;
+            }
+        }
+    }
+
+    return retInt;
+
+}
+
+

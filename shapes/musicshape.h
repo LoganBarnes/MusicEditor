@@ -22,6 +22,8 @@ public:
 
     virtual void transformAndRender(GLuint shader, glm::mat4 trans);
 
+    float calcIntersect(glm::vec3 eye, glm::vec3 dir);
+
 public slots:
     void setFunction(QVector<float> function);
 

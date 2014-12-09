@@ -48,6 +48,17 @@ void Camera::updateViewMatrix()
 }
 
 
+glm::vec3 Camera::getLook() {
+    glm::vec3 look = glm::vec3(0.0f, 0.0f, -1.0f);
+    return look;
+   // glm::vec3 rot1 = glm::rotate(look, glm::radians(m_angleY), glm::vec3(0.f, 1.f, 0.f));
+   // return glm::rotate(rot1, glm::radians(m_angleX), glm::vec3(1.f, 0.f, 0.f));
+}
+
+glm::vec3 Camera::getEye() {
+    return glm::vec3(0.0f, 0.0f, m_zoomZ);
+}
+
 glm::mat4x4 Camera::getM2() {
     //Aspect ratio = m_aspectRatio
     //Far PLane = 50.0f;
