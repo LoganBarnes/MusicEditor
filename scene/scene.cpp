@@ -174,8 +174,10 @@ void Scene::renderSolids()
 
 
     // Draw the shapes.
-//    glUniform3f(m_solidUniforms["allWhite"], 0, 0, 0); // not white
-//    m_solidShape->transformAndRender(m_solidShader, m_elements.at(0)->trans);
+    glUniform1i(m_solidUniforms["functionSize"], m_f1.size());
+    glUniform1fv(m_solidUniforms["function"], m_f1.size(), m_f1.data());
+    glUniform3f(m_solidUniforms["allWhite"], 0, 0, 0); // not white
+    m_solidShape->transformAndRender(m_solidShader, m_elements.at(0)->trans);
 
 }
 
@@ -187,9 +189,9 @@ void Scene::renderTransparents()
     glUniform3f(m_waterUniforms["eta"], 1.f / 1.3312f, 1.f / 1.333f, 1.f / 1.3381);
     m_room->bindTexture();
 
-    glUniform1i(m_waterUniforms["functionSize"], m_f1.size());
-    glUniform1fv(m_waterUniforms["function"], m_f1.size(), m_f1.data());
-    m_waterShape->transformAndRender(m_waterShader, m_elements.at(0)->trans);
+//    glUniform1i(m_waterUniforms["functionSize"], m_f1.size());
+//    glUniform1fv(m_waterUniforms["function"], m_f1.size(), m_f1.data());
+//    m_waterShape->transformAndRender(m_waterShader, m_elements.at(0)->trans);
 
 
     glUniform1i(m_waterUniforms["functionSize"], m_f2.size());

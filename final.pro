@@ -24,7 +24,8 @@ SOURCES += \
     shapes/musicshape.cpp \
     networking/udphandler.cpp \
     shapes/grid.cpp \
-    shapes/room.cpp
+    shapes/room.cpp \
+    scene/test.cpp
 
 HEADERS += \
     lib/Common.h \
@@ -39,7 +40,8 @@ HEADERS += \
     shapes/musicshape.h \
     networking/udphandler.h \
     shapes/grid.h \
-    shapes/room.h
+    shapes/room.h \
+    scene/test.h
 
 FORMS += ui/mainwindow.ui
 

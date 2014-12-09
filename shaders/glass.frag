@@ -42,7 +42,7 @@ void main()
     
     // combine
     fragColor = mix(refractColor, reflectColor, F);
-//    fragColor.b *= 1.15; // add a slight blue hue
+    fragColor.b *= 1.15; // add a slight blue hue
     fragColor = clamp(fragColor, 0.0, 1.0);
 //    fragColor = vec4(1);
 }
