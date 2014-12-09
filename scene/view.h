@@ -5,6 +5,7 @@
 #include <qgl.h>
 #include <QTime>
 #include <QTimer>
+#include "scene.h"
 
 class OpenGLScene;
 class Camera;
@@ -31,9 +32,14 @@ private:
 
     void keyPressEvent(QKeyEvent *event);
     void keyReleaseEvent(QKeyEvent *event);
+    glm::vec2 calcBounds(int x, int y, float t);
 
     OpenGLScene *m_scene;
     Camera *m_camera;
+    IntersectElement m_currMove;
+    int m_oldX;
+    int m_oldY;
+    bool m_clicked;
 
 private slots:
     void tick();

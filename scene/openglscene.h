@@ -21,6 +21,18 @@ struct SceneElement
     glm::mat4 inv;
 };
 
+struct IntersectElement
+{
+    float interT;
+    int indx;
+    float yMin;
+    float yMax;
+    float xMin;
+    float xMax;
+   // glm::vec4 mRay;
+    glm::vec4 mHit;
+};
+
 /**
  * @class  OpenGLScene
  *
@@ -38,6 +50,9 @@ public:
 
     // Render the scene.
     void render(Camera *cam);
+
+    virtual IntersectElement shapeClickIntersect(glm::vec4 ey, glm::vec4 dr) = 0;
+    virtual void updateShape(int ind, float x, float y) = 0;
 
 protected:
     // Set all lights to black.
