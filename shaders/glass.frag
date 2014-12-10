@@ -2,7 +2,7 @@
 
 in vec3 vertex;         // The position of the vertex, in eye space!
 in vec3 vertexToEye;    // Vector from the vertex to the eye
-in vec3 eyeNormal;	// Normal of the vertex, in eye space!
+in vec3 eyeNormal;	    // Normal of the vertex, in eye space!
 
 uniform float r0;	// The R0 value to use in Schlick's approximation
 uniform vec3  eta;	// Contains one eta for each channel (use eta.r, eta.g, eta.b in your code)

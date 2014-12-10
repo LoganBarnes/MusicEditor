@@ -50,7 +50,7 @@ INCLUDEPATH += glm lib ui scene camera shapes networking
 DEPENDPATH += glm lib ui scene camera shapes networking
 DEFINES += TIXML_USE_STL
 OTHER_FILES += \
-    shaders/shader.frag shaders/shader.vert\
+    shaders/shader.frag shaders/shader.vert shaders/shader.gsh\
     shaders/cubemap.frag shader/cubemap.vert\
     shaders/glass.frag shaders/glass.vert\
 #    shaders/metal.frag shaders/metal.vert\

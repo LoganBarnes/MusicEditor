@@ -185,7 +185,7 @@ void Scene::renderSolids()
 void Scene::renderTransparents()
 {
 
-    glUniform1f(m_waterUniforms["r0"], 0.25f);
+    glUniform1f(m_waterUniforms["r0"], 0.1f);
     glUniform3f(m_waterUniforms["eta"], 1.f / 1.3312f, 1.f / 1.333f, 1.f / 1.3381);
     m_room->bindTexture();
 
@@ -194,15 +194,15 @@ void Scene::renderTransparents()
 //    m_waterShape->transformAndRender(m_waterShader, m_elements.at(0)->trans);
 
 
-    glUniform1i(m_waterUniforms["functionSize"], m_f2.size());
-    glUniform1fv(m_waterUniforms["function"], m_f2.size(), m_f2.data());
-    m_waterShape->transformAndRender(m_waterShader, glm::translate(
-                                    glm::rotate(glm::mat4(), (float) M_PI / 4.f, glm::vec3(1, 0, 0)),
-                                    glm::vec3(-2, 0, 0)));
+//    glUniform1i(m_waterUniforms["functionSize"], m_f2.size());
+//    glUniform1fv(m_waterUniforms["function"], m_f2.size(), m_f2.data());
+//    m_waterShape->transformAndRender(m_waterShader, glm::translate(
+//                                    glm::rotate(glm::mat4(), (float) M_PI / 4.f, glm::vec3(1, 0, 0)),
+//                                    glm::vec3(-2, 0, 0)));
 
     glUniform1i(m_waterUniforms["functionSize"], m_f3.size());
     glUniform1fv(m_waterUniforms["function"], m_f3.size(), m_f3.data());
-    m_waterShape->transformAndRender(m_waterShader, glm::translate(glm::mat4(), glm::vec3(2, 0, 0)));
+    m_waterShape->transformAndRender(m_waterShader, glm::translate(glm::mat4(), glm::vec3(0, 0.1f, .5f)));
 }
 
 

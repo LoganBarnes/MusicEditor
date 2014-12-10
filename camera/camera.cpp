@@ -4,7 +4,7 @@ Camera::Camera()
 {
     m_aspectRatio = 1;
     m_angleX = m_angleY = 0;
-    m_zoomZ = -5;
+    m_zoomZ = -1;
 }
 
 void Camera::setAspectRatio(float aspectRatio)

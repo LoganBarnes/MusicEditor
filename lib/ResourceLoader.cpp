@@ -83,3 +83,52 @@ GLuint ResourceLoader::loadShaders(const char * vertex_file_path,const char * fr
 
     return programId;
 }
+
+
+void ResourceLoader::addGeometryShader(const GLuint programId, const char *geometry_file_path)
+{
+
+    // Create the shaders
+    GLuint GeometryShaderID = glCreateShader(GL_GEOMETRY_SHADER);
+
+    // Read the Geometry Shader code from the file
+    std::string GeometryShaderCode;
+    QString geomFilePath = QString(geometry_file_path);
+    QFile geomFile(geomFilePath);
+    if (geomFile.open(QIODevice::ReadOnly | QIODevice::Text)){
+        QTextStream geomStream(&geomFile);
+        GeometryShaderCode = geomStream.readAll().toStdString();
+    }
+
+    GLint Result = GL_FALSE;
+    int InfoLogLength;
+
+    // Compile Geometry Shader
+    char const * GeometrySourcePointer = GeometryShaderCode.c_str();
+    glShaderSource(GeometryShaderID, 1, &GeometrySourcePointer , NULL);
+    glCompileShader(GeometryShaderID);
+
+    // Check Geometry Shader
+    glGetShaderiv(GeometryShaderID, GL_COMPILE_STATUS, &Result);
+    glGetShaderiv(GeometryShaderID, GL_INFO_LOG_LENGTH, &InfoLogLength);
+    if (!Result && InfoLogLength > 0) {
+        std::vector<char> GeometryShaderErrorMessage(InfoLogLength);
+        glGetShaderInfoLog(GeometryShaderID, InfoLogLength, NULL, &GeometryShaderErrorMessage[0]);
+        fprintf(stderr, "Error compiling shader: %s\n%s\n",
+                geometry_file_path, &GeometryShaderErrorMessage[0]);
+    }
+
+    // attach shader
+    glAttachShader(programId, GeometryShaderID);
+
+    // Check the program
+    glGetProgramiv(programId, GL_LINK_STATUS, &Result);
+    glGetProgramiv(programId, GL_INFO_LOG_LENGTH, &InfoLogLength);
+    if (!Result && InfoLogLength > 0) {
+        std::vector<char> ProgramErrorMessage(InfoLogLength);
+        glGetProgramInfoLog(programId, InfoLogLength, NULL, &ProgramErrorMessage[0]);
+        fprintf(stderr, "Error linking shader: %s\n", &ProgramErrorMessage[0]);
+    }
+
+    glDeleteShader(GeometryShaderID);
+}

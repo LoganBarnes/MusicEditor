@@ -8,6 +8,7 @@ class ResourceLoader
 public:
     ResourceLoader();
     static GLuint loadShaders(const char * vertex_file_path,const char * fragment_file_path);
+    static void addGeometryShader(const GLuint programId, const char *geometry_file_path);
 };
 
 #endif // RESOURCELOADER_H
