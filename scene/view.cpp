@@ -22,6 +22,7 @@ View::View(QGLFormat format, QWidget *parent) : QGLWidget(format, parent)
     m_oldX = 0;
     m_oldY = 0;
     m_clicked = false;
+    m_transZ = false;
 
     // The game loop is implemented using a timer
     connect(&timer, SIGNAL(timeout()), this, SLOT(tick()));
@@ -209,9 +210,14 @@ void View::mouseMoveEvent(QMouseEvent *event)
     //        glm::vec4 fWorld = (glm::inverse(m_camera->getM4()) * glm::inverse(m_camera->getM3()) * glm::inverse(m_camera->getM2()) * filmPos);
     //        glm::vec4 direc = glm::normalize((fWorld - camPos));
             std:: cout << " XTOT " << xTot << " xRat " << xRat << "  width " << width() << " VAL " << (deltX / xRat) << std::endl;
+            if (m_transZ) {
+                m_scene->updateShape(m_currMove.indx, 0.0f, 0.0f, 1.0f, m_currMove.prim);
 
-            m_scene->updateShape(m_currMove.indx, (deltX / xRat), (yRat * deltY), 0.0f, m_currMove.prim);
+            }
+            else {
+                m_scene->updateShape(m_currMove.indx, (deltX / xRat), (yRat * deltY), 0.0f, m_currMove.prim);
             //m_scene->updateShape(m_currMove.indx, tLook, direc, tEye, m_currMove.mHit, deltX);
+            }
 
         }
         m_oldX = event->x();
@@ -230,10 +236,15 @@ void View::keyPressEvent(QKeyEvent *event)
     if (event->key() == Qt::Key_Escape) QApplication::quit();
 
     // TODO: Handle keyboard presses here
+    if (event->key() == Qt::Key_Shift) {
+        m_transZ = true;
+    }
 }
 
 void View::keyReleaseEvent(QKeyEvent *event)
 {
+    m_transZ = false;
+
 }
 
 void View::tick()

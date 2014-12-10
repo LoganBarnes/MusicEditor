@@ -40,6 +40,7 @@ private:
     int m_oldX;
     int m_oldY;
     bool m_clicked;
+    bool m_transZ;
 
 private slots:
     void tick();
