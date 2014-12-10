@@ -29,6 +29,7 @@ struct IntersectElement
     float yMax;
     float xMin;
     float xMax;
+    PrimitiveType prim;
    // glm::vec4 mRay;
     glm::vec4 mHit;
 };
@@ -52,7 +53,7 @@ public:
     void render(Camera *cam);
 
     virtual IntersectElement shapeClickIntersect(glm::vec4 ey, glm::vec4 dr) = 0;
-    virtual void updateShape(int ind, float x, float y) = 0;
+    virtual void updateShape(int ind, float x, float y, float z, PrimitiveType prm) = 0;
 
 protected:
     // Set all lights to black.
@@ -66,7 +67,7 @@ protected:
     virtual void renderSetting() = 0;
 
     // Render solid geometry for Shapes and Sceneview.
-    virtual void renderSolids() = 0;
+    virtual void renderLightning() = 0;
 
     // Render see-through shapes
     virtual void renderTransparents() = 0;
@@ -87,7 +88,10 @@ protected:
 
     CS123SceneGlobalData m_global;
     QList<CS123SceneLightData*> m_lights;
-    QList<SceneElement *> m_elements;
+    QList<SceneElement *> m_waterElements;
+    QList<SceneElement *> m_lightningElements;
+    QList<SceneElement *> m_waterLightningElements;
+
 
     std::map<string, GLint> m_solidUniforms;
     std::map<string, GLint> m_cubeUniforms;

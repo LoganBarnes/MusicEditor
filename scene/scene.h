@@ -21,7 +21,7 @@ public:
 
     IntersectElement shapeClickIntersect(glm::vec4 ey, glm::vec4 dr);
 
-    void updateShape(int ind, float x, float y);
+    void updateShape(int ind, float x, float y, float z, PrimitiveType prm);
 
 
 protected:
@@ -33,7 +33,7 @@ protected:
     virtual void renderSetting();
 
     // Render geometry for Shapes and Sceneview.
-    virtual void renderSolids();
+    virtual void renderLightning();
 
     // Render see-through shapes
     virtual void renderTransparents();
@@ -49,7 +49,9 @@ private:
     Room *m_room;
     Grid *m_grid;
     Shape *m_waterShape;
-    Shape *m_solidShape;
+    Shape *m_lightningShape;
+    Shape *m_waterLightningShape;
+
 
     UDPHandler *m_udp1;
     UDPHandler *m_udp2;

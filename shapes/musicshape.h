@@ -22,7 +22,7 @@ public:
     float calcIntersect(glm::vec3 eye, glm::vec3 dir);
 
 public slots:
-    void setFunction(QVector<float> function);
+    //void setFunction(QVector<float> function);
 
 
 protected:

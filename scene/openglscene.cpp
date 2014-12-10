@@ -19,16 +19,38 @@ OpenGLScene::~OpenGLScene()
 {
     // delete primitives
     int i;
-    int num = m_elements.size();
+    int num = m_waterElements.size();
     for (i = 0; i < num; i++)
     {
-        SceneElement *e = m_elements.at(i);
+        SceneElement *e = m_waterElements.at(i);
         delete e->primitive->material.bumpMap;
         delete e->primitive->material.textureMap;
         delete e->primitive;
         delete e;
     }
-    m_elements.clear();
+    m_waterElements.clear();
+
+    num = m_lightningElements.size();
+    for (i = 0; i < num; i++)
+    {
+        SceneElement *e = m_lightningElements.at(i);
+        delete e->primitive->material.bumpMap;
+        delete e->primitive->material.textureMap;
+        delete e->primitive;
+        delete e;
+    }
+    m_lightningElements.clear();
+
+    num = m_waterLightningElements.size();
+    for (i = 0; i < num; i++)
+    {
+        SceneElement *e = m_waterLightningElements.at(i);
+        delete e->primitive->material.bumpMap;
+        delete e->primitive->material.textureMap;
+        delete e->primitive;
+        delete e;
+    }
+    m_waterLightningElements.clear();
 
     // delete lights
     num = m_lights.size();
@@ -130,7 +152,7 @@ void OpenGLScene::render(Camera *cam)
             glm::value_ptr(viewMatrix));
     glUniform3f(m_solidUniforms["allBlack"], 1, 1, 1);
 
-    renderSolids();
+    renderLightning();
 
 //    if (m_drawWireframe)
 //    {

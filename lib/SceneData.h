@@ -19,13 +19,11 @@ enum LightType {
 
 // Enumeration for types of primitives that can be stored in a scene file.
 enum PrimitiveType {
-    PRIMITIVE_CUBE,
-    PRIMITIVE_CONE,
-    PRIMITIVE_CYLINDER,
-    PRIMITIVE_TORUS,
-    PRIMITIVE_SPHERE,
-    PRIMITIVE_MESH
+    WATER_TYPE,
+    LIGHTNING_TYPE,
+    WATER_LIGHTNING_TYPE
 };
+
 
 // Enumeration for types of transformations that can be applied to objects, lights, and cameras.
 enum TransformationType {

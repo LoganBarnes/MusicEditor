@@ -117,38 +117,41 @@ void View::resizeGL(int w, int h)
 
 void View::mousePressEvent(QMouseEvent *event)
 {
-    std::cout << event->x() << std::endl;
+    if ((event->x() > 0 && event->x() < width()) && (event->y() > 0 && event->y() < height())) {
 
-    std::cout << event->pos().x() << std::endl;
+        std::cout << event->x() << std::endl;
 
-    int x = event->x();
-    int y = event->y();
-    glm::vec4 camPos = glm::inverse(m_camera->getViewMatrix()) * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+        std::cout << event->pos().x() << std::endl;
 
-    float xPos = ((2.0f * x)/width()) - 1.0f;
-    float yPos = 1.0f - ((2.0f * y)/height());
-    glm::vec4 filmPos = glm::vec4(xPos, yPos, -1.0f, 1.0f);
+        int x = event->x();
+        int y = event->y();
+        glm::vec4 camPos = glm::inverse(m_camera->getViewMatrix()) * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
 
-
-    glm::vec4 fWorld = (glm::inverse(m_camera->getM4()) * glm::inverse(m_camera->getM3()) * glm::inverse(m_camera->getM2()) * filmPos);
-
-
-    glm::vec4 direc = glm::normalize((fWorld - camPos));
+        float xPos = ((2.0f * x)/width()) - 1.0f;
+        float yPos = 1.0f - ((2.0f * y)/height());
+        glm::vec4 filmPos = glm::vec4(xPos, yPos, -1.0f, 1.0f);
 
 
-    //glm::vec3 colr = m_scene->castRay(camPos, direc, 4, -1);
-    m_currMove = m_scene->shapeClickIntersect(camPos, direc);
+        glm::vec4 fWorld = (glm::inverse(m_camera->getM4()) * glm::inverse(m_camera->getM3()) * glm::inverse(m_camera->getM2()) * filmPos);
 
-    std::cout << "IND "  << std::endl;
 
-    std::cout << "width " << width() << std::endl;
-    if (m_currMove.indx >= 0) {
-        m_clicked = true;
-        m_currMove.xMax = calcBounds(width(), yPos, m_currMove.interT).x;
-        m_currMove.xMin = calcBounds(0, yPos, m_currMove.interT).x;
-        m_currMove.yMax = calcBounds(xPos, 0, m_currMove.interT).y;
-        m_currMove.yMin = calcBounds(xPos, height(), m_currMove.interT).y;
-        std:: cout << " XMIN " << m_currMove.xMin << " X MAX " << m_currMove.xMax << "  width " << width() << std::endl;
+        glm::vec4 direc = glm::normalize((fWorld - camPos));
+
+
+        //glm::vec3 colr = m_scene->castRay(camPos, direc, 4, -1);
+        m_currMove = m_scene->shapeClickIntersect(camPos, direc);
+
+        std::cout << "IND "  << std::endl;
+
+        std::cout << "width " << width() << std::endl;
+        if (m_currMove.indx >= 0) {
+            m_clicked = true;
+            m_currMove.xMax = calcBounds(width(), yPos, m_currMove.interT).x;
+            m_currMove.xMin = calcBounds(0, yPos, m_currMove.interT).x;
+            m_currMove.yMax = calcBounds(xPos, 0, m_currMove.interT).y;
+            m_currMove.yMin = calcBounds(xPos, height(), m_currMove.interT).y;
+            std:: cout << " XMIN " << m_currMove.xMin << " X MAX " << m_currMove.xMax << "  width " << width() << std::endl;
+        }
     }
 }
 
@@ -159,7 +162,9 @@ glm::vec2 View::calcBounds(int x, int y, float tVal) {
     glm::vec4 filmPos = glm::vec4(xPos, yPos, -1.0f, 1.0f);
     glm::vec4 fWorld = (glm::inverse(m_camera->getM4()) * glm::inverse(m_camera->getM3()) * glm::inverse(m_camera->getM2()) * filmPos);
     glm::vec4 direc = glm::normalize((fWorld - camPos));
-    return glm::vec2(fWorld + (tVal * direc));
+    //std::cout << " direc " << std::to_string(direc) << "  world"
+    return glm::vec2(camPos + (tVal * direc));
+
 }
 
 void View::mouseMoveEvent(QMouseEvent *event)
@@ -184,32 +189,35 @@ void View::mouseMoveEvent(QMouseEvent *event)
    // std::cout << " DELT Y " << deltY << std::endl;
 
     // TODO: Handle mouse movements here
-    if (m_clicked) {
-        float xTot = (m_currMove.xMax - m_currMove.xMin);
-        float yTot = (m_currMove.yMax - m_currMove.yMin);
-        float xRat = (xTot / (1.0f * width()));
-        float yRat = (yTot / (1.0f * height()));
+    if ((event->x() > 0 && event->x() < width()) && (event->y() > 0 && event->y() < height())) {
+        if (m_clicked) {
+            float xTot = (m_currMove.xMax - m_currMove.xMin);
+            float yTot = (m_currMove.yMax - m_currMove.yMin);
+            float xRat = ((1.0f * width()) / xTot);
+            float yRat = (yTot / (1.0f * height()));
 
-//        glm::vec4 tLook = glm::vec4(m_camera->getLook(), 0.0f);
-//        glm::vec4 tEye = glm::vec4(m_camera->getEye(), 1.0f);
+    //        glm::vec4 tLook = glm::vec4(m_camera->getLook(), 0.0f);
+    //        glm::vec4 tEye = glm::vec4(m_camera->getEye(), 1.0f);
 
-//        int x = event->x();
-//        int y = event->y();
-//        glm::vec4 camPos = glm::inverse(m_camera->getViewMatrix()) * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+    //        int x = event->x();
+    //        int y = event->y();
+    //        glm::vec4 camPos = glm::inverse(m_camera->getViewMatrix()) * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
 
-//        float xPos = ((2.0f * x)/width()) - 1.0f;
-//        float yPos = 1.0f - ((2.0f * y)/height());
-//        glm::vec4 filmPos = glm::vec4(xPos, yPos, -1.0f, 1.0f);
-//        glm::vec4 fWorld = (glm::inverse(m_camera->getM4()) * glm::inverse(m_camera->getM3()) * glm::inverse(m_camera->getM2()) * filmPos);
-//        glm::vec4 direc = glm::normalize((fWorld - camPos));
+    //        float xPos = ((2.0f * x)/width()) - 1.0f;
+    //        float yPos = 1.0f - ((2.0f * y)/height());
+    //        glm::vec4 filmPos = glm::vec4(xPos, yPos, -1.0f, 1.0f);
+    //        glm::vec4 fWorld = (glm::inverse(m_camera->getM4()) * glm::inverse(m_camera->getM3()) * glm::inverse(m_camera->getM2()) * filmPos);
+    //        glm::vec4 direc = glm::normalize((fWorld - camPos));
+            std:: cout << " XTOT " << xTot << " xRat " << xRat << "  width " << width() << " VAL " << (deltX / xRat) << std::endl;
 
-        m_scene->updateShape(m_currMove.indx, (xRat * deltX), (yRat * deltY));
-        //m_scene->updateShape(m_currMove.indx, tLook, direc, tEye, m_currMove.mHit, deltX);
+            m_scene->updateShape(m_currMove.indx, (deltX / xRat), (yRat * deltY), 0.0f, m_currMove.prim);
+            //m_scene->updateShape(m_currMove.indx, tLook, direc, tEye, m_currMove.mHit, deltX);
 
+        }
+        m_oldX = event->x();
+        m_oldY = event->y();
     }
 
-    m_oldX = event->x();
-    m_oldY = event->y();
 }
 
 void View::mouseReleaseEvent(QMouseEvent *event)
