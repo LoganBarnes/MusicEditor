@@ -4,7 +4,7 @@ Camera::Camera()
 {
     m_aspectRatio = 1;
     m_angleX = m_angleY = 0;
-    m_zoomZ = -1;
+    m_zoomZ = -5;
 }
 
 void Camera::setAspectRatio(float aspectRatio)
@@ -24,6 +24,12 @@ glm::mat4x4 Camera::getViewMatrix() const
     return m_viewMatrix;
 }
 
+void Camera::swing()
+{
+    m_angleY++;
+    updateViewMatrix();
+}
+
 void Camera::updateMatrices()
 {
     updateProjectionMatrix();
@@ -37,12 +43,14 @@ void Camera::updateProjectionMatrix()
 
     m_projectionMatrix = glm::perspective(
             glm::radians(55.f), m_aspectRatio, 0.1f, 50.f);
+//    m_projectionMatrix = glm::perspective(
+//                glm::radians(90.f), 1.f, 0.1f, 50.f);
 }
 
 void Camera::updateViewMatrix()
 {
     m_viewMatrix =
             glm::translate(glm::vec3(0.f, -0.0f, m_zoomZ)) *
-            glm::rotate(glm::radians(m_angleY), glm::vec3(0.f, 1.f, 0.f)) *
-            glm::rotate(glm::radians(15.f), glm::vec3(1.f, 0.f, 0.f));
+            glm::rotate(glm::radians(0.f), glm::vec3(1.f, 0.f, 0.f)) *
+            glm::rotate(glm::radians(m_angleY), glm::vec3(0.f, 1.f, 0.f));
 }

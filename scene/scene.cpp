@@ -8,9 +8,9 @@ glm::vec4 lightDirection = glm::normalize(glm::vec4(0.5f, -0.8f, 1.f, 0.f));
 
 Scene::Scene(QObject *parent)
 {
-    m_global.ka = 1.f;
-    m_global.kd = 1.f;
-    m_global.ks = 1.f;
+    m_global.ka = 0.8f;
+    m_global.kd = 0.8f;
+    m_global.ks = 0.8f;
     m_global.kt = 1.f;
 
     // set shape pointer
@@ -26,6 +26,7 @@ Scene::Scene(QObject *parent)
     m_udp1 = new UDPHandler(this, SLOT(setF1(QVector<float>)), 7001);
     m_udp1 = new UDPHandler(this, SLOT(setF2(QVector<float>)), 7002);
     m_udp1 = new UDPHandler(this, SLOT(setF3(QVector<float>)), 7003);
+    m_udp1 = new UDPHandler(this, SLOT(setF4(QVector<float>)), 7004);
 
     setUp();
 
@@ -52,6 +53,12 @@ void Scene::setF2(QVector<float> f)
 void Scene::setF3(QVector<float> f)
 {
     m_f3 = QVector<float>(f);
+}
+
+
+void Scene::setF4(QVector<float> f)
+{
+    m_f4 = QVector<float>(f);
 }
 
 
@@ -93,14 +100,18 @@ void Scene::setUp()
     CS123SceneLightData *light = new CS123SceneLightData();
     // Use a white directional light from the upper left corner
     memset(light, 0, sizeof(CS123SceneLightData));
-    light->type = LIGHT_DIRECTIONAL;
-    light->dir = lightDirection;
-    light->color.r = light->color.g = light->color.b = 1.f;
+    light->type = LIGHT_POINT;
+//    light->pos = glm::vec4(-5.f, 8.f, -10.f, 1.f);
+//    light->color.r = light->color.g = light->color.b = 1.f;
+    light->pos = glm::vec4(-9.f, 0.f, 12.f, 1);
+    light->color.r = 1.f;
+    light->color.g = light->color.b = 0.5f;
     light->id = 0;
 
     SceneElement *element = new SceneElement();
     element->primitive = prim;
-    element->trans = glm::rotate(glm::mat4(), (float) (M_PI / 4.0), glm::vec3(1, 1, -.1f));
+//    element->trans = glm::rotate(glm::mat4(), (float) (M_PI / 4.0), glm::vec3(1, 1, -.1f));
+    element->trans = glm::translate(glm::vec3(0.f, 0.f, 0.f));
 //    element->trans = glm::mat4();
 //    element->inv = glm::mat4();
     element->inv = glm::inverse(element->trans);
@@ -116,16 +127,16 @@ void Scene::init()
 
     OpenGLScene::init(); // Call the superclass's init()
 
-    m_room = new Room(5.f);
-    m_room->init();
-    m_room->makeCubeMap();
+//    m_room = new Room(5.f);
+//    m_room->init();
+//    m_room->makeCubeMap();
 
     m_grid = new Grid(5.f);
     m_grid->calcVerts();
     m_grid->updateGL(m_solidShader);
     m_grid->cleanUp();
 
-    m_solidShape = new MusicShape(150, 70, 0.15f);
+    m_solidShape = new MusicShape(100, 70, 0.15f);
     m_solidShape->calcVerts();
     m_solidShape->updateGL(m_solidShader);
     m_solidShape->cleanUp();
@@ -155,66 +166,76 @@ void Scene::renderSetting()
     if (!m_initialized)
         return;
 
-    m_room->render();
+//    m_room->render();
 }
 
 
-void Scene::renderSolids()
+void Scene::renderSolids(GLuint shader)
 {
 
     if (!m_initialized)
         return;
 
-    applyMaterial(m_elements.at(0)->primitive->material);
+    applyMaterial(m_elements.at(0)->primitive->material, shader);
 
-//    // Draw the grid.
-    glUniform1i(m_solidUniforms["functionSize"], 0);
-    glUniform3f(m_solidUniforms["allWhite"], 1, 1, 1); // make white
-    m_grid->transformAndRender(m_solidShader, glm::mat4());
+////     Draw the grid. CAN'T DRAW WITH CURRENT GEOMETRY SHADER SET TO TRIANGLES
+//    glUniform1i(glGetUniformLocation(shader, "functionSize"), 0);
+//    glUniform3f(glGetUniformLocation(shader, "allWhite"), 1, 1, 1); // make white
+//    m_grid->transformAndRender(shader, glm::mat4());
 
 
     // Draw the shapes.
-    glUniform1i(m_solidUniforms["functionSize"], m_f1.size());
-    glUniform1fv(m_solidUniforms["function"], m_f1.size(), m_f1.data());
-    glUniform3f(m_solidUniforms["allWhite"], 0, 0, 0); // not white
-    m_solidShape->transformAndRender(m_solidShader, m_elements.at(0)->trans);
+    glUniform1i(glGetUniformLocation(shader, "functionSize"), m_f2.size());
+    glUniform1fv(glGetUniformLocation(shader, "function"), m_f2.size(), m_f2.data());
+    glUniform3f(glGetUniformLocation(shader, "allWhite"), 0, 0, 0); // not white
+//    m_solidShape->transformAndRender(shader, m_elements.at(0)->trans);
+    m_solidShape->transformAndRender(shader, glm::translate(glm::vec3(0.f, 0.f, -2.f)));
 
+    glUniform1i(glGetUniformLocation(shader, "functionSize"), m_f3.size());
+    glUniform1fv(glGetUniformLocation(shader, "function"), m_f3.size(), m_f3.data());
+    m_solidShape->transformAndRender(shader, glm::translate(glm::vec3(-2.f, 1.f, 0.f)));
+
+    glUniform1i(glGetUniformLocation(shader, "functionSize"), m_f4.size());
+    glUniform1fv(glGetUniformLocation(shader, "function"), m_f4.size(), m_f4.data());
+    m_solidShape->transformAndRender(shader, glm::translate(glm::vec3(2.f, -1.f, 0.f)));
 }
 
 
-void Scene::renderTransparents()
+void Scene::renderTransparents(GLuint shader)
 {
 
-    glUniform1f(m_waterUniforms["r0"], 0.1f);
-    glUniform3f(m_waterUniforms["eta"], 1.f / 1.3312f, 1.f / 1.333f, 1.f / 1.3381);
-    m_room->bindTexture();
+    glUniform1f(glGetUniformLocation(shader, "r0"), 0.1f);
+    glUniform3f(glGetUniformLocation(shader, "eta"), 1.f / 1.3312f, 1.f / 1.333f, 1.f / 1.3381); // water
+    glUniform1f(glGetUniformLocation(shader, "m"), 0.05f);
+    glUniform4fv(glGetUniformLocation(shader, "lightPosition"), 1, glm::value_ptr(m_lights.value(0)->pos));
+//    m_room->bindTexture();
 
-//    glUniform1i(m_waterUniforms["functionSize"], m_f1.size());
-//    glUniform1fv(m_waterUniforms["function"], m_f1.size(), m_f1.data());
-//    m_waterShape->transformAndRender(m_waterShader, m_elements.at(0)->trans);
+    glUniform1i(glGetUniformLocation(shader, "functionSize"), m_f1.size());
+    glUniform1fv(glGetUniformLocation(shader, "function"), m_f1.size(), m_f1.data());
+    m_waterShape->transformAndRender(m_waterShader, m_elements.at(0)->trans);
 
 
-//    glUniform1i(m_waterUniforms["functionSize"], m_f2.size());
-//    glUniform1fv(m_waterUniforms["function"], m_f2.size(), m_f2.data());
+//    glUniform1i(glGetUniformLocation(shader, "functionSize"), m_f2.size());
+//    glUniform1fv(glGetUniformLocation(shader, "function"), m_f2.size(), m_f2.data());
 //    m_waterShape->transformAndRender(m_waterShader, glm::translate(
 //                                    glm::rotate(glm::mat4(), (float) M_PI / 4.f, glm::vec3(1, 0, 0)),
 //                                    glm::vec3(-2, 0, 0)));
 
-    glUniform1i(m_waterUniforms["functionSize"], m_f3.size());
-    glUniform1fv(m_waterUniforms["function"], m_f3.size(), m_f3.data());
-    m_waterShape->transformAndRender(m_waterShader, glm::translate(glm::mat4(), glm::vec3(0, 0.1f, .5f)));
+//    glUniform1i(glGetUniformLocation(shader, "functionSize"), m_f3.size());
+//    glUniform1fv(glGetUniformLocation(shader, "function"), m_f3.size(), m_f3.data());
+//    m_waterShape->transformAndRender(m_waterShader, glm::translate(glm::mat4(), glm::vec3(2, 0.f, .0f)));
 }
 
 
-void Scene::setLights(const glm::mat4 viewMatrix)
+void Scene::setLights(const glm::mat4 viewMatrix, GLuint shader)
 {
     // YOU DON'T NEED TO TOUCH THIS METHOD, unless you want to do fancy lighting...
 
     CS123SceneLightData &light = *(m_lights.at(0));
-    light.dir = glm::inverse(viewMatrix) * lightDirection;
+//    light.dir = /*glm::inverse(viewMatrix) **/ lightDirection;
 
-    clearLights();
-    setLight(light);
+    clearLights(shader);
+    setLight(light, shader);
 }
 
 

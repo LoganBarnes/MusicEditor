@@ -22,6 +22,8 @@ public:
 
     void updateMatrices();
 
+    void swing();
+
 private:
     void updateProjectionMatrix();
     void updateViewMatrix();

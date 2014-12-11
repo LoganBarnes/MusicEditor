@@ -7,6 +7,8 @@
 
 using namespace std;
 
+bool initialized = false;
+
 View::View(QGLFormat format, QWidget *parent) : QGLWidget(format, parent)
 {
     // View needs all mouse move events, not just mouse drag events
@@ -78,6 +80,9 @@ void View::initializeGL()
     // events. This occurs if there are two monitors and the mouse is on the
     // secondary monitor.
     QCursor::setPos(mapToGlobal(QPoint(width() / 2, height() / 2)));
+
+    initialized = true;
+//    std::printf("OpenGL version supported by this platform (%s): \n", glGetString(GL_VERSION));
 }
 
 void View::paintGL()
@@ -99,11 +104,14 @@ void View::paintGL()
         }
 
         // Update the scene camera.
+//        glViewport(0, 0, 512, 512);
+//        m_scene->render(m_camera, true); // set cube map
+
         glViewport(0, 0, width(), height());
         m_camera->setAspectRatio((float)width() / (float)height());
 
         // Render the scene.
-        m_scene->render(m_camera);
+        m_scene->render(m_camera, false);
     }
 }
 
@@ -154,7 +162,7 @@ void View::tick()
 //    float seconds = time.restart() * 0.001f;
 
     // TODO: Implement the demo update here
-
+    m_camera->swing();
 
     // Flag this view for repainting (Qt will call paintGL() soon after)
     update();
