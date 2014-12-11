@@ -41,6 +41,8 @@ private:
     int m_oldY;
     bool m_clicked;
     bool m_transZ;
+    bool m_transLightningOut;
+    bool m_delete;
 
 private slots:
     void tick();

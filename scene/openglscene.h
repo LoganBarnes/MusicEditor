@@ -19,6 +19,11 @@ struct SceneElement
     CS123ScenePrimitive *primitive;
     glm::mat4 trans;
     glm::mat4 inv;
+    int link;
+    bool render;
+    bool linked;
+    bool dragged;
+
 };
 
 struct IntersectElement
@@ -55,6 +60,15 @@ public:
     virtual IntersectElement shapeClickIntersect(glm::vec4 ey, glm::vec4 dr) = 0;
     virtual void updateShape(int ind, float x, float y, float z, PrimitiveType prm) = 0;
 
+    virtual void addObject(PrimitiveType typ) = 0;
+    virtual void deleteObject(PrimitiveType typ, int ind) = 0;
+
+    virtual void checkIntersects() = 0;
+    QList<SceneElement *> m_waterElements;
+    QList<SceneElement *> m_lightningElements;
+    QList<SceneElement *> m_deleteElements;
+
+
 protected:
     // Set all lights to black.
     void clearLights();
@@ -72,6 +86,9 @@ protected:
     // Render see-through shapes
     virtual void renderTransparents() = 0;
 
+    virtual void renderBolts() = 0;
+
+
     // Set the necessary uniforms to switch materials.
     void applyMaterial(const CS123SceneMaterial &material);
 
@@ -85,17 +102,18 @@ protected:
     GLuint m_solidShader;
     GLuint m_cubeShader;
     GLuint m_waterShader;
+    GLuint m_boltShader;
 
     CS123SceneGlobalData m_global;
     QList<CS123SceneLightData*> m_lights;
-    QList<SceneElement *> m_waterElements;
-    QList<SceneElement *> m_lightningElements;
-    QList<SceneElement *> m_waterLightningElements;
+
 
 
     std::map<string, GLint> m_solidUniforms;
     std::map<string, GLint> m_cubeUniforms;
     std::map<string, GLint> m_waterUniforms;
+    std::map<string, GLint> m_boltUniforms;
+
 
 private:
 

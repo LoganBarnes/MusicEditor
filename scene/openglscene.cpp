@@ -41,16 +41,17 @@ OpenGLScene::~OpenGLScene()
     }
     m_lightningElements.clear();
 
-    num = m_waterLightningElements.size();
+    num = m_deleteElements.size();
     for (i = 0; i < num; i++)
     {
-        SceneElement *e = m_waterLightningElements.at(i);
+        SceneElement *e = m_deleteElements.at(i);
         delete e->primitive->material.bumpMap;
         delete e->primitive->material.textureMap;
         delete e->primitive;
         delete e;
     }
-    m_waterLightningElements.clear();
+    m_deleteElements.clear();
+
 
     // delete lights
     num = m_lights.size();
@@ -74,6 +75,9 @@ void OpenGLScene::init()
     m_waterShader = ResourceLoader::loadShaders(
                 ":/shaders/glass.vert",
                 ":/shaders/glass.frag");
+    m_boltShader = ResourceLoader::loadShaders(
+                ":/shaders/bolt.vert",
+                ":/shaders/bolt.frag");
 
     // solids
     m_solidUniforms["projection"]= glGetUniformLocation(m_solidShader, "projection");
@@ -107,6 +111,12 @@ void OpenGLScene::init()
     m_waterUniforms["function"] = glGetUniformLocation(m_waterShader, "function");
     m_waterUniforms["r0"] = glGetUniformLocation(m_waterShader, "r0");
     m_waterUniforms["eta"] = glGetUniformLocation(m_waterShader, "eta");
+
+    // bolt
+    m_boltUniforms["view"] = glGetUniformLocation(m_boltShader, "view");
+    m_boltUniforms["projection"] = glGetUniformLocation(m_boltShader, "projection");
+    m_boltUniforms["model"] = glGetUniformLocation(m_boltShader, "model");
+
 }
 
 void OpenGLScene::render(Camera *cam)
@@ -153,6 +163,15 @@ void OpenGLScene::render(Camera *cam)
     glUniform3f(m_solidUniforms["allBlack"], 1, 1, 1);
 
     renderLightning();
+
+
+    glUseProgram(m_boltShader);
+    glUniformMatrix4fv(m_boltUniforms["view"], 1, GL_FALSE,
+            glm::value_ptr(viewMatrix));
+    glUniformMatrix4fv(m_boltUniforms["projection"], 1, GL_FALSE,
+            glm::value_ptr(projMatrix));
+
+    renderBolts();
 
 //    if (m_drawWireframe)
 //    {

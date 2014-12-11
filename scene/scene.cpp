@@ -22,7 +22,6 @@ Scene::Scene(QObject *parent)
     m_lights.clear();
     m_waterElements.clear();
     m_lightningElements.clear();
-    m_waterLightningElements.clear();
 
     // music data
     m_udp1 = new UDPHandler(this, SLOT(setF1(QVector<float>)), 7000);
@@ -101,6 +100,13 @@ void Scene::setUp()
     light->id = 0;
 
     SceneElement *element = new SceneElement();
+    element->dragged = false;
+    element->render = true;
+    element->linked = false;
+    element->link = NULL;
+
+    element->dragged = false;
+    prim->type = LIGHTNING_TYPE;
     element->primitive = prim;
     element->trans = glm::rotate(glm::mat4(), (float) (M_PI / 4.0), glm::vec3(1, 1, -.1f));
 //    element->trans = glm::mat4();
@@ -112,11 +118,21 @@ void Scene::setUp()
 //    glm::mat4x4 rots = glm::rotate(glm::mat4(), (float) (M_PI / 4.0), glm::vec3(1, 1, -.1f));
 
     SceneElement *element2 = new SceneElement();
+    element2->dragged = false;
+    element2->render = true;
+    element2->link = false;
+    element2->linked = NULL;
+    prim->type = WATER_TYPE;
     element2->primitive = prim;
-    element2->trans = glm::translate(glm::mat4(), glm::vec3(4, 0, 0));
+    element2->trans = (glm::translate(glm::mat4(), glm::vec3(2, 0, 0)) * glm::rotate(glm::mat4(), (float)(M_PI/2.0f), glm::vec3(0.0f, 0.0f, 1.0f)));
     element2->inv = glm::inverse(element2->trans);
 
     SceneElement *element3 = new SceneElement();
+    element3->dragged = false;
+    element3->render = true;
+    element3->link = false;
+    element3->linked = NULL;
+    prim->type = WATER_TYPE;
     element3->primitive = prim;
     element3->trans = glm::translate(glm::mat4(), glm::vec3(-2, 0, 0));
     element3->inv = glm::inverse(element3->trans);
@@ -154,6 +170,8 @@ void Scene::init()
     m_lightningShape->updateGL(m_solidShader);
     m_lightningShape->cleanUp();
 
+
+
     m_waterShape = new MusicShape(150, 70, 0.15f);
     m_waterShape->calcVerts();
     m_waterShape->updateGL(m_waterShader);
@@ -182,6 +200,147 @@ void Scene::renderSetting()
     m_room->render();
 }
 
+void Scene::deleteObject(PrimitiveType typ, int ind) {
+    if (typ == WATER_TYPE) {
+        if (m_waterElements.size() == 1) {
+            return;
+        }
+        if (m_waterElements.at(ind)->linked) {
+            int lInd = m_waterElements.at(ind)->link;
+
+            m_waterElements.at(ind)->linked = false;
+            m_lightningElements.at(lInd)->render = true;
+            m_waterElements.at(ind)->link = -1;
+        }
+        m_deleteElements.append(m_waterElements.at(ind));
+        m_waterElements.removeAt(ind);
+//        delete e->primitive->material.bumpMap;
+//        delete e->primitive->material.textureMap;
+//        delete e->primitive;
+//        delete e;
+    }
+    else if (typ == LIGHTNING_TYPE) {
+        if (m_lightningElements.size() == 1) {
+            return;
+        }
+        m_deleteElements.append(m_lightningElements.at(ind));
+        m_lightningElements.removeAt(ind);
+//        delete e->primitive->material.bumpMap;
+//        delete e->primitive->material.textureMap;
+//        delete e->primitive;
+//        delete e;
+    }
+}
+
+void Scene::addObject(PrimitiveType typ) {
+    if (typ == WATER_TYPE) {
+        if (m_waterElements.size() >= 5) {
+            return;
+        }
+        else {
+            CS123ScenePrimitive *prim = new CS123ScenePrimitive();
+            CS123SceneMaterial& mat = prim->material;
+
+            prim->meshfile = "";
+          //  prim->type = PRIMITIVE_CUBE;
+
+            // Use a shiny orange material
+            memset(&mat, 0, sizeof(CS123SceneMaterial));
+            mat.cAmbient.r = 0.2f;
+            mat.cAmbient.g = 0.2f;
+            mat.cAmbient.b = 0.4f;
+            mat.cDiffuse.r = 0.5f;
+            mat.cDiffuse.g = 0.5f;
+            mat.cDiffuse.b = 1.0f;
+            mat.cSpecular.r = mat.cSpecular.g = mat.cSpecular.b = 1;
+            mat.shininess = 64;
+
+            // Use snow texture
+            mat.textureMap = new CS123SceneFileMap();
+        //    mat.textureMap->filename = "/course/cs123/data/image/terrain/snow.JPG";
+            mat.textureMap->filename = "/Users/Logan/Documents/course/cs123/data/image/terrain/snow.JPG";
+            mat.textureMap->isUsed = false;
+            mat.textureMap->repeatU = 1;
+            mat.textureMap->repeatV = 1;
+            mat.blend = 0.5f;
+
+            mat.bumpMap = new CS123SceneFileMap();
+            mat.bumpMap->filename = "";
+            mat.bumpMap->isUsed = false;
+            mat.bumpMap->repeatU = 1;
+            mat.bumpMap->repeatV = 1;
+            mat.bumpMap->texid = 0;
+
+
+            SceneElement *element = new SceneElement();
+            element->dragged = false;
+            element->render = true;
+            element->linked = false;
+            element->link = NULL;
+
+            element->dragged = false;
+            prim->type = LIGHTNING_TYPE;
+            element->primitive = prim;
+            element->trans = glm::mat4(1.0f);
+            element->inv = glm::inverse(element->trans);
+            m_waterElements.append(element);
+        }
+    }
+    else if (typ == LIGHTNING_TYPE) {
+        if (m_lightningElements.size() >= 5) {
+            return;
+        }
+        else {
+            CS123ScenePrimitive *prim = new CS123ScenePrimitive();
+            CS123SceneMaterial& mat = prim->material;
+
+            prim->meshfile = "";
+          //  prim->type = PRIMITIVE_CUBE;
+
+            // Use a shiny orange material
+            memset(&mat, 0, sizeof(CS123SceneMaterial));
+            mat.cAmbient.r = 0.2f;
+            mat.cAmbient.g = 0.2f;
+            mat.cAmbient.b = 0.4f;
+            mat.cDiffuse.r = 0.5f;
+            mat.cDiffuse.g = 0.5f;
+            mat.cDiffuse.b = 1.0f;
+            mat.cSpecular.r = mat.cSpecular.g = mat.cSpecular.b = 1;
+            mat.shininess = 64;
+
+            // Use snow texture
+            mat.textureMap = new CS123SceneFileMap();
+        //    mat.textureMap->filename = "/course/cs123/data/image/terrain/snow.JPG";
+            mat.textureMap->filename = "/Users/Logan/Documents/course/cs123/data/image/terrain/snow.JPG";
+            mat.textureMap->isUsed = false;
+            mat.textureMap->repeatU = 1;
+            mat.textureMap->repeatV = 1;
+            mat.blend = 0.5f;
+
+            mat.bumpMap = new CS123SceneFileMap();
+            mat.bumpMap->filename = "";
+            mat.bumpMap->isUsed = false;
+            mat.bumpMap->repeatU = 1;
+            mat.bumpMap->repeatV = 1;
+            mat.bumpMap->texid = 0;
+
+
+            SceneElement *element = new SceneElement();
+            element->dragged = false;
+            element->render = true;
+            element->linked = false;
+            element->link = NULL;
+
+            element->dragged = false;
+            prim->type = LIGHTNING_TYPE;
+            element->primitive = prim;
+            element->trans = glm::mat4(1.0f);
+            element->inv = glm::inverse(element->trans);
+            m_lightningElements.append(element);
+        }
+    }
+}
+
 
 void Scene::renderLightning()
 {
@@ -199,19 +358,34 @@ void Scene::renderLightning()
 
     // Draw the shapes.
     for (int i = 0; i < m_lightningElements.size(); ++i) {
-        glUniform3f(glGetUniformLocation(m_solidShader, "allWhite"), 0, 0, 0); // not white
-        glUniform1i(m_solidUniforms["functionSize"], m_f1.size());
-        glUniform1fv(m_solidUniforms["function"], m_f1.size(), m_f1.data());
-        m_lightningShape->transformAndRender(m_solidShader, m_lightningElements.at(i)->trans);
+        if (m_lightningElements.at(i)->render) {
+            glUniform3f(glGetUniformLocation(m_solidShader, "allWhite"), 0, 0, 0); // not white
+            glUniform1i(m_solidUniforms["functionSize"], m_f1.size());
+            glUniform1fv(m_solidUniforms["function"], m_f1.size(), m_f1.data());
+            m_lightningShape->transformAndRender(m_solidShader, m_lightningElements.at(i)->trans);
+        }
 
-//        glUniform3f(glGetUniformLocation(m_shader, "allWhite"), 0, 0, 0); // not white
-//        m_shape->transformAndRender(m_shader, glm::translate(glm::mat4(), glm::vec3(-2, 0, 0)));
-
-//        glUniform3f(glGetUniformLocation(m_shader, "allWhite"), 0, 0, 0); // not white
-//        m_shape->transformAndRender(m_shader, glm::translate(glm::mat4(), glm::vec3(2, 0, 0)));
     }
-//    glUniform3f(m_solidUniforms["allWhite"], 0, 0, 0); // not white
-//    m_solidShape->transformAndRender(m_solidShader, m_elements.at(0)->trans);
+}
+
+void Scene::renderBolts()
+{
+    m_lightningShape->calcBoltVerts();
+    m_lightningShape->updateLightning(m_boltShader);
+    for (int i = 0; i < m_lightningElements.size(); ++i) {
+        if (m_lightningElements.at(i)->render) {
+            m_lightningShape->renderLightning(m_boltShader, m_lightningElements.at(i)->trans);
+        }
+    }
+
+    for (int i = 0; i < m_waterElements.size(); ++i) {
+        if (m_waterElements.at(i)->linked) {
+            m_waterShape->calcBoltVerts();
+            m_waterShape->updateLightning(m_boltShader);
+            m_waterShape->renderLightning(m_boltShader, m_waterElements.at(i)->trans);
+        }
+
+    }
 
 }
 
@@ -221,7 +395,6 @@ void Scene::renderTransparents()
     glUniform1f(m_waterUniforms["r0"], 0.25f);
     glUniform3f(m_waterUniforms["eta"], 1.f / 1.3312f, 1.f / 1.333f, 1.f / 1.3381);
     m_room->bindTexture();
-
 
     for (int i = 0; i < m_waterElements.size(); ++i) {
         glUniform1i(m_waterUniforms["functionSize"], m_f1.size());
@@ -286,6 +459,120 @@ void Scene::updateShape(int ind, float x, float y, float z, PrimitiveType prm) {
 //   // m_hit = Inew;
 }
 
+void Scene::checkIntersects() {
+
+    float dist;
+    for (int w = 0; w < m_waterElements.size(); ++w) {
+        glm::vec3 pos1 = glm::vec3(m_waterElements.at(w)->trans * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
+        float rad1 = m_waterShape->getRadius();
+
+        for (int l = 0; l < m_lightningElements.size(); ++l) {
+            if (m_lightningElements.at(l)->render) {
+                glm::vec3 pos2 = glm::vec3(m_lightningElements.at(l)->trans * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
+                float rad2 = m_lightningShape->getRadius();
+                if ((dist = m_waterShape->collisionDetector(pos1, pos2, rad1, rad2)) != 0.0f) {
+                    if (m_waterElements.at(w)->linked) {
+                        glm::vec3 dPos = (pos2 - pos1);
+                        if (glm::dot(dPos, dPos) == 0.0f) {
+                            dPos = glm::vec3(1.0f, 0.0f, 0.0f);
+                        }
+                        glm::vec3 dir = glm::normalize(dPos);
+                        glm::vec3 trans = ((dist/2.0f) * dir);
+                        glm::vec3 trans2 = (dist * dir);
+                        if (m_waterElements.at(w)->dragged) {
+                            updateShape(l, trans2.x, trans2.y, trans2.z, LIGHTNING_TYPE);
+                        }
+                        else if (m_lightningElements.at(l)->dragged) {
+                            updateShape(w, -trans2.x, -trans2.y, -trans2.z, WATER_TYPE);
+                        }
+                        else {
+                            updateShape(w, -trans.x, -trans.y, -trans.z, WATER_TYPE);
+                            updateShape(l, trans.x, trans.y, trans.z, LIGHTNING_TYPE);
+                        }
+                    }
+                    else {
+                        m_lightningElements.at(l)->trans = m_waterElements.at(w)->trans;
+                        m_lightningElements.at(l)->render = false;
+                        m_waterElements.at(w)->link = l;
+                        m_waterElements.at(w)->linked = true;
+                    }
+                }
+            }
+        }
+
+        for (int wi = 0; wi < m_waterElements.size(); ++wi) {
+            if (wi != w) {
+                glm::vec3 pos2 = glm::vec3(m_waterElements.at(wi)->trans * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
+                float rad2 = m_waterShape->getRadius();
+                if ((dist = m_waterShape->collisionDetector(pos1, pos2, rad1, rad2)) != 0.0f) {
+                    glm::vec3 dPos = (pos2 - pos1);
+                    if (glm::dot(dPos, dPos) == 0.0f) {
+                        dPos = glm::vec3(1.0f, 0.0f, 0.0f);
+                    }
+                    glm::vec3 dir = glm::normalize(dPos);
+                    glm::vec3 trans = ((dist/2.0f) * dir);
+                    glm::vec3 trans2 = (dist * dir);
+                    if (m_waterElements.at(w)->link) {
+                        if (!m_waterElements.at(wi)->link) {
+
+                        }
+                    }
+                    else {
+                        if (m_waterElements.at(wi)->link) {
+
+                        }
+                    }
+
+                    if (m_waterElements.at(w)->dragged) {
+                        updateShape(wi, trans2.x, trans2.y, trans2.z, WATER_TYPE);
+                    }
+                    else if (m_waterElements.at(wi)->dragged) {
+                        updateShape(w, -trans2.x, -trans2.y, -trans2.z, WATER_TYPE);
+                    }
+                    else {
+                        updateShape(w, -trans.x, -trans.y, -trans.z, WATER_TYPE);
+                        updateShape(wi, trans.x, trans.y, trans.z, WATER_TYPE);
+                    }
+
+                }
+            }
+        }
+    }
+
+
+    for (int l = 0; l < m_lightningElements.size(); ++l) {
+        glm::vec3 pos1 = glm::vec3(m_lightningElements.at(l)->trans * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
+        float rad1 = m_lightningShape->getRadius();
+
+        for (int li = 0; li < m_lightningElements.size(); ++li) {
+            if (li != l) {
+                glm::vec3 pos2 = glm::vec3(m_lightningElements.at(l)->trans * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
+                float rad2 = m_lightningShape->getRadius();
+                if ((dist = m_lightningShape->collisionDetector(pos1, pos2, rad1, rad2)) != 0.0f) {
+                    glm::vec3 dPos = (pos2 - pos1);
+                    if (glm::dot(dPos, dPos) == 0.0f) {
+                       // dPos = glm::vec3(1.0f, 0.0f, 0.0f);
+                    }
+                    glm::vec3 dir = glm::normalize(dPos);
+                    glm::vec3 trans = ((dist/2.0f) * dir);
+                    glm::vec3 trans2 = (dist * dir);
+                    if (m_lightningElements.at(l)->dragged) {
+                        updateShape(li, trans2.x, trans2.y, trans2.z, LIGHTNING_TYPE);
+                    }
+                    else if (m_lightningElements.at(li)->dragged) {
+                        updateShape(l, -trans2.x, -trans2.y, -trans2.z, LIGHTNING_TYPE);
+                    }
+                    else {
+                        updateShape(l, -trans.x, -trans.y, -trans.z, LIGHTNING_TYPE);
+                        updateShape(li, trans.x, trans.y, trans.z, LIGHTNING_TYPE);
+                    }
+
+                }
+            }
+        }
+    }
+}
+
 IntersectElement Scene::shapeClickIntersect(glm::vec4 ey, glm::vec4 dr) {
     float finDist = -1.0f;
     int finInd = -1;
@@ -316,27 +603,29 @@ IntersectElement Scene::shapeClickIntersect(glm::vec4 ey, glm::vec4 dr) {
         }
     }
     for (int i = 0; i < m_lightningElements.size(); ++i) {
-        glm::vec4 eye = m_lightningElements.at(i)->inv * ey;
-        glm::vec4 dir = m_lightningElements.at(i)->inv * dr;
+        if (m_lightningElements.at(i)->render) {
+            glm::vec4 eye = m_lightningElements.at(i)->inv * ey;
+            glm::vec4 dir = m_lightningElements.at(i)->inv * dr;
 
-        glm::vec3 eye3 = glm::vec3(eye);
-        glm::vec3 dir3 = glm::vec3(dir);
+            glm::vec3 eye3 = glm::vec3(eye);
+            glm::vec3 dir3 = glm::vec3(dir);
 
 
 
-        float tempDist = m_lightningShape->calcIntersect(eye3, dir3);
+            float tempDist = m_lightningShape->calcIntersect(eye3, dir3);
 
-        if (tempDist > 0.0f) {
+            if (tempDist > 0.0f) {
 
-            if(finDist < 0.0f) {
-                finDist = tempDist;
-                finInd = i;
-                prm = LIGHTNING_TYPE;
-            }
-            else if (tempDist < finDist) {
-                finDist = tempDist;
-                finInd = i;
-                prm = LIGHTNING_TYPE;
+                if(finDist < 0.0f) {
+                    finDist = tempDist;
+                    finInd = i;
+                    prm = LIGHTNING_TYPE;
+                }
+                else if (tempDist < finDist) {
+                    finDist = tempDist;
+                    finInd = i;
+                    prm = LIGHTNING_TYPE;
+                }
             }
         }
     }

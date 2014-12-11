@@ -178,6 +178,31 @@ void MusicShape::transformAndRender(GLuint shader, glm::mat4 trans)
 
 //}
 
+float MusicShape::collisionDetector(glm::vec3 cent1, glm::vec3 cent2, float rad1, float rad2) {
+   // float inner = (powf((cent1.x - cent2.x), 2.0f) + powf((cent1.y - cent2.y), 2.0f) + powf((cent1.z - cent2.z), 2.0f));
+    float eucDist = euclideanDist(cent1, cent2);
+    if (eucDist == 0.0f) {
+        return (rad1 + rad2);
+    }
+    if (eucDist < (rad1 + rad2)) {
+        float radDiff1 = (rad2 - rad1);
+        float radDiff2 = (rad1 - rad2);
+        return (eucDist - radDiff1 - radDiff2);
+    }
+    else {
+        return 0.0f;
+    }
+}
+
+float MusicShape::getRadius() {
+    return m_radius;
+}
+
+void MusicShape::setRadius(float rad) {
+    m_radius = rad;
+}
+
+
 
 float MusicShape::calcIntersect(glm::vec3 eye, glm::vec3 dir) {
 

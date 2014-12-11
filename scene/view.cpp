@@ -23,6 +23,8 @@ View::View(QGLFormat format, QWidget *parent) : QGLWidget(format, parent)
     m_oldY = 0;
     m_clicked = false;
     m_transZ = false;
+    m_transLightningOut = false;
+    m_delete = false;
 
     // The game loop is implemented using a timer
     connect(&timer, SIGNAL(timeout()), this, SLOT(tick()));
@@ -108,6 +110,9 @@ void View::paintGL()
 
         // Render the scene.
         m_scene->render(m_camera);
+        if (!m_transLightningOut) {
+            m_scene->checkIntersects();
+        }
     }
 }
 
@@ -120,9 +125,9 @@ void View::mousePressEvent(QMouseEvent *event)
 {
     if ((event->x() > 0 && event->x() < width()) && (event->y() > 0 && event->y() < height())) {
 
-        std::cout << event->x() << std::endl;
+       // std::cout << event->x() << std::endl;
 
-        std::cout << event->pos().x() << std::endl;
+      //  std::cout << event->pos().x() << std::endl;
 
         int x = event->x();
         int y = event->y();
@@ -141,17 +146,28 @@ void View::mousePressEvent(QMouseEvent *event)
 
         //glm::vec3 colr = m_scene->castRay(camPos, direc, 4, -1);
         m_currMove = m_scene->shapeClickIntersect(camPos, direc);
+        if (m_delete) {
+            m_scene->deleteObject(m_currMove.prim, m_currMove.indx);
+            return;
+        }
 
-        std::cout << "IND "  << std::endl;
+        if (m_currMove.prim == WATER_TYPE) {
+            m_scene->m_waterElements.at(m_currMove.indx)->dragged = true;
+        }
+        else if (m_currMove.prim == LIGHTNING_TYPE) {
+            m_scene->m_lightningElements.at(m_currMove.indx)->dragged = true;
+        }
 
-        std::cout << "width " << width() << std::endl;
+       // std::cout << "IND "  << std::endl;
+
+      //  std::cout << "width " << width() << std::endl;
         if (m_currMove.indx >= 0) {
             m_clicked = true;
             m_currMove.xMax = calcBounds(width(), yPos, m_currMove.interT).x;
             m_currMove.xMin = calcBounds(0, yPos, m_currMove.interT).x;
             m_currMove.yMax = calcBounds(xPos, 0, m_currMove.interT).y;
             m_currMove.yMin = calcBounds(xPos, height(), m_currMove.interT).y;
-            std:: cout << " XMIN " << m_currMove.xMin << " X MAX " << m_currMove.xMax << "  width " << width() << std::endl;
+          //  std:: cout << " XMIN " << m_currMove.xMin << " X MAX " << m_currMove.xMax << "  width " << width() << std::endl;
         }
     }
 }
@@ -195,8 +211,16 @@ void View::mouseMoveEvent(QMouseEvent *event)
             float xTot = (m_currMove.xMax - m_currMove.xMin);
             float yTot = (m_currMove.yMax - m_currMove.yMin);
             float xRat = ((1.0f * width()) / xTot);
-            float yRat = (yTot / (1.0f * height()));
+            float yRat = ((1.0f * height()) / yTot);
+            if ((isinf(xRat) == 1) || xRat == 0.0f) {
+                xRat = 1.0f;
+                deltX = 0.0f;
+            }
 
+            if ((isinf(yRat) == 1) || yRat == 0.0f) {
+                yRat = 1.0f;
+                deltY = 0.0f;
+            }
     //        glm::vec4 tLook = glm::vec4(m_camera->getLook(), 0.0f);
     //        glm::vec4 tEye = glm::vec4(m_camera->getEye(), 1.0f);
 
@@ -209,14 +233,48 @@ void View::mouseMoveEvent(QMouseEvent *event)
     //        glm::vec4 filmPos = glm::vec4(xPos, yPos, -1.0f, 1.0f);
     //        glm::vec4 fWorld = (glm::inverse(m_camera->getM4()) * glm::inverse(m_camera->getM3()) * glm::inverse(m_camera->getM2()) * filmPos);
     //        glm::vec4 direc = glm::normalize((fWorld - camPos));
-            std:: cout << " XTOT " << xTot << " xRat " << xRat << "  width " << width() << " VAL " << (deltX / xRat) << std::endl;
+        //    std:: cout << " XTOT " << xTot << " xRat " << xRat << "  width " << width() << " VAL " << (deltX / xRat) << std::endl;
+            int lInd = -1;
+            if (m_currMove.prim == WATER_TYPE) {
+                if (m_scene->m_waterElements.at(m_currMove.indx)->linked) {
+                    lInd = m_scene->m_waterElements.at(m_currMove.indx)->link;
+                }
+            }
             if (m_transZ) {
-                m_scene->updateShape(m_currMove.indx, 0.0f, 0.0f, 1.0f, m_currMove.prim);
+                if (m_transLightningOut && (lInd >= 0)) {
+                    m_scene->updateShape(lInd, 0.0f, 0.0f, (-deltY / yRat), LIGHTNING_TYPE);
+                    m_scene->m_waterElements.at(m_currMove.indx)->linked = false;
+                    m_scene->m_waterElements.at(m_currMove.indx)->link = -1;
+                    m_scene->m_lightningElements.at(lInd)->render = true;
+                    m_currMove.indx = lInd;
+                    m_currMove.prim = LIGHTNING_TYPE;
+
+                }
+                else {
+                    m_scene->updateShape(m_currMove.indx, 0.0f, 0.0f, (-deltY / yRat), m_currMove.prim);
+                }
 
             }
             else {
-                m_scene->updateShape(m_currMove.indx, (deltX / xRat), (yRat * deltY), 0.0f, m_currMove.prim);
+                if (m_transLightningOut && (lInd >= 0)) {
+                    m_scene->updateShape(lInd, (deltX / xRat), (deltY / yRat), 0.0f, LIGHTNING_TYPE);
+                    m_scene->m_waterElements.at(m_currMove.indx)->linked = false;
+                    m_scene->m_waterElements.at(m_currMove.indx)->link = -1;
+                    m_scene->m_lightningElements.at(lInd)->render = true;
+                    m_currMove.indx = lInd;
+                    m_currMove.prim = LIGHTNING_TYPE;
+                }
+                else {
+                    m_scene->updateShape(m_currMove.indx, (deltX / xRat), (deltY / yRat), 0.0f, m_currMove.prim);
+                }
             //m_scene->updateShape(m_currMove.indx, tLook, direc, tEye, m_currMove.mHit, deltX);
+            }
+
+            if (m_currMove.prim == WATER_TYPE) {
+                if (m_scene->m_waterElements.at(m_currMove.indx)->linked) {
+                    int lInd = m_scene->m_waterElements.at(m_currMove.indx)->link;
+                    m_scene->m_lightningElements.at(lInd)->trans = m_scene->m_waterElements.at(m_currMove.indx)->trans;
+                }
             }
 
         }
@@ -228,6 +286,12 @@ void View::mouseMoveEvent(QMouseEvent *event)
 
 void View::mouseReleaseEvent(QMouseEvent *event)
 {
+    if (m_currMove.prim == WATER_TYPE) {
+        m_scene->m_waterElements.at(m_currMove.indx)->dragged = true;
+    }
+    else if (m_currMove.prim == LIGHTNING_TYPE) {
+        m_scene->m_lightningElements.at(m_currMove.indx)->dragged = true;
+    }
     m_clicked = false;
 }
 
@@ -239,11 +303,26 @@ void View::keyPressEvent(QKeyEvent *event)
     if (event->key() == Qt::Key_Shift) {
         m_transZ = true;
     }
+    if (event->key() == Qt::Key_Control) {
+        m_transLightningOut = true;
+    }
+
+    if (event->key() == Qt::Key_D) {
+        m_delete = true;
+    }
+    if (event->key() == Qt::Key_L) {
+        m_scene->addObject(LIGHTNING_TYPE);
+    }
+    if (event->key() == Qt::Key_W) {
+        m_scene->addObject(WATER_TYPE);
+    }
 }
 
 void View::keyReleaseEvent(QKeyEvent *event)
 {
     m_transZ = false;
+    m_transLightningOut = false;
+    m_delete = false;
 
 }
 

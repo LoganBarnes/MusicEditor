@@ -51,6 +51,7 @@ OTHER_FILES += \
     shaders/shader.frag shaders/shader.vert\
     shaders/cubemap.frag shader/cubemap.vert\
     shaders/glass.frag shaders/glass.vert\
+    shaders/bolt.frag shaders/bolt.vert\
 #    shaders/metal.frag shaders/metal.vert\
     images/front.png images/back.png images/top.png\
     images/bottom.png images/left.png images/right.png
