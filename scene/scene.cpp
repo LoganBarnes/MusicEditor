@@ -546,16 +546,18 @@ void Scene::checkIntersects() {
 
         for (int li = 0; li < m_lightningElements.size(); ++li) {
             if (li != l) {
-                glm::vec3 pos2 = glm::vec3(m_lightningElements.at(l)->trans * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
+                glm::vec3 pos2 = glm::vec3(m_lightningElements.at(li)->trans * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
                 float rad2 = m_lightningShape->getRadius();
                 if ((dist = m_lightningShape->collisionDetector(pos1, pos2, rad1, rad2)) != 0.0f) {
+
                     glm::vec3 dPos = (pos2 - pos1);
                     if (glm::dot(dPos, dPos) == 0.0f) {
-                       // dPos = glm::vec3(1.0f, 0.0f, 0.0f);
+                        dPos = glm::vec3(1.0f, 0.0f, 0.0f);
                     }
                     glm::vec3 dir = glm::normalize(dPos);
                     glm::vec3 trans = ((dist/2.0f) * dir);
                     glm::vec3 trans2 = (dist * dir);
+
                     if (m_lightningElements.at(l)->dragged) {
                         updateShape(li, trans2.x, trans2.y, trans2.z, LIGHTNING_TYPE);
                     }
