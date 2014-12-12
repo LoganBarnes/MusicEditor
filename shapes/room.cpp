@@ -111,7 +111,7 @@ void Room::bindFramebuffer()
 void Room::render()
 {
     glActiveTexture(GL_TEXTURE1);
-    bindTexture();
+    bindFakeTexture();
     glActiveTexture(GL_TEXTURE0);
 
     glBindVertexArray(m_vaoID);

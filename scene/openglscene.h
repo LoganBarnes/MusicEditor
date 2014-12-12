@@ -63,7 +63,7 @@ public:
 
     virtual IntersectElement shapeClickIntersect(glm::vec4 ey, glm::vec4 dr) = 0;
     virtual void updateShape(int ind, float x, float y, float z, PrimitiveType prm) = 0;
-
+    virtual void checkAsserts(bool durClick) = 0;
     virtual void addObject(PrimitiveType typ) = 0;
     virtual void deleteObject(PrimitiveType typ, int ind) = 0;
 

@@ -128,11 +128,9 @@ void View::resizeGL(int w, int h)
 
 void View::mousePressEvent(QMouseEvent *event)
 {
+    m_scene->checkAsserts(false);
+
     if ((event->x() > 0 && event->x() < width()) && (event->y() > 0 && event->y() < height())) {
-
-       // std::cout << event->x() << std::endl;
-
-      //  std::cout << event->pos().x() << std::endl;
 
         int x = event->x();
         int y = event->y();
@@ -143,18 +141,52 @@ void View::mousePressEvent(QMouseEvent *event)
         glm::vec4 filmPos = glm::vec4(xPos, yPos, -1.0f, 1.0f);
 
 
-        glm::vec4 fWorld = (glm::inverse(m_camera->getM4()) * glm::inverse(m_camera->getM3()) * glm::inverse(m_camera->getM2()) * filmPos);
+        glm::vec4 fWorld = (glm::inverse(m_camera->getViewMatrix()) * glm::inverse(m_camera->getM2()) * filmPos);
 
 
         glm::vec4 direc = glm::normalize((fWorld - camPos));
 
 
-        //glm::vec3 colr = m_scene->castRay(camPos, direc, 4, -1);
         m_currMove = m_scene->shapeClickIntersect(camPos, direc);
+        if (m_currMove.indx < 0) {
+            return;
+        }
+        bool wLight = false;
+        if (m_currMove.prim == WATER_TYPE) {
+            if (m_scene->m_waterElements.at(m_currMove.indx)->linked) {
+                wLight = true;
+                int lInd = m_scene->m_waterElements.at(m_currMove.indx)->link;
+                if (m_transLightningOut) {
+                    int wInd = m_currMove.indx;
+                    m_currMove.indx = lInd;
+                    m_currMove.prim = LIGHTNING_TYPE;
+                    m_scene->m_lightningElements.at(lInd)->render = true;
+                    m_scene->m_waterElements.at(wInd)->link = -1;
+                    m_scene->m_waterElements.at(wInd)->linked = false;
+                }
+            }
+        }
+
+        glm::vec3 ht = glm::vec3(camPos + (direc * m_currMove.interT));
+        m_currMove.mHit = glm::vec4(ht, 1.0f);
+
+
+
+
+
         if (m_delete) {
+            if (wLight) {
+                int lInd = m_scene->m_waterElements.at(m_currMove.indx)->link;
+                int wInd = m_currMove.indx;
+                m_scene->m_lightningElements.at(lInd)->render = true;
+                m_scene->m_waterElements.at(wInd)->link = -1;
+                m_scene->m_waterElements.at(wInd)->linked = false;
+            }
             m_scene->deleteObject(m_currMove.prim, m_currMove.indx);
             return;
         }
+        m_clicked = true;
+
 
         if (m_currMove.prim == WATER_TYPE) {
             m_scene->m_waterElements.at(m_currMove.indx)->dragged = true;
@@ -163,117 +195,134 @@ void View::mousePressEvent(QMouseEvent *event)
             m_scene->m_lightningElements.at(m_currMove.indx)->dragged = true;
         }
 
-       // std::cout << "IND "  << std::endl;
-
-      //  std::cout << "width " << width() << std::endl;
-        if (m_currMove.indx >= 0) {
-            m_clicked = true;
-            m_currMove.xMax = calcBounds(width(), yPos, m_currMove.interT).x;
-            m_currMove.xMin = calcBounds(0, yPos, m_currMove.interT).x;
-            m_currMove.yMax = calcBounds(xPos, 0, m_currMove.interT).y;
-            m_currMove.yMin = calcBounds(xPos, height(), m_currMove.interT).y;
-          //  std:: cout << " XMIN " << m_currMove.xMin << " X MAX " << m_currMove.xMax << "  width " << width() << std::endl;
-        }
+//        if (m_currMove.indx >= 0) {
+//            m_clicked = true;
+//            m_currMove.xMax = calcBounds(width(), yPos, m_currMove.interT).x;
+//            m_currMove.xMin = calcBounds(0, yPos, m_currMove.interT).x;
+//            m_currMove.yMax = calcBounds(xPos, 0, m_currMove.interT).y;
+//            m_currMove.yMin = calcBounds(xPos, height(), m_currMove.interT).y;
+//        }
     }
 }
 
-glm::vec2 View::calcBounds(int x, int y, float tVal) {
+//glm::vec2 View::calcBounds(int x, int y, float tVal) {
+////    glm::vec4 camPos = glm::inverse(m_camera->getViewMatrix()) * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+////    float xPos = ((2.0f * x)/width()) - 1.0f;
+////    float yPos = 1.0f - ((2.0f * y)/height());
+////    glm::vec4 filmPos = glm::vec4(xPos, yPos, -1.0f, 1.0f);
+////    glm::vec4 fWorld = (glm::inverse(m_camera->getM4()) * glm::inverse(m_camera->getM3()) * glm::inverse(m_camera->getM2()) * filmPos);
+////    glm::vec4 direc = glm::normalize((fWorld - camPos));
+////    //std::cout << " direc " << std::to_string(direc) << "  world"
+////    return glm::vec2(camPos + (tVal * direc));
+//    return glm::vec2(0.0f, 0.0f);
+
+//}
+
+glm::vec3 View::filmPlaneTrans(glm::vec2 mouseMv) {
+
+    int x = mouseMv.x;
+    int y = mouseMv.y;
     glm::vec4 camPos = glm::inverse(m_camera->getViewMatrix()) * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+
     float xPos = ((2.0f * x)/width()) - 1.0f;
     float yPos = 1.0f - ((2.0f * y)/height());
     glm::vec4 filmPos = glm::vec4(xPos, yPos, -1.0f, 1.0f);
-    glm::vec4 fWorld = (glm::inverse(m_camera->getM4()) * glm::inverse(m_camera->getM3()) * glm::inverse(m_camera->getM2()) * filmPos);
-    glm::vec4 direc = glm::normalize((fWorld - camPos));
-    //std::cout << " direc " << std::to_string(direc) << "  world"
-    return glm::vec2(camPos + (tVal * direc));
 
+
+    glm::vec4 fWorld = (glm::inverse(m_camera->getViewMatrix()) * glm::inverse(m_camera->getM2()) * filmPos);
+
+
+    glm::vec4 direc = glm::normalize((fWorld - camPos));
+
+
+
+    glm::vec4 L = glm::vec4(m_camera->getLook(), 0.0f);
+
+    glm::vec3 rI = glm::vec3(direc);
+
+
+    glm::vec4 R = glm::vec4(rI, 0.0f);
+    glm::vec4 Iold = m_currMove.mHit;
+    glm::vec4 Vold = glm::vec4(glm::vec3((Iold - m_camera->getEye4())), 0.0f);
+
+    glm::vec4 ANorm = R;
+    glm::vec4 BNorm = L;
+    float cosThet = glm::dot(ANorm, BNorm);
+    float VnewMag = (glm::dot(Vold, L)/cosThet);
+
+    glm::vec4 Inew = (glm::vec4(glm::vec3(m_camera->getEye4()), 1.0f) + (R * VnewMag));
+
+
+    glm::vec4 translaVec = (Inew - Iold);
+    m_currMove.mHit = Inew;
+    return glm::vec3(translaVec);
 }
 
 void View::mouseMoveEvent(QMouseEvent *event)
 {
-    // This starter code implements mouse capture, which gives the change in
-    // mouse position since the last mouse movement. The mouse needs to be
-    // recentered after every movement because it might otherwise run into
-    // the edge of the screen, which would stop the user from moving further
-    // in that direction. Note that it is important to check that deltaX and
-    // deltaY are not zero before recentering the mouse, otherwise there will
-    // be an infinite loop of mouse move events.
-    //int deltaX = event->x() - width() / 2;
-    //int deltaY = event->y() - height() / 2;
-   // std::cout << " DELT X " << deltaX << std::endl;
-    //if (!deltaX && !deltaY) return;
-   // QCursor::setPos(mapToGlobal(QPoint(width() / 2, height() / 2)));
 
-    int deltX = event->x() - m_oldX;
+
+//    int deltX = event->x() - m_oldX;
     int deltY = ((event->y() - m_oldY) *  -1);
+    glm::vec3 translaVec = glm::vec3(0.0f, 0.0f, 0.0f);
+    if (m_clicked) {
+        if (m_transZ) {
+            glm::vec4 look = glm::vec4(m_camera->getLook(), 0.0f);
+            float tranSpeed = (deltY/15.0f);
+            translaVec = glm::vec3((look * tranSpeed));
+        }
+        else {
+            translaVec = filmPlaneTrans(glm::vec2(event->x(), event->y()));
+        }
+    }
 
-    //std::cout << " DELT X " << deltX << std::endl;
-   // std::cout << " DELT Y " << deltY << std::endl;
 
-    // TODO: Handle mouse movements here
     if ((event->x() > 0 && event->x() < width()) && (event->y() > 0 && event->y() < height())) {
         if (m_clicked) {
+            m_scene->checkAsserts(true);
             m_sceneChanged = true;
-            float xTot = (m_currMove.xMax - m_currMove.xMin);
-            float yTot = (m_currMove.yMax - m_currMove.yMin);
-            float xRat = ((1.0f * width()) / xTot);
-            float yRat = ((1.0f * height()) / yTot);
-            if ((isinf(xRat) == 1) || xRat == 0.0f) {
-                xRat = 1.0f;
-                deltX = 0.0f;
-            }
+//            float xTot = (m_currMove.xMax - m_currMove.xMin);
+//            float yTot = (m_currMove.yMax - m_currMove.yMin);
+//            float xRat = ((1.0f * width()) / xTot);
+//            float yRat = ((1.0f * height()) / yTot);
+//            if ((isinf(xRat) == 1) || xRat == 0.0f) {
+//                xRat = 1.0f;
+//                deltX = 0.0f;
+//            }
 
-            if ((isinf(yRat) == 1) || yRat == 0.0f) {
-                yRat = 1.0f;
-                deltY = 0.0f;
-            }
-    //        glm::vec4 tLook = glm::vec4(m_camera->getLook(), 0.0f);
-    //        glm::vec4 tEye = glm::vec4(m_camera->getEye(), 1.0f);
-
-    //        int x = event->x();
-    //        int y = event->y();
-    //        glm::vec4 camPos = glm::inverse(m_camera->getViewMatrix()) * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
-
-    //        float xPos = ((2.0f * x)/width()) - 1.0f;
-    //        float yPos = 1.0f - ((2.0f * y)/height());
-    //        glm::vec4 filmPos = glm::vec4(xPos, yPos, -1.0f, 1.0f);
-    //        glm::vec4 fWorld = (glm::inverse(m_camera->getM4()) * glm::inverse(m_camera->getM3()) * glm::inverse(m_camera->getM2()) * filmPos);
-    //        glm::vec4 direc = glm::normalize((fWorld - camPos));
-        //    std:: cout << " XTOT " << xTot << " xRat " << xRat << "  width " << width() << " VAL " << (deltX / xRat) << std::endl;
-            int lInd = -1;
-            if (m_currMove.prim == WATER_TYPE) {
-                if (m_scene->m_waterElements.at(m_currMove.indx)->linked) {
-                    lInd = m_scene->m_waterElements.at(m_currMove.indx)->link;
-                }
-            }
+//            int lInd = -1;
+//            if (m_currMove.prim == WATER_TYPE) {
+//                if (m_scene->m_waterElements.at(m_currMove.indx)->linked) {
+//                    lInd = m_scene->m_waterElements.at(m_currMove.indx)->link;
+//                }
+//            }
             if (m_transZ) {
-                if (m_transLightningOut && (lInd >= 0)) {
-                    m_scene->updateShape(lInd, 0.0f, 0.0f, (-deltY / yRat), LIGHTNING_TYPE);
-                    m_scene->m_waterElements.at(m_currMove.indx)->linked = false;
-                    m_scene->m_waterElements.at(m_currMove.indx)->link = -1;
-                    m_scene->m_lightningElements.at(lInd)->render = true;
-                    m_currMove.indx = lInd;
-                    m_currMove.prim = LIGHTNING_TYPE;
+//                if (m_transLightningOut && (lInd >= 0)) {
+//                    m_scene->updateShape(lInd, translaVec.x, translaVec.y, translaVec.z, LIGHTNING_TYPE);
+//                    m_scene->m_waterElements.at(m_currMove.indx)->linked = false;
+//                    m_scene->m_waterElements.at(m_currMove.indx)->link = -1;
+//                    m_scene->m_lightningElements.at(lInd)->render = true;
+//                    m_currMove.indx = lInd;
+//                    m_currMove.prim = LIGHTNING_TYPE;
 
-                }
-                else {
-                    m_scene->updateShape(m_currMove.indx, 0.0f, 0.0f, (-deltY / yRat), m_currMove.prim);
-                }
+//                }
+//                else {
+                    m_scene->updateShape(m_currMove.indx, translaVec.x, translaVec.y, translaVec.z, m_currMove.prim);
+//                }
 
             }
             else {
-                if (m_transLightningOut && (lInd >= 0)) {
-                    m_scene->updateShape(lInd, (deltX / xRat), (deltY / yRat), 0.0f, LIGHTNING_TYPE);
-                    m_scene->m_waterElements.at(m_currMove.indx)->linked = false;
-                    m_scene->m_waterElements.at(m_currMove.indx)->link = -1;
-                    m_scene->m_lightningElements.at(lInd)->render = true;
-                    m_currMove.indx = lInd;
-                    m_currMove.prim = LIGHTNING_TYPE;
-                }
-                else {
-                    m_scene->updateShape(m_currMove.indx, (deltX / xRat), (deltY / yRat), 0.0f, m_currMove.prim);
-                }
-            //m_scene->updateShape(m_currMove.indx, tLook, direc, tEye, m_currMove.mHit, deltX);
+//                if (m_transLightningOut && (lInd >= 0)) {
+//                    m_scene->updateShape(lInd, translaVec.x, translaVec.y, translaVec.z, LIGHTNING_TYPE);
+//                    m_scene->m_waterElements.at(m_currMove.indx)->linked = false;
+//                    m_scene->m_waterElements.at(m_currMove.indx)->link = -1;
+//                    m_scene->m_lightningElements.at(lInd)->render = true;
+//                    m_currMove.indx = lInd;
+//                    m_currMove.prim = LIGHTNING_TYPE;
+//                }
+//                else {
+                    m_scene->updateShape(m_currMove.indx, translaVec.x, translaVec.y, translaVec.z, m_currMove.prim);
+//                }
             }
 
             if (m_currMove.prim == WATER_TYPE) {
@@ -292,13 +341,18 @@ void View::mouseMoveEvent(QMouseEvent *event)
 
 void View::mouseReleaseEvent(QMouseEvent *event)
 {
-    if (m_currMove.prim == WATER_TYPE) {
-        m_scene->m_waterElements.at(m_currMove.indx)->dragged = true;
-    }
-    else if (m_currMove.prim == LIGHTNING_TYPE) {
-        m_scene->m_lightningElements.at(m_currMove.indx)->dragged = true;
+    if (m_clicked) {
+        if (m_currMove.prim == WATER_TYPE) {
+            m_scene->m_waterElements.at(m_currMove.indx)->dragged = false;
+        }
+        else if (m_currMove.prim == LIGHTNING_TYPE) {
+            m_scene->m_lightningElements.at(m_currMove.indx)->dragged = false;
+        }
     }
     m_clicked = false;
+
+    m_scene->checkAsserts(false);
+
 }
 
 void View::keyPressEvent(QKeyEvent *event)
@@ -338,7 +392,7 @@ void View::tick()
 //    float seconds = time.restart() * 0.001f;
 
     // TODO: Implement the demo update here
-//    m_camera->swing();
+    m_camera->swing();
 
     m_scene->sendMusicData(m_camera->getEye4());
     // Flag this view for repainting (Qt will call paintGL() soon after)

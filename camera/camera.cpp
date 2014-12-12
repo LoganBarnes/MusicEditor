@@ -5,6 +5,8 @@ Camera::Camera()
     m_aspectRatio = 1;
     m_angleX = 15.f;
     m_angleY = 0;
+    m_angleX = 50.0f;
+    m_angleY = 10.0f;
     m_zoomZ = -5;
 }
 
@@ -62,8 +64,7 @@ void Camera::updateViewMatrix()
 
 
 glm::vec3 Camera::getLook() {
-    glm::vec3 look = glm::vec3(0.0f, 0.0f, -1.0f);
-    return look;
+    return glm::normalize(glm::vec3(-m_eye));
    // glm::vec3 rot1 = glm::rotate(look, glm::radians(m_angleY), glm::vec3(0.f, 1.f, 0.f));
    // return glm::rotate(rot1, glm::radians(m_angleX), glm::vec3(1.f, 0.f, 0.f));
 }
@@ -91,30 +92,30 @@ glm::mat4x4 Camera::getM2() {
     return glm::transpose(m2);
 }
 
-glm::mat4x4 Camera::getM3() {
-    glm::mat4x4 idMat = glm::mat4x4(1.0f);
+//glm::mat4x4 Camera::getM3() {
+//    glm::mat4x4 idMat = glm::mat4x4(1.0f);
 
-    glm::mat4x4 firstRot = glm::rotate(idMat, glm::radians(m_angleY), glm::vec3(0.f, 1.f, 0.f));
-    glm::mat4x4 rotMat = glm::rotate(firstRot, glm::radians(m_angleX), glm::vec3(1.f, 0.f, 0.f));
+//    glm::mat4x4 firstRot = glm::rotate(idMat, glm::radians(m_angleY), glm::vec3(0.f, 1.f, 0.f));
+//    glm::mat4x4 rotMat = glm::rotate(firstRot, glm::radians(m_angleX), glm::vec3(1.f, 0.f, 0.f));
 
-//    glm::mat4x4  m3 = glm::mat4x4(
-//       m_u.x, m_u.y, m_u.z, 0,
-//       m_v.x, m_v.y, m_v.z, 0,
-//       m_w.x, m_w.y, m_w.z, 0,
+////    glm::mat4x4  m3 = glm::mat4x4(
+////       m_u.x, m_u.y, m_u.z, 0,
+////       m_v.x, m_v.y, m_v.z, 0,
+////       m_w.x, m_w.y, m_w.z, 0,
+////       0, 0, 0, 1
+////    );
+
+////    return glm::transpose(m3);
+//    return rotMat;
+//}
+
+//glm::mat4x4 Camera::getM4() {
+//    glm::mat4x4  m4 = glm::mat4x4(
+//       1, 0, 0, 0,
+//       0, 1, 0, 0,
+//       0, 0, 1, m_zoomZ,
 //       0, 0, 0, 1
 //    );
 
-//    return glm::transpose(m3);
-    return rotMat;
-}
-
-glm::mat4x4 Camera::getM4() {
-    glm::mat4x4  m4 = glm::mat4x4(
-       1, 0, 0, 0,
-       0, 1, 0, 0,
-       0, 0, 1, m_zoomZ,
-       0, 0, 0, 1
-    );
-
-    return glm::transpose(m4);
-}
+//    return glm::transpose(m4);
+//}

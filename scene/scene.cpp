@@ -188,11 +188,10 @@ void Scene::setUp()
     element->linked = false;
     element->link = -1;
 
-    element->dragged = false;
     prim->type = LIGHTNING_TYPE;
     element->primitive = prim;
 //    element->trans = glm::rotate(glm::mat4(), (float) (M_PI / 4.0), glm::vec3(1, 1, -.1f));
-    element->trans = glm::translate(glm::vec3(0.f, 0.f, -2.f));
+    element->trans = glm::translate(glm::vec3(-2.f, -2.f, 0.f));
 //    element->trans = glm::mat4();
 //    element->inv = glm::mat4();
     element->inv = glm::inverse(element->trans);
@@ -204,22 +203,22 @@ void Scene::setUp()
     SceneElement *element2 = new SceneElement();
     element2->dragged = false;
     element2->render = true;
-    element2->link = false;
+    element2->link = -1;
     element2->linked = false;
     prim->type = WATER_TYPE;
     element2->primitive = prim;
-    element2->trans = glm::translate(glm::vec3(0, 0, 0));// * glm::rotate(glm::mat4(), (float)(M_PI/2.0f), glm::vec3(0.0f, 0.0f, 1.0f)));
+    element2->trans = (glm::translate(glm::mat4(), glm::vec3(2, 0, 0)) * glm::rotate(glm::mat4(), (float)(M_PI/2.0f), glm::vec3(0.0f, 0.0f, 1.0f)));
     element2->inv = glm::inverse(element2->trans);
 
-//    SceneElement *element3 = new SceneElement();
-//    element3->dragged = false;
-//    element3->render = true;
-//    element3->link = false;
-//    element3->linked = false;
-//    prim->type = WATER_TYPE;
-//    element3->primitive = prim;
-//    element3->trans = glm::translate(glm::mat4(), glm::vec3(-2, 0, 0));
-//    element3->inv = glm::inverse(element3->trans);
+    SceneElement *element3 = new SceneElement();
+    element3->dragged = false;
+    element3->render = true;
+    element3->link = -1;
+    element3->linked = false;
+    prim->type = WATER_TYPE;
+    element3->primitive = prim;
+    element3->trans = glm::translate(glm::mat4(), glm::vec3(-2, 0, 0));
+    element3->inv = glm::inverse(element3->trans);
 
     m_waterElements.append(element2);
 //    m_waterElements.append(element3);
@@ -283,17 +282,19 @@ void Scene::renderSetting()
 }
 
 void Scene::deleteObject(PrimitiveType typ, int ind) {
+    std::cout << " DELETING THIS INDDDEX " << ind << " AND THIS TYPE " << typ << std::endl;
     if (typ == WATER_TYPE) {
         if (m_waterElements.size() == 1) {
             return;
         }
-        if (m_waterElements.at(ind)->linked) {
-            int lInd = m_waterElements.at(ind)->link;
+//        if (m_waterElements.at(ind)->linked) {
+//            int lInd = m_waterElements.at(ind)->link;
 
-            m_waterElements.at(ind)->linked = false;
-            m_lightningElements.at(lInd)->render = true;
-            m_waterElements.at(ind)->link = -1;
-        }
+//            m_waterElements.at(ind)->linked = false;
+//            m_lightningElements.at(lInd)->render = true;
+//            m_waterElements.at(ind)->link = -1;
+//            m_lightningElements.at(lInd)->trans = m_waterElements.at(ind)->trans;
+//        }
         m_deleteElements.append(m_waterElements.at(ind));
         m_waterElements.removeAt(ind);
 //        delete e->primitive->material.bumpMap;
@@ -304,6 +305,15 @@ void Scene::deleteObject(PrimitiveType typ, int ind) {
     else if (typ == LIGHTNING_TYPE) {
         if (m_lightningElements.size() == 1) {
             return;
+        }
+        int lInd = ind;
+        for (int i = 0; i < m_waterElements.size(); ++i) {
+            if (m_waterElements.at(i)->linked) {
+                int lInd2 = m_waterElements.at(i)->link;
+                if (lInd2 > lInd) {
+                    m_waterElements.at(i)->link = (lInd2 - 1);
+                }
+            }
         }
         m_deleteElements.append(m_lightningElements.at(ind));
         m_lightningElements.removeAt(ind);
@@ -360,7 +370,6 @@ void Scene::addObject(PrimitiveType typ) {
             element->linked = false;
             element->link = -1;
 
-            element->dragged = false;
             prim->type = LIGHTNING_TYPE;
             element->primitive = prim;
             element->trans = glm::mat4(1.0f);
@@ -413,7 +422,6 @@ void Scene::addObject(PrimitiveType typ) {
             element->linked = false;
             element->link = -1;
 
-            element->dragged = false;
             prim->type = LIGHTNING_TYPE;
             element->primitive = prim;
             element->trans = glm::mat4(1.0f);
@@ -525,37 +533,65 @@ void Scene::setLights(const glm::mat4 viewMatrix, GLuint shader)
     setLight(light, shader);
 }
 
+void Scene::checkAsserts(bool durClick) {
+    bool beingDragged = false;
+    for (int i = 0; i < m_lightningElements.size(); ++i) {
+        assert(m_lightningElements.at(i)->linked == false);
+        assert(m_lightningElements.at(i)->link == -1);
+        if (m_lightningElements.at(i)->dragged) {
+            assert(beingDragged == false);
+            beingDragged = true;
+        }
+    }
+    for (int i = 0; i < m_waterElements.size(); ++i) {
+        if (m_waterElements.at(i)->linked) {
+            int lInd = m_waterElements.at(i)->link;
+//            std::cout << " LIGHNING IND " << lInd << " WATER IND " << i << " LIGHT SIZE " << m_lightningElements.size() << " W SIZE " << m_waterElements.size() << std::endl;
+            assert(lInd < m_lightningElements.size());
+            assert(m_lightningElements.at(lInd)->render == false);
+            assert(lInd >= 0);
+        }
+        else {
+            assert(m_waterElements.at(i)->link == -1);
+        }
+        if (m_waterElements.at(i)->dragged) {
+            assert(beingDragged == false);
+            beingDragged = true;
+        }
+    }
+    if (durClick) {
+        assert(beingDragged == true);
+    }
+    else {
+        assert(beingDragged == false);
+    }
+}
+
 void Scene::updateShape(int ind, float x, float y, float z, PrimitiveType prm) {
     //std::cout << " ind  " << ind << " X " << x << " Y " << y << std::endl;
+    glm::mat4x4 transla = glm::mat4x4(1.0f, 0.0f, 0.0f, x,
+                                     0.0f, 1.0f, 0.0f, y,
+                                     0.0f, 0.0f, 1.0f, z,
+                                    0.0f, 0.0f, 0.0f, 1.0f);
     if (prm == WATER_TYPE) {
-        m_waterElements.at(ind)->trans = (glm::translate(glm::mat4(1.0f), glm::vec3(( 1.3f * x), (1.3f * y), z)) * m_waterElements.at(ind)->trans);
+        glm::mat4x4 transfor = m_waterElements.at(ind)->trans;
+        m_waterElements.at(ind)->trans = (glm::transpose(transla) * transfor);
+        //m_waterElements.at(ind)->trans = (glm::translate(glm::mat4(1.0f), glm::vec3(( 1.3f * x), (1.3f * y), z)) * m_waterElements.at(ind)->trans);
         m_waterElements.at(ind)->inv = glm::inverse(m_waterElements.at(ind)->trans);
+        if (m_waterElements.at(ind)->linked) {
+            int lInd = m_waterElements.at(ind)->link;
+            m_lightningElements.at(lInd)->trans = m_waterElements.at(ind)->trans;
+            m_lightningElements.at(lInd)->inv = m_waterElements.at(ind)->inv;
+        }
     }
     else if (prm == LIGHTNING_TYPE) {
-        m_lightningElements.at(ind)->trans = (glm::translate(glm::mat4(1.0f), glm::vec3(( 1.3f * x), (1.3f * y), z)) * m_lightningElements.at(ind)->trans);
+        glm::mat4x4 transfor = m_lightningElements.at(ind)->trans;
+        m_lightningElements.at(ind)->trans = (glm::transpose(transla) * transfor);
+        //m_lightningElements.at(ind)->trans = (glm::translate(glm::mat4(1.0f), glm::vec3(( 1.3f * x), (1.3f * y), z)) * m_lightningElements.at(ind)->trans);
         m_lightningElements.at(ind)->inv = glm::inverse(m_lightningElements.at(ind)->trans);
     }
 
 
-//    glm::vec4 L = look; //gotten, passed in
-//    glm::vec4 R = mRay; //gotten, passed in
-//    glm::vec4 Iold = mHit; // passed in contact point
-//    glm::vec4 Vold = Iold - eye; // pass in eye
-//    glm::vec4 ANorm = glm::normalize(R);
-//    glm::vec4 BNorm = glm::normalize(L);
-//    float cosThet = glm::dot(ANorm, BNorm);
-//    float VnewMag = (glm::dot(Vold, L)/cosThet);
-//    glm::vec4 Inew = eye + (glm::normalize(R) * VnewMag);
-//    glm::vec4 translaVec = Inew - Iold;
-
-//    float tranSpeed = (delt/15.0f);
-//    glm::mat4x4 transla = glm::mat4x4(1.0f, 0.0f, 0.0f, (translaVec.x),
-//                                     0.0f, 1.0f, 0.0f, (translaVec.y),
-//                                     0.0f, 0.0f, 1.0f, (translaVec.z),
-//                                    0.0f, 0.0f, 0.0f, 1.0f);
-//    glm::mat4x4 transfor = m_elements.at(ind)->trans;
-//    m_elements.at(ind)->trans = (glm::transpose(transla) * transfor);
-//   // m_hit = Inew;
 }
 
 void Scene::checkIntersects() {
@@ -611,14 +647,32 @@ void Scene::checkIntersects() {
                     glm::vec3 dir = glm::normalize(dPos);
                     glm::vec3 trans = ((dist/2.0f) * dir);
                     glm::vec3 trans2 = (dist * dir);
-                    if (m_waterElements.at(w)->link) {
-                        if (!m_waterElements.at(wi)->link) {
+                    if (m_waterElements.at(w)->linked) {
+                        if (!m_waterElements.at(wi)->linked) {
+                            int lInd2;
+                            if ((lInd2 = m_lightningElements.size()) < 5) {
 
+                                addObject(LIGHTNING_TYPE);
+                                m_lightningElements.at(lInd2)->trans = m_waterElements.at(wi)->trans;
+                                m_lightningElements.at(lInd2)->inv = m_waterElements.at(wi)->inv;
+                                m_lightningElements.at(lInd2)->render = false;
+                                m_waterElements.at(wi)->link = lInd2;
+                                m_waterElements.at(wi)->linked = true;
+                            }
                         }
                     }
                     else {
-                        if (m_waterElements.at(wi)->link) {
+                        if (m_waterElements.at(wi)->linked) {
+                            int lInd2;
+                            if ((lInd2 = m_lightningElements.size()) < 5) {
 
+                                addObject(LIGHTNING_TYPE);
+                                m_lightningElements.at(lInd2)->trans = m_waterElements.at(w)->trans;
+                                m_lightningElements.at(lInd2)->inv = m_waterElements.at(w)->inv;
+                                m_lightningElements.at(lInd2)->render = false;
+                                m_waterElements.at(w)->link = lInd2;
+                                m_waterElements.at(w)->linked = true;
+                            }
                         }
                     }
 
@@ -678,31 +732,6 @@ IntersectElement Scene::shapeClickIntersect(glm::vec4 ey, glm::vec4 dr) {
     float finDist = -1.0f;
     int finInd = -1;
     PrimitiveType prm;
-    for (int i = 0; i < m_waterElements.size(); ++i) {
-        glm::vec4 eye = m_waterElements.at(i)->inv * ey;
-        glm::vec4 dir = m_waterElements.at(i)->inv * dr;
-
-        glm::vec3 eye3 = glm::vec3(eye);
-        glm::vec3 dir3 = glm::vec3(dir);
-
-
-
-        float tempDist = m_waterShape->calcIntersect(eye3, dir3);
-
-        if (tempDist > 0.0f) {
-
-            if(finDist < 0.0f) {
-                finDist = tempDist;
-                finInd = i;
-                prm = WATER_TYPE;
-            }
-            else if (tempDist < finDist) {
-                finDist = tempDist;
-                finInd = i;
-                prm = WATER_TYPE;
-            }
-        }
-    }
     for (int i = 0; i < m_lightningElements.size(); ++i) {
         if (m_lightningElements.at(i)->render) {
             glm::vec4 eye = m_lightningElements.at(i)->inv * ey;
@@ -730,6 +759,45 @@ IntersectElement Scene::shapeClickIntersect(glm::vec4 ey, glm::vec4 dr) {
             }
         }
     }
+    for (int i = 0; i < m_waterElements.size(); ++i) {
+        glm::vec4 eye = m_waterElements.at(i)->inv * ey;
+        glm::vec4 dir = m_waterElements.at(i)->inv * dr;
+
+        glm::vec3 eye3 = glm::vec3(eye);
+        glm::vec3 dir3 = glm::vec3(dir);
+
+
+
+        float tempDist = m_waterShape->calcIntersect(eye3, dir3);
+        std::cout << " IND " << i << " DIST TO INTERS " << tempDist << std::endl;
+
+        
+        if (tempDist > 0.0f) {
+
+            if (prm == LIGHTNING_TYPE) {
+                if (m_waterElements.at(i)->linked) {
+                    int lInd = m_waterElements.at(i)->link;
+                    if ((finInd == lInd) && !m_lightningElements.at(lInd)->render) {
+                        finInd = i;
+                        finDist = tempDist;
+                        prm = WATER_TYPE;
+                    }
+                }
+            }
+            
+            if(finDist < 0.0f) {
+                finDist = tempDist;
+                finInd = i;
+                prm = WATER_TYPE;
+            }
+            else if (tempDist < finDist) {
+                finDist = tempDist;
+                finInd = i;
+                prm = WATER_TYPE;
+            }
+        }
+    }
+
 
     IntersectElement intrRet = IntersectElement();
     intrRet.indx = finInd;

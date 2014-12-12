@@ -32,6 +32,8 @@ private:
 
     void keyPressEvent(QKeyEvent *event);
     void keyReleaseEvent(QKeyEvent *event);
+    glm::vec3 filmPlaneTrans(glm::vec2 mouseMv);
+
     glm::vec2 calcBounds(int x, int y, float t);
 
     OpenGLScene *m_scene;
