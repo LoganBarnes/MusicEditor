@@ -60,8 +60,6 @@ void Grid::calcVerts()
         addVertex(&index, glm::vec3(  m_radius, -1.0, z), norm);
         addVertex(&index, glm::vec3( -m_radius, -1.0, z), norm);
     }
-
-    cout << index << ", " << size << endl;
 }
 
 

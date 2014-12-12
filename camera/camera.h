@@ -22,6 +22,9 @@ public:
 
     void updateMatrices();
 
+    glm::vec4 getEye4();
+    void swing();
+
     //get camera trans
     glm::mat4x4 getM3();
     glm::mat4x4 getM2();
@@ -41,6 +44,8 @@ private:
     glm::mat4x4 m_projectionMatrix;
     float m_aspectRatio, m_angleX, m_angleY, m_zoomZ;
     int m_oldX, m_oldY;
+
+    glm::vec4 m_eye;
 };
 
 #endif // CAMERA_H

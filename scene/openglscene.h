@@ -11,6 +11,8 @@
 
 class View;
 class Camera;
+class Room;
+class Test;
 
 using std::string;
 
@@ -55,7 +57,9 @@ public:
     virtual void init();
 
     // Render the scene.
-    void render(Camera *cam);
+    void render(Camera *cam, bool test);
+
+    virtual void sendMusicData(glm::vec4 eye) = 0;
 
     virtual IntersectElement shapeClickIntersect(glm::vec4 ey, glm::vec4 dr) = 0;
     virtual void updateShape(int ind, float x, float y, float z, PrimitiveType prm) = 0;
@@ -71,36 +75,40 @@ public:
 
 protected:
     // Set all lights to black.
-    void clearLights();
+    void clearLights(GLuint shader);
 
     // Set the light uniforms for the lights in the scene. (View matrix is used in cases where a
     // light follows the camera, as in ShapesScene.)
-    virtual void setLights(const glm::mat4 viewMatrix) = 0;
+    virtual void setLights(const glm::mat4 viewMatrix, GLuint shader) = 0;
 
     // Render cubemap
     virtual void renderSetting() = 0;
 
     // Render solid geometry for Shapes and Sceneview.
-    virtual void renderLightning() = 0;
+    virtual void renderLightning(GLuint shader) = 0;
 
     // Render see-through shapes
-    virtual void renderTransparents() = 0;
+    virtual void renderTransparents(GLuint shader) = 0;
 
     virtual void renderBolts() = 0;
 
 
     // Set the necessary uniforms to switch materials.
-    void applyMaterial(const CS123SceneMaterial &material);
+    void applyMaterial(const CS123SceneMaterial &material, GLuint shader);
 
     // Set the necessary uniforms for the light properties.
-    void setLight(const CS123SceneLightData &light);
+    void setLight(const CS123SceneLightData &light, GLuint shader);
 
     // Load a texture
     int loadTexture(const QString &filename);
 
+//    Test *m_test;
+    Room *m_room;
+
     // The program ID for OpenGL.
     GLuint m_solidShader;
     GLuint m_cubeShader;
+    GLuint m_testShader;
     GLuint m_waterShader;
     GLuint m_boltShader;
 
@@ -109,13 +117,13 @@ protected:
 
 
 
+private:
+
     std::map<string, GLint> m_solidUniforms;
     std::map<string, GLint> m_cubeUniforms;
     std::map<string, GLint> m_waterUniforms;
     std::map<string, GLint> m_boltUniforms;
 
-
-private:
 
     bool m_drawWireframe;
     bool m_useLighting;

@@ -2,6 +2,8 @@
     <qresource prefix="/shaders">
         <file alias="default.frag">shaders/shader.frag</file>
         <file alias="default.vert">shaders/shader.vert</file>
+        <file alias="default.gsh">shaders/shader.gsh</file>
+        <file alias="cube.gsh">shaders/cube.gsh</file>
         <file alias="glass.frag">shaders/glass.frag</file>
         <file alias="glass.vert">shaders/glass.vert</file>
         <file alias="cube.frag">shaders/cubemap.frag</file>
@@ -10,11 +12,17 @@
         <file alias="bolt.vert">shaders/bolt.vert</file>
     </qresource>
     <qresource prefix="/images">
-    	<file alias="front.png">images/front.png</file>
-    	<file alias="back.png">images/back.png</file>
-    	<file alias="top.png">images/top.png</file>
-    	<file alias="bottom.png">images/bottom.png</file>
-    	<file alias="left.png">images/left.png</file>
-    	<file alias="right.png">images/right.png</file>
+        <file alias="front.png">images/front.png</file>
+        <file alias="back.png">images/back.png</file>
+        <file alias="top.png">images/top.png</file>
+        <file alias="bottom.png">images/bottom.png</file>
+        <file alias="left.png">images/left.png</file>
+        <file alias="right.png">images/right.png</file>
+        <file alias="negx.jpg">images/negx.jpg</file>
+        <file alias="negy.jpg">images/negy.jpg</file>
+        <file alias="negz.jpg">images/negz.jpg</file>
+        <file alias="posx.jpg">images/posx.jpg</file>
+        <file alias="posy.jpg">images/posy.jpg</file>
+        <file alias="posz.jpg">images/posz.jpg</file>
     </qresource>
 </RCC>

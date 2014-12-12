@@ -6,8 +6,9 @@
 UDPHandler::UDPHandler(Scene *scene, const char *slot, int port, QObject *parent) :
     QObject(parent)
 {
+    m_port = port;
     m_socket = new QUdpSocket(this);
-    m_socket->bind(QHostAddress::LocalHost, port);
+    m_socket->bind(QHostAddress::LocalHost, m_port);
     connect(m_socket, SIGNAL(readyRead()), this, SLOT(readyRead()));
     connect(this, SIGNAL(sendFunction(QVector<float>)), scene, slot);
 }
@@ -39,10 +40,15 @@ QVector<float> UDPHandler::getFunction()
 }
 
 
-void UDPHandler::requestData()
+void UDPHandler::sendInfo(float volume, float panning)
 {
     QByteArray data;
-    data.append("bang");
+    data.append("port ");
+    data.append(QByteArray::number(m_port));
+    data.append(" ");
+    data.append(QByteArray::number(volume));
+    data.append(" ");
+    data.append(QByteArray::number(panning));
 
     m_socket->writeDatagram(data.data(), QHostAddress::LocalHost, PORT_SEND);
 }

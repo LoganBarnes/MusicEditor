@@ -1,4 +1,4 @@
-#version 330 core
+#version 410 core
 
 
 in vec3 position; // Position of the vertex
@@ -8,6 +8,7 @@ in float arrowOffset; // Sideways offset for billboarded normal arrows
 
 out vec3 color; // Computed color for this vertex
 out vec2 texc;
+out vec4 pos;
 
 // Transformation matrices
 uniform mat4 projection;
@@ -48,7 +49,7 @@ void calcVertex(inout vec3 v, inout vec3 n) {
         return;
     }
 
-    float angle = acos(dot(normalize(position), vec3(0, 1, 0)));
+    float angle = acos(dot(normalize(position), vec3(0, -1, 0)));
 
     float sizeMinus = functionSize - 1.0;
     float di = (angle / 3.1415926535897932384626433832795) * functionSize - 0.5;
@@ -87,7 +88,7 @@ void calcVertex(inout vec3 v, inout vec3 n) {
     vec2 tangent = 2 * t_1 * (mid - left) + 2 * t * (right - mid);
     tangent.x /= sizeMinus;
 
-    float a = -atan(tangent.y, tangent.x);
+    float a = atan(tangent.y, tangent.x);
 
     v += n * curve;
 
@@ -107,17 +108,17 @@ void calcVertex(inout vec3 v, inout vec3 n) {
 
 void main(){
 
-    vec3 pos = vec3(position);
+    vec3 posish = vec3(position);
     vec3 norm = vec3(normal);
 
-    calcVertex(pos, norm);
+    calcVertex(posish, norm);
 
     texc = vec2(texCoord.x * repeatU, texCoord.y * repeatV);
 
-    vec4 position_cameraSpace = view * model * vec4(pos, 1.0);
+    vec4 position_cameraSpace = view * model * vec4(posish, 1.0);
     vec4 normal_cameraSpace = vec4(normalize(mat3(transpose(inverse(view * model))) * norm), 0);
 
-    vec4 position_worldSpace = model * vec4(pos, 1.0);
+    vec4 position_worldSpace = model * vec4(posish, 1.0);
     vec4 normal_worldSpace = vec4(normalize(mat3(transpose(inverse(model))) * norm), 0);
 
     if (useArrowOffsets) {
@@ -125,7 +126,7 @@ void main(){
         vec3 offsetAxis = normalize(cross(vec3(position_cameraSpace), vec3(normal_cameraSpace)));
         position_cameraSpace += arrowOffset * vec4(offsetAxis, 0);
     }
-
+    pos = position_worldSpace;
     gl_Position = projection * position_cameraSpace;
 
     if (useLighting) {

@@ -28,6 +28,8 @@ View::View(QGLFormat format, QWidget *parent) : QGLWidget(format, parent)
 
     // The game loop is implemented using a timer
     connect(&timer, SIGNAL(timeout()), this, SLOT(tick()));
+
+    m_sceneChanged = true;
 }
 
 View::~View()
@@ -48,12 +50,9 @@ void View::initializeGL()
       fprintf(stderr, "Error initializing glew: %s\n", glewGetErrorString(err));
     }
 
-//    // Initialize scene
-//    OpenGLScene *glScene = this->getScene();
-//    if (m_scene == NULL) {
+    // Initialize scene
     m_scene = new Scene();
     m_scene->init();
-//    }
 
     // Enable depth testing, so that objects are occluded based on depth instead of drawing order.
     glEnable(GL_DEPTH_TEST);
@@ -84,16 +83,14 @@ void View::initializeGL()
     // events. This occurs if there are two monitors and the mouse is on the
     // secondary monitor.
     QCursor::setPos(mapToGlobal(QPoint(width() / 2, height() / 2)));
+
+//    std::printf("OpenGL version supported by this platform (%s): \n", glGetString(GL_VERSION));
 }
 
 void View::paintGL()
 {
 
-//    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
     // TODO: Implement the demo rendering here
-//    OpenGLScene *glScene = this->getScene();
-
     if (m_scene != NULL)
     {
         // Check for errors from the last frame.
@@ -105,6 +102,12 @@ void View::paintGL()
         }
 
         // Update the scene camera.
+        if (m_sceneChanged) {
+            glViewport(0, 0, 128, 128);
+            m_scene->render(m_camera, true); // set cube map
+            m_sceneChanged = false;
+        }
+
         glViewport(0, 0, width(), height());
         m_camera->setAspectRatio((float)width() / (float)height());
 
@@ -332,8 +335,10 @@ void View::tick()
 //    float seconds = time.restart() * 0.001f;
 
     // TODO: Implement the demo update here
+    if (false)
+        m_camera->swing();
 
-
+    m_scene->sendMusicData(m_camera->getEye4());
     // Flag this view for repainting (Qt will call paintGL() soon after)
     update();
 }

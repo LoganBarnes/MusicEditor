@@ -44,6 +44,8 @@ private:
     bool m_transLightningOut;
     bool m_delete;
 
+    bool m_sceneChanged;
+
 private slots:
     void tick();
 };
