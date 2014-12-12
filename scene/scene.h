@@ -19,6 +19,8 @@ public:
     void setUp();
     virtual void init();
 
+    virtual void sendMusicData(glm::vec4 eye);
+
 protected:
     // Set the light uniforms for the lights in the scene. (View matrix is used in cases where a
     // light follows the camera, as in ShapesScene.)

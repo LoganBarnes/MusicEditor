@@ -34,6 +34,7 @@ private:
 
     OpenGLScene *m_scene;
     Camera *m_camera;
+    bool m_sceneChanged;
 
 private slots:
     void tick();

@@ -2,6 +2,7 @@
 #define ROOM_H
 
 #include "openglscene.h"
+#include <QHash>
 
 class Room
 {
@@ -10,12 +11,14 @@ public:
     virtual ~Room();
 
     void init();
-    void makeCubeMap();
+    void makeCubeMaps();
 
     void render();
     void bindFramebuffer();
+    void bindFakeTexture();
     void bindTexture();
     void setProjections(GLuint shader);
+    void setImages();
 
 private:
     void generateProjections(float zmin, float zmax);
@@ -25,8 +28,11 @@ private:
     GLuint m_vboID;
 
     GLuint m_texID;
+    GLuint m_fakeID;
     GLuint m_framebuffer;
     GLuint m_depthAttachment;
+
+    QHash<GLenum, QImage> m_images;
 
     float m_radius;
 

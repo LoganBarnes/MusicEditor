@@ -24,9 +24,14 @@ glm::mat4x4 Camera::getViewMatrix() const
     return m_viewMatrix;
 }
 
+glm::vec4 Camera::getEye()
+{
+    return m_eye;
+}
+
 void Camera::swing()
 {
-    m_angleY++;
+    m_angleY += 0.7f;
     updateViewMatrix();
 }
 
@@ -53,4 +58,5 @@ void Camera::updateViewMatrix()
             glm::translate(glm::vec3(0.f, -0.0f, m_zoomZ)) *
             glm::rotate(glm::radians(0.f), glm::vec3(1.f, 0.f, 0.f)) *
             glm::rotate(glm::radians(m_angleY), glm::vec3(0.f, 1.f, 0.f));
+    m_eye = glm::inverse(m_viewMatrix) * glm::vec4(0, 0, 0, 1);
 }

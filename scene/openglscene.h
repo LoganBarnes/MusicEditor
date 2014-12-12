@@ -41,6 +41,8 @@ public:
     // Render the scene.
     void render(Camera *cam, bool test);
 
+    virtual void sendMusicData(glm::vec4 eye) = 0;
+
 protected:
     // Set all lights to black.
     void clearLights(GLuint shader);

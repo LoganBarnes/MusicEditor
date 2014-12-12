@@ -16,7 +16,7 @@
 #define BACK ":/images/posz.jpg"
 #define FRONT ":/images/negz.jpg"
 
-//const int cube_s = 512;
+const int cube_s = 128;
 
 Room::Room(float radius)
 {
@@ -63,11 +63,8 @@ void Room::init()
 }
 
 
-void Room::makeCubeMap()
+void Room::makeCubeMaps()
 {
-    glGenFramebuffers(1, &m_framebuffer);
-    glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer);
-
     glActiveTexture (GL_TEXTURE0);
     glGenTextures(1, &m_texID);
 
@@ -84,24 +81,29 @@ void Room::makeCubeMap()
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-//    for (int i = 0; i < 6; i++) {
-//        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i,
-//                               GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, m_texID, 0);
-//    }
-    glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, m_texID, 0);
+    glGenFramebuffers(1, &m_framebuffer);
+    glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer);
 
-//    glGenRenderbuffers( 1, &m_depthAttachment );
-//    glBindRenderbuffer( GL_RENDERBUFFER, m_depthAttachment );
-//    glRenderbufferStorage( GL_RENDERBUFFER, GL_DEPTH_COMPONENT32, cube_s, cube_s );
-//    glFramebufferRenderbuffer( GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, m_depthAttachment);
+    glActiveTexture (GL_TEXTURE0);
+    glGenTextures(1, &m_fakeID);
 
+    setImages();
+
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+    glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, m_fakeID, 0);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     generateProjections(.1f, 50.f);
 }
 
 
-void Room::bindFramebuffer() {
+void Room::bindFramebuffer()
+{
     glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer);
 }
 
@@ -118,14 +120,35 @@ void Room::render()
 }
 
 
+void Room::bindFakeTexture()
+{
+    glBindTexture(GL_TEXTURE_CUBE_MAP, m_fakeID);
+}
+
+
 void Room::bindTexture()
 {
     glBindTexture(GL_TEXTURE_CUBE_MAP, m_texID);
 }
 
 
-void Room::setProjections(GLuint shader) {
+void Room::setProjections(GLuint shader)
+{
     glUniformMatrix4fv(glGetUniformLocation(shader, "shadowMapProjections"), 6, GL_FALSE, glm::value_ptr(shadowMapProjections[0]));
+}
+
+
+void Room::setImages()
+{
+    GLenum side;
+    QImage texture;
+    glBindTexture(GL_TEXTURE_CUBE_MAP, m_fakeID);
+
+    for (int i = 0; i < 6; i++) {
+        side = GL_TEXTURE_CUBE_MAP_POSITIVE_X + i;
+        texture = m_images.value(side);
+        glTexImage2D(side, 0, GL_RGBA, texture.width(), texture.height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, m_images.value(side).bits());
+    }
 }
 
 
@@ -193,6 +216,9 @@ bool Room::loadTexture(GLuint tex, GLenum side, const QString &filename)
     image.load(file.fileName());
     image = image.mirrored(false, true);
     QImage texture = QGLWidget::convertToGLFormat(image);
+    QImage textureSmall = QGLWidget::convertToGLFormat(image.scaled(cube_s, cube_s));
+
+    m_images.insert(side, textureSmall);
 
     // make the texture
     glBindTexture(GL_TEXTURE_CUBE_MAP, tex);

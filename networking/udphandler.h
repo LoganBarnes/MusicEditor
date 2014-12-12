@@ -18,7 +18,7 @@ public:
 
     int getFunctionSize();
     QVector<float> getFunction();
-    void requestData();
+    void sendInfo(float volume, float panning);
 
 signals:
     void sendFunction(QVector<float> function);
@@ -30,6 +30,7 @@ public slots:
 private:
     QUdpSocket *m_socket;
     QVector<float> m_function;
+    int m_port;
 
 };
 

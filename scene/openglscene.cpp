@@ -100,7 +100,7 @@ void OpenGLScene::init()
 
     m_room = new Room(25.f);
     m_room->init();
-    m_room->makeCubeMap();
+    m_room->makeCubeMaps();
 }
 
 void OpenGLScene::render(Camera *cam, bool test)
@@ -118,29 +118,29 @@ void OpenGLScene::render(Camera *cam, bool test)
     glm::mat4 viewMatrix = cam->getViewMatrix();
     glm::mat4 projMatrix = cam->getProjectionMatrix();
 
-//    // cubemap
-//    glUseProgram(m_cubeShader);
-//    glDepthMask(GL_FALSE);
+    // cubemap
+    if (!test) {
+        glUseProgram(m_cubeShader);
+        glDepthMask(GL_FALSE);
 
-//    glUniformMatrix4fv(glGetUniformLocation(m_cubeShader, "projection"), 1, GL_FALSE,
-//            glm::value_ptr(projMatrix));
-//    glUniformMatrix4fv(glGetUniformLocation(m_cubeShader, "view"), 1, GL_FALSE,
-//                       glm::value_ptr(viewMatrix));
-////    glUniformMatrix4fv(glGetUniformLocation(m_cubeShader, "view"), 1, GL_FALSE,
-////                       glm::value_ptr(glm::rotate(viewMatrix, (float) M_PI, glm::vec3(0, 1, 0))));
-//    glUniform1i(glGetUniformLocation(m_cubeShader, "envMap"), 1);
+        glUniformMatrix4fv(glGetUniformLocation(m_cubeShader, "projection"), 1, GL_FALSE,
+                glm::value_ptr(projMatrix));
+        glUniformMatrix4fv(glGetUniformLocation(m_cubeShader, "view"), 1, GL_FALSE,
+                           glm::value_ptr(viewMatrix));
+        glUniform1i(glGetUniformLocation(m_cubeShader, "envMap"), 1);
 
-//    renderSetting();
-//    m_room->render();
+        m_room->render();
 
-//    glDepthMask(GL_TRUE);
+        glDepthMask(GL_TRUE);
+    }
 
     // solids
     GLuint shader;
     if (test) {
         shader = m_testShader;
         glUseProgram(shader);
-        m_room->bindTexture();
+        m_room->setImages();
+        m_room->bindFakeTexture();
         m_room->setProjections(shader);
     }
     else {
@@ -148,7 +148,6 @@ void OpenGLScene::render(Camera *cam, bool test)
         glUseProgram(shader);
     }
 
-//    if (test) {
     // Set scene uniforms.
     clearLights(shader);
     setLights(viewMatrix, shader);
@@ -173,27 +172,10 @@ void OpenGLScene::render(Camera *cam, bool test)
         glUniform1i(glGetUniformLocation(shader, "envMap"), 1);
 
         glActiveTexture(GL_TEXTURE1);
-        m_room->bindTexture();
+        m_room->bindFakeTexture();
         glActiveTexture(GL_TEXTURE0);
 
         renderTransparents(shader);
-    }
-//    }
-
-    // cubemap
-    if (!test) {
-        glUseProgram(m_cubeShader);
-        glDepthMask(GL_FALSE);
-
-        glUniformMatrix4fv(glGetUniformLocation(m_cubeShader, "projection"), 1, GL_FALSE,
-                glm::value_ptr(projMatrix));
-        glUniformMatrix4fv(glGetUniformLocation(m_cubeShader, "view"), 1, GL_FALSE,
-                           glm::value_ptr(viewMatrix));
-        glUniform1i(glGetUniformLocation(m_cubeShader, "envMap"), 1);
-
-        m_room->render();
-
-        glDepthMask(GL_TRUE);
     }
     glUseProgram(0);
 }
