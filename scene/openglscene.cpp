@@ -42,16 +42,17 @@ OpenGLScene::~OpenGLScene()
     }
     m_lightningElements.clear();
 
-    num = m_waterLightningElements.size();
+    num = m_deleteElements.size();
     for (i = 0; i < num; i++)
     {
-        SceneElement *e = m_waterLightningElements.at(i);
+        SceneElement *e = m_deleteElements.at(i);
         delete e->primitive->material.bumpMap;
         delete e->primitive->material.textureMap;
         delete e->primitive;
         delete e;
     }
-    m_waterLightningElements.clear();
+    m_deleteElements.clear();
+
 
     // delete lights
     num = m_lights.size();
@@ -82,6 +83,9 @@ void OpenGLScene::init()
     m_waterShader = ResourceLoader::loadShaders(
                 ":/shaders/glass.vert",
                 ":/shaders/glass.frag");
+    m_boltShader = ResourceLoader::loadShaders(
+                ":/shaders/bolt.vert",
+                ":/shaders/bolt.frag");
 
     // solids
     m_solidUniforms["projection"]= glGetUniformLocation(m_solidShader, "projection");
@@ -180,7 +184,26 @@ void OpenGLScene::render(Camera *cam, bool test)
             glm::value_ptr(viewMatrix));
     glUniform3f(glGetUniformLocation(shader, "allBlack"), 1, 1, 1);
 
-    renderLightning(shader);
+    renderLightning();
+
+
+    glUseProgram(m_boltShader);
+    glUniformMatrix4fv(m_boltUniforms["view"], 1, GL_FALSE,
+            glm::value_ptr(viewMatrix));
+    glUniformMatrix4fv(m_boltUniforms["projection"], 1, GL_FALSE,
+            glm::value_ptr(projMatrix));
+
+    renderBolts();
+
+//    if (m_drawWireframe)
+//    {
+//        glUniform3f(m_solidUniforms["allBlack"], 0, 0, 0);
+//        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+//        renderSolids();
+
+//        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+//    }
 
     // water
     if (!test) {

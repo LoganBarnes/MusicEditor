@@ -52,7 +52,8 @@ OTHER_FILES += \
     shaders/shader.gsh shaders/cube.gsh\
     shaders/cubemap.frag shader/cubemap.vert\
     shaders/glass.frag shaders/glass.vert\
-    shaders/metal.frag shaders/metal.vert\
+    shaders/bolt.frag shaders/bolt.vert\
+#    shaders/metal.frag shaders/metal.vert\
     images/front.png images/back.png images/top.png\
     images/bottom.png images/left.png images/right.png\
     images/posx.jpg images/negx.jpg images/posy.jpg\

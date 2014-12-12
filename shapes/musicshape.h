@@ -18,8 +18,11 @@ public:
     virtual bool animate();
 
     virtual void transformAndRender(GLuint shader, glm::mat4 trans);
-
+    float getRadius();
     float calcIntersect(glm::vec3 eye, glm::vec3 dir);
+    float collisionDetector(glm::vec3 cent1, glm::vec3 cent2, float rad1, float rad2);
+
+    void setRadius(float rad);
 
 public slots:
     //void setFunction(QVector<float> function);

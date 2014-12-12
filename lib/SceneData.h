@@ -20,8 +20,7 @@ enum LightType {
 // Enumeration for types of primitives that can be stored in a scene file.
 enum PrimitiveType {
     WATER_TYPE,
-    LIGHTNING_TYPE,
-    WATER_LIGHTNING_TYPE
+    LIGHTNING_TYPE
 };
 
 

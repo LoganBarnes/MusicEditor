@@ -25,10 +25,19 @@ public:
     virtual float calcIntersect(glm::vec3 eye, glm::vec3 dir) = 0;
     glm::vec2 solveQuadr(float a, float b, float c);
 
-
+    virtual float collisionDetector(glm::vec3 cent1, glm::vec3 cent2, float rad1, float rad2) = 0;
+    virtual float getRadius() = 0;
     float map(const float val, const float oldMin, const float oldMax, const float newMin, const float newMax);
     glm::vec2 mapPoints(const glm::vec2 val, const glm::vec2 oldMin, const glm::vec2 oldMax,
                         const glm::vec2 newMin, const glm::vec2 newMax);
+    virtual void setRadius(float rad) = 0;
+    void renderLightning(GLuint shader, glm::mat4 trans);
+    float euclideanDist(glm::vec3 p1, glm::vec3 p2);
+    void recursiveBolt(glm::vec3 prevPos, int recCount, glm::vec3 finPos, int ind, float variation);
+    void updateLightning(GLuint shader);
+    void calcBoltVerts();
+
+
 
 protected:
 
@@ -41,6 +50,12 @@ protected:
     GLuint m_vaoID; // The vertex array object ID, which is passed to glBindVertexArray.
     GLuint m_vboID;
     GLfloat *m_vertexData;
+
+    GLuint m_lvaoID; // The vertex array object ID, which is passed to glBindVertexArray.
+    GLuint m_lvboID;
+    GLfloat *m_lvertexData;
+    int m_lnumVerts;
+
 
     int m_p1;
     int m_p2;

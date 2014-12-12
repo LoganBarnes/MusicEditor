@@ -24,6 +24,11 @@ public:
     IntersectElement shapeClickIntersect(glm::vec4 ey, glm::vec4 dr);
 
     void updateShape(int ind, float x, float y, float z, PrimitiveType prm);
+    void checkIntersects();
+
+    void addObject(PrimitiveType typ);
+    void deleteObject(PrimitiveType typ, int ind);
+
 
 
 protected:
@@ -36,6 +41,8 @@ protected:
 
     // Render geometry for Shapes and Sceneview.
     virtual void renderLightning(GLuint shader);
+
+    void renderBolts();
 
     // Render see-through shapes
     virtual void renderTransparents(GLuint shader);

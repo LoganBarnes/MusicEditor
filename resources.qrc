@@ -8,8 +8,8 @@
         <file alias="glass.vert">shaders/glass.vert</file>
         <file alias="cube.frag">shaders/cubemap.frag</file>
         <file alias="cube.vert">shaders/cubemap.vert</file>
-        <file>shaders/metal.frag</file>
-        <file>shaders/metal.vert</file>
+	<file alias="bolt.frag">shaders/bolt.frag</file>
+        <file alias="bolt.vert">shaders/bolt.vert</file>
     </qresource>
     <qresource prefix="/images">
         <file alias="front.png">images/front.png</file>
