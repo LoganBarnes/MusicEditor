@@ -287,10 +287,10 @@ void View::mouseMoveEvent(QMouseEvent *event)
 void View::mouseReleaseEvent(QMouseEvent *event)
 {
     if (m_currMove.prim == WATER_TYPE) {
-        m_scene->m_waterElements.at(m_currMove.indx)->dragged = true;
+        m_scene->m_waterElements.at(m_currMove.indx)->dragged = false;
     }
     else if (m_currMove.prim == LIGHTNING_TYPE) {
-        m_scene->m_lightningElements.at(m_currMove.indx)->dragged = true;
+        m_scene->m_lightningElements.at(m_currMove.indx)->dragged = false;
     }
     m_clicked = false;
 }

@@ -95,7 +95,7 @@ void Shape::recursiveBolt(glm::vec3 prevPos, int recCount, glm::vec3 finPos, int
 
         float eDist = euclideanDist(finPos, prevPos);
 
-        float seg = (2.5f/15.0f);
+        float seg = eDist/recCount; //((recCount/2.0f)/eDist);
 
         glm::vec3 nexPos = (dir * seg);
 
@@ -119,10 +119,10 @@ void Shape::recursiveBolt(glm::vec3 prevPos, int recCount, glm::vec3 finPos, int
 
 void Shape::calcBoltVerts()
 {
-    int numRef = 15;
+    int numRef = 8;
     int refSize = ((numRef * 2) - 2);
     int refCount = (numRef - 1);
-    int numBolts = 45;
+    int numBolts = 75;
     m_lnumVerts = (numBolts * refSize);
     int size = m_lnumVerts * 3;
     m_lvertexData = new GLfloat[size];
@@ -133,7 +133,9 @@ void Shape::calcBoltVerts()
         float x = (sinf(ang1) * cosf(ang2));
         float y = (sinf(ang1) * sinf(ang2));
         float z = cosf(ang1);
-        glm::vec3 dir = (1.5f * glm::normalize(glm::vec3(x, y, z)));
+        float len = 1.0f + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(1.5f - 0.5f)));
+
+        glm::vec3 dir = (len * glm::normalize(glm::vec3(x, y, z)));
         recursiveBolt(glm::vec3(0.0f, 0.0f, 0.0f), refCount, dir, i, 0.05);
 
 //        m_lvertexData[i] = 0.0f;
@@ -257,8 +259,11 @@ void Shape::render()
 
 void Shape::renderLightning(GLuint shader, glm::mat4 trans)
 {
+
     glBindVertexArray(m_lvaoID);
+    //glEnable(GL_LINE_SMOOTH);
     glUniformMatrix4fv(glGetUniformLocation(shader, "model"), 1, GL_FALSE, glm::value_ptr(trans));
+    glLineWidth((GLfloat)10.f);
     glDrawArrays(GL_LINES, 0, (m_lnumVerts * 6)); /* Number of vertices to draw (w/o normals) */
     glBindVertexArray(0);
 

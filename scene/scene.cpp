@@ -211,6 +211,7 @@ void Scene::deleteObject(PrimitiveType typ, int ind) {
             m_waterElements.at(ind)->linked = false;
             m_lightningElements.at(lInd)->render = true;
             m_waterElements.at(ind)->link = -1;
+            m_lightningElements.at(lInd)->trans = m_waterElements.at(ind)->trans;
         }
         m_deleteElements.append(m_waterElements.at(ind));
         m_waterElements.removeAt(ind);
@@ -276,9 +277,8 @@ void Scene::addObject(PrimitiveType typ) {
             element->dragged = false;
             element->render = true;
             element->linked = false;
-            element->link = NULL;
+            element->link = -1;
 
-            element->dragged = false;
             prim->type = LIGHTNING_TYPE;
             element->primitive = prim;
             element->trans = glm::mat4(1.0f);
@@ -329,9 +329,8 @@ void Scene::addObject(PrimitiveType typ) {
             element->dragged = false;
             element->render = true;
             element->linked = false;
-            element->link = NULL;
+            element->link = -1;
 
-            element->dragged = false;
             prim->type = LIGHTNING_TYPE;
             element->primitive = prim;
             element->trans = glm::mat4(1.0f);
@@ -358,12 +357,12 @@ void Scene::renderLightning()
 
     // Draw the shapes.
     for (int i = 0; i < m_lightningElements.size(); ++i) {
-        if (m_lightningElements.at(i)->render) {
-            glUniform3f(glGetUniformLocation(m_solidShader, "allWhite"), 0, 0, 0); // not white
-            glUniform1i(m_solidUniforms["functionSize"], m_f1.size());
-            glUniform1fv(m_solidUniforms["function"], m_f1.size(), m_f1.data());
-            m_lightningShape->transformAndRender(m_solidShader, m_lightningElements.at(i)->trans);
-        }
+//        if (m_lightningElements.at(i)->render) {
+//            glUniform3f(glGetUniformLocation(m_solidShader, "allWhite"), 0, 0, 0); // not white
+//            glUniform1i(m_solidUniforms["functionSize"], m_f1.size());
+//            glUniform1fv(m_solidUniforms["function"], m_f1.size(), m_f1.data());
+//            m_lightningShape->transformAndRender(m_solidShader, m_lightningElements.at(i)->trans);
+//        }
 
     }
 }
@@ -512,14 +511,114 @@ void Scene::checkIntersects() {
                     glm::vec3 dir = glm::normalize(dPos);
                     glm::vec3 trans = ((dist/2.0f) * dir);
                     glm::vec3 trans2 = (dist * dir);
-                    if (m_waterElements.at(w)->link) {
-                        if (!m_waterElements.at(wi)->link) {
+                    if (m_waterElements.at(w)->linked) {
+                        if (!m_waterElements.at(wi)->linked) {
+                            int lInd2;
+                            if ((lInd2 = m_lightningElements.size()) < 5) {
+                                CS123ScenePrimitive *prim = new CS123ScenePrimitive();
+                                CS123SceneMaterial& mat = prim->material;
 
+                                prim->meshfile = "";
+                              //  prim->type = PRIMITIVE_CUBE;
+
+                                // Use a shiny orange material
+                                memset(&mat, 0, sizeof(CS123SceneMaterial));
+                                mat.cAmbient.r = 0.2f;
+                                mat.cAmbient.g = 0.2f;
+                                mat.cAmbient.b = 0.4f;
+                                mat.cDiffuse.r = 0.5f;
+                                mat.cDiffuse.g = 0.5f;
+                                mat.cDiffuse.b = 1.0f;
+                                mat.cSpecular.r = mat.cSpecular.g = mat.cSpecular.b = 1;
+                                mat.shininess = 64;
+
+                                // Use snow texture
+                                mat.textureMap = new CS123SceneFileMap();
+                            //    mat.textureMap->filename = "/course/cs123/data/image/terrain/snow.JPG";
+                                mat.textureMap->filename = "/Users/Logan/Documents/course/cs123/data/image/terrain/snow.JPG";
+                                mat.textureMap->isUsed = false;
+                                mat.textureMap->repeatU = 1;
+                                mat.textureMap->repeatV = 1;
+                                mat.blend = 0.5f;
+
+                                mat.bumpMap = new CS123SceneFileMap();
+                                mat.bumpMap->filename = "";
+                                mat.bumpMap->isUsed = false;
+                                mat.bumpMap->repeatU = 1;
+                                mat.bumpMap->repeatV = 1;
+                                mat.bumpMap->texid = 0;
+
+
+                                SceneElement *element = new SceneElement();
+                                element->dragged = false;
+                                element->render = false;
+                                element->linked = false;
+                                element->link = -1;
+
+                                prim->type = LIGHTNING_TYPE;
+                                element->primitive = prim;
+                                element->trans = glm::mat4(1.0f);
+                                element->inv = glm::inverse(element->trans);
+                                m_lightningElements.append(element);
+                                m_lightningElements.at(lInd2)->trans = m_waterElements.at(wi)->trans;
+                                m_waterElements.at(wi)->link = lInd2;
+                                m_waterElements.at(wi)->linked = true;
+                            }
                         }
                     }
                     else {
-                        if (m_waterElements.at(wi)->link) {
+                        if (m_waterElements.at(wi)->linked) {
+                            int lInd2;
+                            if ((lInd2 = m_lightningElements.size()) < 5) {
+                                CS123ScenePrimitive *prim = new CS123ScenePrimitive();
+                                CS123SceneMaterial& mat = prim->material;
 
+                                prim->meshfile = "";
+                              //  prim->type = PRIMITIVE_CUBE;
+
+                                // Use a shiny orange material
+                                memset(&mat, 0, sizeof(CS123SceneMaterial));
+                                mat.cAmbient.r = 0.2f;
+                                mat.cAmbient.g = 0.2f;
+                                mat.cAmbient.b = 0.4f;
+                                mat.cDiffuse.r = 0.5f;
+                                mat.cDiffuse.g = 0.5f;
+                                mat.cDiffuse.b = 1.0f;
+                                mat.cSpecular.r = mat.cSpecular.g = mat.cSpecular.b = 1;
+                                mat.shininess = 64;
+
+                                // Use snow texture
+                                mat.textureMap = new CS123SceneFileMap();
+                            //    mat.textureMap->filename = "/course/cs123/data/image/terrain/snow.JPG";
+                                mat.textureMap->filename = "/Users/Logan/Documents/course/cs123/data/image/terrain/snow.JPG";
+                                mat.textureMap->isUsed = false;
+                                mat.textureMap->repeatU = 1;
+                                mat.textureMap->repeatV = 1;
+                                mat.blend = 0.5f;
+
+                                mat.bumpMap = new CS123SceneFileMap();
+                                mat.bumpMap->filename = "";
+                                mat.bumpMap->isUsed = false;
+                                mat.bumpMap->repeatU = 1;
+                                mat.bumpMap->repeatV = 1;
+                                mat.bumpMap->texid = 0;
+
+
+                                SceneElement *element = new SceneElement();
+                                element->dragged = false;
+                                element->render = false;
+                                element->linked = false;
+                                element->link = -1;
+
+                                prim->type = LIGHTNING_TYPE;
+                                element->primitive = prim;
+                                element->trans = glm::mat4(1.0f);
+                                element->inv = glm::inverse(element->trans);
+                                m_lightningElements.append(element);
+                                m_lightningElements.at(lInd2)->trans = m_waterElements.at(w)->trans;
+                                m_waterElements.at(w)->link = lInd2;
+                                m_waterElements.at(w)->linked = true;
+                            }
                         }
                     }
 
