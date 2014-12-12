@@ -263,7 +263,7 @@ void Shape::renderLightning(GLuint shader, glm::mat4 trans)
     glBindVertexArray(m_lvaoID);
     //glEnable(GL_LINE_SMOOTH);
     glUniformMatrix4fv(glGetUniformLocation(shader, "model"), 1, GL_FALSE, glm::value_ptr(trans));
-    glLineWidth((GLfloat)10.f);
+   // glLineWidth((GLfloat)10.f);
     glDrawArrays(GL_LINES, 0, (m_lnumVerts * 6)); /* Number of vertices to draw (w/o normals) */
     glBindVertexArray(0);
 

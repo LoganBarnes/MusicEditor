@@ -20,6 +20,7 @@ public:
     virtual void init();
 
     virtual void sendMusicData(glm::vec4 eye);
+    void checkAsserts(bool durClick);
 
     IntersectElement shapeClickIntersect(glm::vec4 ey, glm::vec4 dr);
 

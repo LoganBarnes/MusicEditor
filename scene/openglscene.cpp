@@ -184,14 +184,12 @@ void OpenGLScene::render(Camera *cam, bool test)
             glm::value_ptr(viewMatrix));
     glUniform3f(glGetUniformLocation(shader, "allBlack"), 1, 1, 1);
 
-    renderLightning();
+    renderLightning(shader);
 
 
     glUseProgram(m_boltShader);
-    glUniformMatrix4fv(m_boltUniforms["view"], 1, GL_FALSE,
-            glm::value_ptr(viewMatrix));
-    glUniformMatrix4fv(m_boltUniforms["projection"], 1, GL_FALSE,
-            glm::value_ptr(projMatrix));
+    glUniformMatrix4fv(glGetUniformLocation(m_boltShader, "view"), 1, GL_FALSE, glm::value_ptr(viewMatrix));
+    glUniformMatrix4fv(glGetUniformLocation(m_boltShader, "projection"), 1, GL_FALSE, glm::value_ptr(projMatrix));
 
     renderBolts();
 

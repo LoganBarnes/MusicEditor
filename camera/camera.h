@@ -26,9 +26,9 @@ public:
     void swing();
 
     //get camera trans
-    glm::mat4x4 getM3();
+//    glm::mat4x4 getM3();
     glm::mat4x4 getM2();
-    glm::mat4x4 getM4();
+//    glm::mat4x4 getM4();
 
     glm::vec3 getEye();
 
