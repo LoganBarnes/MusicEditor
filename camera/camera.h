@@ -22,6 +22,9 @@ public:
 
     void updateMatrices();
 
+    glm::vec4 getEye4();
+    void swing();
+
     //get camera trans
     glm::mat4x4 getM3();
     glm::mat4x4 getM2();

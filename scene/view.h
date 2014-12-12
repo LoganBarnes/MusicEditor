@@ -42,6 +42,8 @@ private:
     bool m_clicked;
     bool m_transZ;
 
+    bool m_sceneChanged;
+
 private slots:
     void tick();
 };

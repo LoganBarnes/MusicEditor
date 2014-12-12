@@ -265,13 +265,13 @@ void Scene::renderSetting()
 }
 
 
-void Scene::renderSolids(GLuint shader)
+void Scene::renderLightning(GLuint shader)
 {
 
     if (!m_initialized)
         return;
 
-    applyMaterial(m_lightningElements.at(0)->primitive->material);
+    applyMaterial(m_lightningElements.at(0)->primitive->material, shader);
 
 ////     Draw the grid. CAN'T DRAW WITH CURRENT GEOMETRY SHADER SET TO TRIANGLES
 //    glUniform1i(glGetUniformLocation(shader, "functionSize"), 0);
@@ -281,10 +281,10 @@ void Scene::renderSolids(GLuint shader)
 
     // Draw the shapes.
     for (int i = 0; i < m_lightningElements.size(); ++i) {
-        glUniform3f(glGetUniformLocation(m_solidShader, "allWhite"), 0, 0, 0); // not white
-        glUniform1i(m_solidUniforms["functionSize"], m_f1.size());
-        glUniform1fv(m_solidUniforms["function"], m_f1.size(), m_f1.data());
-        m_lightningShape->transformAndRender(m_solidShader, m_lightningElements.at(i)->trans);
+        glUniform3f(glGetUniformLocation(shader, "allWhite"), 0, 0, 0); // not white
+        glUniform1i(glGetUniformLocation(shader, "functionSize"), m_f1.size());
+        glUniform1fv(glGetUniformLocation(shader, "function"), m_f1.size(), m_f1.data());
+        m_lightningShape->transformAndRender(shader, m_lightningElements.at(i)->trans);
 
 //        glUniform3f(glGetUniformLocation(m_shader, "allWhite"), 0, 0, 0); // not white
 //        m_shape->transformAndRender(m_shader, glm::translate(glm::mat4(), glm::vec3(-2, 0, 0)));
@@ -295,13 +295,13 @@ void Scene::renderSolids(GLuint shader)
 //    glUniform3f(m_solidUniforms["allWhite"], 0, 0, 0); // not white
 //    m_solidShape->transformAndRender(m_solidShader, m_elements.at(0)->trans);
 
-    glUniform1i(glGetUniformLocation(shader, "functionSize"), m_f3.size());
-    glUniform1fv(glGetUniformLocation(shader, "function"), m_f3.size(), m_f3.data());
-    m_solidShape->transformAndRender(shader, glm::translate(glm::vec3(-2.f, 1.f, 0.f)));
+//    glUniform1i(glGetUniformLocation(shader, "functionSize"), m_f3.size());
+//    glUniform1fv(glGetUniformLocation(shader, "function"), m_f3.size(), m_f3.data());
+//    m_lightningShape->transformAndRender(shader, glm::translate(glm::vec3(-2.f, 1.f, 0.f)));
 
-    glUniform1i(glGetUniformLocation(shader, "functionSize"), m_f4.size());
-    glUniform1fv(glGetUniformLocation(shader, "function"), m_f4.size(), m_f4.data());
-    m_solidShape->transformAndRender(shader, glm::translate(glm::vec3(2.f, -1.f, 0.f)));
+//    glUniform1i(glGetUniformLocation(shader, "functionSize"), m_f4.size());
+//    glUniform1fv(glGetUniformLocation(shader, "function"), m_f4.size(), m_f4.data());
+//    m_lightningShape->transformAndRender(shader, glm::translate(glm::vec3(2.f, -1.f, 0.f)));
 }
 
 
@@ -316,11 +316,11 @@ void Scene::renderTransparents(GLuint shader)
     glUniform1i(glGetUniformLocation(shader, "functionSize"), m_f1.size());
     glUniform1fv(glGetUniformLocation(shader, "function"), m_f1.size(), m_f1.data());
 //    m_waterShape->transformAndRender(shader, m_elements.at(0)->trans);
-    m_waterShape->transformAndRender(shader, glm::translate(glm::vec3(0, 0, 2)));
+//    m_waterShape->transformAndRender(shader, glm::translate(glm::vec3(0, 0, 2)));
 
     for (int i = 0; i < m_waterElements.size(); ++i) {
-        glUniform1i(m_waterUniforms["functionSize"], m_f1.size());
-        glUniform1fv(m_waterUniforms["function"], m_f1.size(), m_f1.data());
+        glUniform1i(glGetUniformLocation(shader, "functionSize"), m_f1.size());
+        glUniform1fv(glGetUniformLocation(shader, "function"), m_f1.size(), m_f1.data());
         m_waterShape->transformAndRender(m_waterShader, m_waterElements.at(i)->trans);
 
 //    glUniform1i(glGetUniformLocation(shader, "functionSize"), m_f3.size());

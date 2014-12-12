@@ -19,6 +19,8 @@ public:
     void setUp();
     virtual void init();
 
+    virtual void sendMusicData(glm::vec4 eye);
+
     IntersectElement shapeClickIntersect(glm::vec4 ey, glm::vec4 dr);
 
     void updateShape(int ind, float x, float y, float z, PrimitiveType prm);
@@ -33,7 +35,7 @@ protected:
     virtual void renderSetting();
 
     // Render geometry for Shapes and Sceneview.
-    virtual void renderSolids(GLuint shader);
+    virtual void renderLightning(GLuint shader);
 
     // Render see-through shapes
     virtual void renderTransparents(GLuint shader);

@@ -258,9 +258,10 @@ void View::tick()
 //    float seconds = time.restart() * 0.001f;
 
     // TODO: Implement the demo update here
-    m_camera->swing();
+    if (false)
+        m_camera->swing();
 
-    m_scene->sendMusicData(m_camera->getEye());
+    m_scene->sendMusicData(m_camera->getEye4());
     // Flag this view for repainting (Qt will call paintGL() soon after)
     update();
 }

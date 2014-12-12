@@ -6,7 +6,6 @@
 #include <sstream>
 #include "QCoreApplication"
 #include <QFile>
-#include "test.h"
 #include "room.h"
 
 #define SHAPE_RADIUS 0.5f
@@ -181,7 +180,7 @@ void OpenGLScene::render(Camera *cam, bool test)
             glm::value_ptr(viewMatrix));
     glUniform3f(glGetUniformLocation(shader, "allBlack"), 1, 1, 1);
 
-    renderSolids(shader);
+    renderLightning(shader);
 
     // water
     if (!test) {

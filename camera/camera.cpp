@@ -24,7 +24,7 @@ glm::mat4x4 Camera::getViewMatrix() const
     return m_viewMatrix;
 }
 
-glm::vec4 Camera::getEye()
+glm::vec4 Camera::getEye4()
 {
     return m_eye;
 }
@@ -68,7 +68,7 @@ glm::vec3 Camera::getLook() {
 }
 
 glm::vec3 Camera::getEye() {
-    return glm::vec3(0.0f, 0.0f, m_zoomZ);
+    return glm::vec3(m_eye);
 }
 
 glm::mat4x4 Camera::getM2() {
