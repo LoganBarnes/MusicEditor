@@ -7,5 +7,5 @@ uniform samplerCube envMap;
 out vec4 fragColor;
 
 void main () {
-  fragColor = texture(envMap, texcoords);
+	fragColor = texture(envMap, texcoords);
 }

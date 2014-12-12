@@ -6,10 +6,13 @@ in vec3 normal;
 out vec3 vertex;	// The position of the vertex, in eye space
 out vec3 vertexToEye;	// Vector from the vertex to the eye
 out vec3 eyeNormal;	// Normal of the vertex, in eye space
+out vec3 vertexToLight; // Vector from the vertex to the light
 
 uniform mat4 view;
 uniform mat4 projection;
 uniform mat4 model;
+
+uniform vec4 lightPosition;
 
 // music function
 uniform int functionSize = 0;
@@ -21,7 +24,7 @@ void calcVertex(inout vec3 v, inout vec3 n) {
         return;
     }
 
-    float angle = acos(dot(normalize(position), vec3(0, 1, 0)));
+    float angle = acos(dot(normalize(position), vec3(0, -1, 0)));
 
     float sizeMinus = functionSize - 1.0;
     float di = (angle / 3.1415926535897932384626433832795) * functionSize - 0.5;
@@ -60,7 +63,7 @@ void calcVertex(inout vec3 v, inout vec3 n) {
     vec2 tangent = 2 * t_1 * (mid - left) + 2 * t * (right - mid);
     tangent.x /= sizeMinus;
 
-    float a = -atan(tangent.y, tangent.x);
+    float a = atan(tangent.y, tangent.x);
 
     v += n * curve;
 
@@ -86,6 +89,8 @@ void main()
     calcVertex(pos, norm);
 
     vertex = ((view*model)*(vec4(pos, 1.0))).xyz;
+    vec4 camLightPos = view * model * lightPosition;
+    vertexToLight = normalize(camLightPos.xyz - vertex);
     eyeNormal = normalize(mat3(transpose(inverse(view*model))) * norm);
     vertexToEye = -normalize(vertex);
     gl_Position = projection*view*model*vec4(pos,1.0);

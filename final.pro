@@ -49,11 +49,14 @@ DEPENDPATH += glm lib ui scene camera shapes networking
 DEFINES += TIXML_USE_STL
 OTHER_FILES += \
     shaders/shader.frag shaders/shader.vert\
+    shaders/shader.gsh shaders/cube.gsh\
     shaders/cubemap.frag shader/cubemap.vert\
     shaders/glass.frag shaders/glass.vert\
-#    shaders/metal.frag shaders/metal.vert\
+    shaders/metal.frag shaders/metal.vert\
     images/front.png images/back.png images/top.png\
-    images/bottom.png images/left.png images/right.png
+    images/bottom.png images/left.png images/right.png\
+    images/posx.jpg images/negx.jpg images/posy.jpg\
+    images/negy.jpg images/posz.jpg images/negz.jpg
 
 # Don't add the -pg flag unless you know what you are doing. It makes QThreadPool freeze on Mac OS X
 QMAKE_CXXFLAGS_RELEASE -= -O2

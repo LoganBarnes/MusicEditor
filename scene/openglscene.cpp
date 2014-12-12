@@ -6,6 +6,8 @@
 #include <sstream>
 #include "QCoreApplication"
 #include <QFile>
+#include "test.h"
+#include "room.h"
 
 #define SHAPE_RADIUS 0.5f
 
@@ -60,14 +62,21 @@ OpenGLScene::~OpenGLScene()
         delete l;
     }
     m_lights.clear();
+
+    delete m_room;
 }
 
 
 void OpenGLScene::init()
 {
-    m_solidShader = ResourceLoader::loadShaders(
-            ":/shaders/default.vert",
-            ":/shaders/default.frag");
+    m_solidShader = ResourceLoader::loadShadersWithGeom(
+                ":/shaders/default.vert",
+                ":/shaders/default.gsh",
+                ":/shaders/default.frag");
+    m_testShader = ResourceLoader::loadShadersWithGeom(
+                ":/shaders/default.vert",
+                ":/shaders/cube.gsh",
+                ":/shaders/default.frag");
     m_cubeShader = ResourceLoader::loadShaders(
                 ":/shaders/cube.vert",
                 ":/shaders/cube.frag");
@@ -107,14 +116,23 @@ void OpenGLScene::init()
     m_waterUniforms["function"] = glGetUniformLocation(m_waterShader, "function");
     m_waterUniforms["r0"] = glGetUniformLocation(m_waterShader, "r0");
     m_waterUniforms["eta"] = glGetUniformLocation(m_waterShader, "eta");
+
+//    m_test = new Test();
+//    m_test->init();
+
+    m_room = new Room(25.f);
+    m_room->init();
+    m_room->makeCubeMaps();
 }
 
-void OpenGLScene::render(Camera *cam)
+void OpenGLScene::render(Camera *cam, bool test)
 {
     // Clear the screen in preparation for the next frame. (Use a gray background instead of a
     // black one for drawing wireframe or normals so they will show up against the background.)
-    if (m_drawWireframe) glClearColor(0.5f, 0.5f, 0.5f, 0.5f);
-    else glClearColor(0, 0, 0, 0);
+    if (test) m_room->bindFramebuffer();
+    else glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    glClearColor(0, 0, 0, 0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // Get the view matrix from the camera
@@ -123,96 +141,103 @@ void OpenGLScene::render(Camera *cam)
     glm::mat4 projMatrix = cam->getProjectionMatrix();
 
     // cubemap
-    glUseProgram(m_cubeShader);
-    glDepthMask(GL_FALSE);
+    if (!test) {
+        glUseProgram(m_cubeShader);
+        glDepthMask(GL_FALSE);
 
-    glUniformMatrix4fv(glGetUniformLocation(m_cubeShader, "projection"), 1, GL_FALSE,
-            glm::value_ptr(projMatrix));
-    glUniformMatrix4fv(glGetUniformLocation(m_cubeShader, "view"), 1, GL_FALSE,
-                       glm::value_ptr(viewMatrix));
-//    glUniformMatrix4fv(glGetUniformLocation(m_cubeShader, "view"), 1, GL_FALSE,
-//                       glm::value_ptr(glm::rotate(viewMatrix, (float) M_PI, glm::vec3(0, 1, 0))));
-    glUniform1i(glGetUniformLocation(m_cubeShader, "envMap"), 1);
+        glUniformMatrix4fv(glGetUniformLocation(m_cubeShader, "projection"), 1, GL_FALSE,
+                glm::value_ptr(projMatrix));
+        glUniformMatrix4fv(glGetUniformLocation(m_cubeShader, "view"), 1, GL_FALSE,
+                           glm::value_ptr(viewMatrix));
+        glUniform1i(glGetUniformLocation(m_cubeShader, "envMap"), 1);
 
-    renderSetting();
+        m_room->render();
 
-    glDepthMask(GL_TRUE);
+        glDepthMask(GL_TRUE);
+    }
 
     // solids
-    glUseProgram(m_solidShader);
+    GLuint shader;
+    if (test) {
+        shader = m_testShader;
+        glUseProgram(shader);
+        m_room->setImages();
+        m_room->bindFakeTexture();
+        m_room->setProjections(shader);
+    }
+    else {
+        shader = m_solidShader;
+        glUseProgram(shader);
+    }
 
     // Set scene uniforms.
-    clearLights();
-    setLights(viewMatrix);
-    glUniform1i(m_solidUniforms["useLighting"], m_useLighting);
-    glUniform1i(m_solidUniforms["useArrowOffsets"], GL_FALSE);
-    glUniformMatrix4fv(m_solidUniforms["projection"], 1, GL_FALSE,
+    clearLights(shader);
+    setLights(viewMatrix, shader);
+    glUniform1i(glGetUniformLocation(shader, "useLighting"), m_useLighting);
+    glUniform1i(glGetUniformLocation(shader, "useArrowOffsets"), GL_FALSE);
+    glUniformMatrix4fv(glGetUniformLocation(shader, "projection"), 1, GL_FALSE,
             glm::value_ptr(projMatrix));
-    glUniformMatrix4fv(m_solidUniforms["view"], 1, GL_FALSE,
+    glUniformMatrix4fv(glGetUniformLocation(shader, "view"), 1, GL_FALSE,
             glm::value_ptr(viewMatrix));
-    glUniform3f(m_solidUniforms["allBlack"], 1, 1, 1);
+    glUniform3f(glGetUniformLocation(shader, "allBlack"), 1, 1, 1);
 
-    renderLightning();
-
-//    if (m_drawWireframe)
-//    {
-//        glUniform3f(m_solidUniforms["allBlack"], 0, 0, 0);
-//        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
-//        renderSolids();
-
-//        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-//    }
+    renderSolids(shader);
 
     // water
-    glUseProgram(m_waterShader);
+    if (!test) {
+        shader = m_waterShader;
+        glUseProgram(shader);
 
-    // water stuffs
-    glUniformMatrix4fv(m_waterUniforms["view"], 1, GL_FALSE, glm::value_ptr(viewMatrix));
-    glUniformMatrix4fv(m_waterUniforms["projection"], 1, GL_FALSE, glm::value_ptr(projMatrix));
-    glUniform1i(m_waterUniforms["envMap"], 1);
+        // water stuffs
+        glUniformMatrix4fv(glGetUniformLocation(shader, "view"), 1, GL_FALSE, glm::value_ptr(viewMatrix));
+        glUniformMatrix4fv(glGetUniformLocation(shader, "projection"), 1, GL_FALSE, glm::value_ptr(projMatrix));
+        glUniform1i(glGetUniformLocation(shader, "envMap"), 1);
 
-    renderTransparents();
+        glActiveTexture(GL_TEXTURE1);
+        m_room->bindFakeTexture();
+        glActiveTexture(GL_TEXTURE0);
 
+        renderTransparents(shader);
+    }
     glUseProgram(0);
 }
 
 
-void OpenGLScene::applyMaterial(const CS123SceneMaterial &material)
+void OpenGLScene::applyMaterial(const CS123SceneMaterial &material, GLuint shader)
 {
     // Make sure the members of CS123SceneColor are packed tightly
     COMPILE_TIME_ASSERT(sizeof(CS123SceneColor) == sizeof(float) * 4);
 
-    glUniform3fv(m_solidUniforms["ambient_color"], 1, &material.cAmbient.r);
-    glUniform3fv(m_solidUniforms["diffuse_color"], 1, &material.cDiffuse.r);
-    glUniform3fv(m_solidUniforms["specular_color"], 1, &material.cSpecular.r);
-    glUniform1f(m_solidUniforms["shininess"], material.shininess);
+    glUniform3fv(glGetUniformLocation(shader, "ambient_color"), 1, &material.cAmbient.r);
+    glUniform3fv(glGetUniformLocation(shader, "diffuse_color"), 1, &material.cDiffuse.r);
+    glUniform3fv(glGetUniformLocation(shader, "specular_color"), 1, &material.cSpecular.r);
+    glUniform1f(glGetUniformLocation(shader, "shininess"), material.shininess);
 
     if (material.textureMap && material.textureMap->isUsed && material.textureMap->texid) {
-        glUniform1i(m_solidUniforms["useTexture"], 1);
-        glUniform1i(m_solidUniforms["tex"], 1);
-        glUniform1f(m_solidUniforms["repeatU"], material.textureMap->repeatU);
-        glUniform1f(m_solidUniforms["repeatV"], material.textureMap->repeatV);
+        glUniform1i(glGetUniformLocation(shader, "useTexture"), 1);
+        glUniform1i(glGetUniformLocation(shader, "tex"), 1);
+        glUniform1f(glGetUniformLocation(shader, "repeatU"), material.textureMap->repeatU);
+        glUniform1f(glGetUniformLocation(shader, "repeatV"), material.textureMap->repeatV);
 
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, material.textureMap->texid);
         glActiveTexture(GL_TEXTURE0);
     } else {
-        glUniform1i(m_solidUniforms["useTexture"], 0);
+        glUniform1i(glGetUniformLocation(shader, "useTexture"), 0);
     }
 }
 
-void OpenGLScene::clearLights()
+void OpenGLScene::clearLights(GLuint shader)
 {
     for (int i = 0; i < MAX_NUM_LIGHTS; i++) {
         std::ostringstream os;
         os << i;
         std::string indexString = "[" + os.str() + "]"; // e.g. [0], [1], etc.
-        glUniform3f(glGetUniformLocation(m_solidShader, ("lightColors" + indexString).c_str()), 0, 0, 0);
+        glUniform3f(glGetUniformLocation(shader, ("lightColors" + indexString).c_str()), 0, 0, 0);
     }
 }
 
-void OpenGLScene::setLight(const CS123SceneLightData &light)
+void OpenGLScene::setLight(const CS123SceneLightData &light, GLuint shader)
 {
     std::ostringstream os;
     os << light.id;
@@ -225,12 +250,12 @@ void OpenGLScene::setLight(const CS123SceneLightData &light)
     {
     case LIGHT_POINT:
         lightType = 0;
-        glUniform3fv(glGetUniformLocation(m_solidShader, ("lightPositions" + indexString).c_str()), 1,
+        glUniform3fv(glGetUniformLocation(shader, ("lightPositions" + indexString).c_str()), 1,
                 glm::value_ptr(light.pos));
         break;
     case LIGHT_DIRECTIONAL:
         lightType = 1;
-        glUniform3fv(glGetUniformLocation(m_solidShader, ("lightDirections" + indexString).c_str()), 1,
+        glUniform3fv(glGetUniformLocation(shader, ("lightDirections" + indexString).c_str()), 1,
                 glm::value_ptr(glm::normalize(light.dir)));
         break;
     default:
@@ -242,10 +267,10 @@ void OpenGLScene::setLight(const CS123SceneLightData &light)
     CS123SceneColor color = light.color;
     if (ignoreLight) color.r = color.g = color.b = 0;
 
-    glUniform1i(glGetUniformLocation(m_solidShader, ("lightTypes" + indexString).c_str()), lightType);
-    glUniform3f(glGetUniformLocation(m_solidShader, ("lightColors" + indexString).c_str()),
+    glUniform1i(glGetUniformLocation(shader, ("lightTypes" + indexString).c_str()), lightType);
+    glUniform3f(glGetUniformLocation(shader, ("lightColors" + indexString).c_str()),
                 color.r, color.g, color.b);
-    glUniform3f(glGetUniformLocation(m_solidShader, ("lightAttenuations" + indexString).c_str()),
+    glUniform3f(glGetUniformLocation(shader, ("lightAttenuations" + indexString).c_str()),
             light.function.x, light.function.y, light.function.z);
 }
 

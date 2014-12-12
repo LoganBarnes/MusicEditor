@@ -41,6 +41,8 @@ private:
     glm::mat4x4 m_projectionMatrix;
     float m_aspectRatio, m_angleX, m_angleY, m_zoomZ;
     int m_oldX, m_oldY;
+
+    glm::vec4 m_eye;
 };
 
 #endif // CAMERA_H
