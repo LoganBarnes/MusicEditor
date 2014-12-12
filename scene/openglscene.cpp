@@ -87,42 +87,6 @@ void OpenGLScene::init()
                 ":/shaders/bolt.vert",
                 ":/shaders/bolt.frag");
 
-    // solids
-    m_solidUniforms["projection"]= glGetUniformLocation(m_solidShader, "projection");
-    m_solidUniforms["view"]= glGetUniformLocation(m_solidShader, "view");
-    m_solidUniforms["model"]= glGetUniformLocation(m_solidShader, "model");
-    m_solidUniforms["ambient_color"] = glGetUniformLocation(m_solidShader, "ambient_color");
-    m_solidUniforms["diffuse_color"] = glGetUniformLocation(m_solidShader, "diffuse_color");
-    m_solidUniforms["specular_color"] = glGetUniformLocation(m_solidShader, "specular_color");
-    m_solidUniforms["shininess"] = glGetUniformLocation(m_solidShader, "shininess");
-    m_solidUniforms["repeatU"] = glGetUniformLocation(m_solidShader, "repeatU");
-    m_solidUniforms["repeatV"] = glGetUniformLocation(m_solidShader, "repeatV");
-    m_solidUniforms["useLighting"]= glGetUniformLocation(m_solidShader, "useLighting");
-    m_solidUniforms["useArrowOffsets"] = glGetUniformLocation(m_solidShader, "useArrowOffsets");
-    m_solidUniforms["allBlack"]= glGetUniformLocation(m_solidShader, "allBlack");
-    m_solidUniforms["allWhite"]= glGetUniformLocation(m_solidShader, "allWhite");
-    m_solidUniforms["functionSize"]= glGetUniformLocation(m_solidShader, "functionSize");
-    m_solidUniforms["function"]= glGetUniformLocation(m_solidShader, "function");
-    m_solidUniforms["tex"] = glGetUniformLocation(m_solidShader, "tex");
-    m_solidUniforms["useTexture"] = glGetUniformLocation(m_solidShader, "useTexture");
-
-    // cube
-    m_cubeUniforms["projection"] = glGetUniformLocation(m_cubeShader, "projection");
-    m_cubeUniforms["view"] = glGetUniformLocation(m_cubeShader, "view");
-    m_cubeUniforms["envMap"] = glGetUniformLocation(m_cubeShader, "envMap");
-
-    // water
-    m_waterUniforms["view"] = glGetUniformLocation(m_waterShader, "view");
-    m_waterUniforms["projection"] = glGetUniformLocation(m_waterShader, "projection");
-    m_waterUniforms["model"] = glGetUniformLocation(m_waterShader, "model");
-    m_waterUniforms["functionSize"] = glGetUniformLocation(m_waterShader, "functionSize");
-    m_waterUniforms["function"] = glGetUniformLocation(m_waterShader, "function");
-    m_waterUniforms["r0"] = glGetUniformLocation(m_waterShader, "r0");
-    m_waterUniforms["eta"] = glGetUniformLocation(m_waterShader, "eta");
-
-//    m_test = new Test();
-//    m_test->init();
-
     m_room = new Room(25.f);
     m_room->init();
     m_room->makeCubeMaps();
@@ -184,26 +148,19 @@ void OpenGLScene::render(Camera *cam, bool test)
             glm::value_ptr(viewMatrix));
     glUniform3f(glGetUniformLocation(shader, "allBlack"), 1, 1, 1);
 
-    renderLightning();
+    renderLightning(shader);
 
 
-    glUseProgram(m_boltShader);
-    glUniformMatrix4fv(m_boltUniforms["view"], 1, GL_FALSE,
-            glm::value_ptr(viewMatrix));
-    glUniformMatrix4fv(m_boltUniforms["projection"], 1, GL_FALSE,
-            glm::value_ptr(projMatrix));
+    if (!test) {
+        shader = m_boltShader;
+        glUseProgram(shader);
+        glUniformMatrix4fv(glGetUniformLocation(shader, "view"), 1, GL_FALSE,
+                glm::value_ptr(viewMatrix));
+        glUniformMatrix4fv(glGetUniformLocation(shader, "projection"), 1, GL_FALSE,
+                glm::value_ptr(projMatrix));
 
-    renderBolts();
-
-//    if (m_drawWireframe)
-//    {
-//        glUniform3f(m_solidUniforms["allBlack"], 0, 0, 0);
-//        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
-//        renderSolids();
-
-//        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-//    }
+        renderBolts();
+    }
 
     // water
     if (!test) {

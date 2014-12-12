@@ -72,6 +72,8 @@ void Scene::sendMusicData(glm::vec4 eye)
 {
     glm::vec3 e = glm::vec3(eye);
 
+//    int num = m_water
+
     QList<glm::vec3> list;
     list.append(glm::vec3(0.f, 0.f, 2.f));
     list.append(glm::vec3(0.f, 0.f, -2.f));
@@ -184,7 +186,7 @@ void Scene::setUp()
     element->dragged = false;
     element->render = true;
     element->linked = false;
-    element->link = NULL;
+    element->link = -1;
 
     element->dragged = false;
     prim->type = LIGHTNING_TYPE;
@@ -203,7 +205,7 @@ void Scene::setUp()
     element2->dragged = false;
     element2->render = true;
     element2->link = false;
-    element2->linked = NULL;
+    element2->linked = false;
     prim->type = WATER_TYPE;
     element2->primitive = prim;
     element2->trans = (glm::translate(glm::mat4(), glm::vec3(2, 0, 0)) * glm::rotate(glm::mat4(), (float)(M_PI/2.0f), glm::vec3(0.0f, 0.0f, 1.0f)));
@@ -213,7 +215,7 @@ void Scene::setUp()
     element3->dragged = false;
     element3->render = true;
     element3->link = false;
-    element3->linked = NULL;
+    element3->linked = false;
     prim->type = WATER_TYPE;
     element3->primitive = prim;
     element3->trans = glm::translate(glm::mat4(), glm::vec3(-2, 0, 0));
@@ -358,7 +360,7 @@ void Scene::addObject(PrimitiveType typ) {
             element->dragged = false;
             element->render = true;
             element->linked = false;
-            element->link = NULL;
+            element->link = -1;
 
             element->dragged = false;
             prim->type = LIGHTNING_TYPE;
@@ -411,7 +413,7 @@ void Scene::addObject(PrimitiveType typ) {
             element->dragged = false;
             element->render = true;
             element->linked = false;
-            element->link = NULL;
+            element->link = -1;
 
             element->dragged = false;
             prim->type = LIGHTNING_TYPE;
@@ -441,10 +443,10 @@ void Scene::renderLightning(GLuint shader)
     // Draw the shapes.
     for (int i = 0; i < m_lightningElements.size(); ++i) {
         if (m_lightningElements.at(i)->render) {
-            glUniform3f(glGetUniformLocation(m_solidShader, "allWhite"), 0, 0, 0); // not white
-            glUniform1i(m_solidUniforms["functionSize"], m_f1.size());
-            glUniform1fv(m_solidUniforms["function"], m_f1.size(), m_f1.data());
-            m_lightningShape->transformAndRender(m_solidShader, m_lightningElements.at(i)->trans);
+            glUniform3f(glGetUniformLocation(shader, "allWhite"), 0, 0, 0); // not white
+            glUniform1i(glGetUniformLocation(shader, "functionSize"), m_f1.size());
+            glUniform1fv(glGetUniformLocation(shader, "function"), m_f1.size(), m_f1.data());
+            m_lightningShape->transformAndRender(shader, m_lightningElements.at(i)->trans);
         }
 
     }

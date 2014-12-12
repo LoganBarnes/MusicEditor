@@ -112,7 +112,7 @@ void View::paintGL()
         m_camera->setAspectRatio((float)width() / (float)height());
 
         // Render the scene.
-        m_scene->render(m_camera);
+        m_scene->render(m_camera, false);
         if (!m_transLightningOut) {
             m_scene->checkIntersects();
         }
@@ -211,6 +211,7 @@ void View::mouseMoveEvent(QMouseEvent *event)
     // TODO: Handle mouse movements here
     if ((event->x() > 0 && event->x() < width()) && (event->y() > 0 && event->y() < height())) {
         if (m_clicked) {
+            m_sceneChanged = true;
             float xTot = (m_currMove.xMax - m_currMove.xMin);
             float yTot = (m_currMove.yMax - m_currMove.yMin);
             float xRat = ((1.0f * width()) / xTot);
