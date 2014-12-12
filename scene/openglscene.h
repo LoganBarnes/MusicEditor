@@ -108,7 +108,8 @@ protected:
     // The program ID for OpenGL.
     GLuint m_solidShader;
     GLuint m_cubeShader;
-    GLuint m_testShader;
+    GLuint m_solidCubeShader;
+    GLuint m_boltCubeShader;
     GLuint m_waterShader;
     GLuint m_boltShader;
 

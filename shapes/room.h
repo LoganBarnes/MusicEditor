@@ -17,7 +17,7 @@ public:
     void bindFramebuffer();
     void bindFakeTexture();
     void bindTexture();
-    void setProjections(GLuint shader);
+    void setProjections(GLuint shader, glm::mat4 trans);
     void setImages();
 
 private:

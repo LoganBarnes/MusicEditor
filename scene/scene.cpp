@@ -192,7 +192,7 @@ void Scene::setUp()
     prim->type = LIGHTNING_TYPE;
     element->primitive = prim;
 //    element->trans = glm::rotate(glm::mat4(), (float) (M_PI / 4.0), glm::vec3(1, 1, -.1f));
-    element->trans = glm::translate(glm::vec3(0.f, 0.f, 0.f));
+    element->trans = glm::translate(glm::vec3(0.f, 0.f, -2.f));
 //    element->trans = glm::mat4();
 //    element->inv = glm::mat4();
     element->inv = glm::inverse(element->trans);
@@ -208,21 +208,21 @@ void Scene::setUp()
     element2->linked = false;
     prim->type = WATER_TYPE;
     element2->primitive = prim;
-    element2->trans = (glm::translate(glm::mat4(), glm::vec3(2, 0, 0)) * glm::rotate(glm::mat4(), (float)(M_PI/2.0f), glm::vec3(0.0f, 0.0f, 1.0f)));
+    element2->trans = glm::translate(glm::vec3(0, 0, 0));// * glm::rotate(glm::mat4(), (float)(M_PI/2.0f), glm::vec3(0.0f, 0.0f, 1.0f)));
     element2->inv = glm::inverse(element2->trans);
 
-    SceneElement *element3 = new SceneElement();
-    element3->dragged = false;
-    element3->render = true;
-    element3->link = false;
-    element3->linked = false;
-    prim->type = WATER_TYPE;
-    element3->primitive = prim;
-    element3->trans = glm::translate(glm::mat4(), glm::vec3(-2, 0, 0));
-    element3->inv = glm::inverse(element3->trans);
+//    SceneElement *element3 = new SceneElement();
+//    element3->dragged = false;
+//    element3->render = true;
+//    element3->link = false;
+//    element3->linked = false;
+//    prim->type = WATER_TYPE;
+//    element3->primitive = prim;
+//    element3->trans = glm::translate(glm::mat4(), glm::vec3(-2, 0, 0));
+//    element3->inv = glm::inverse(element3->trans);
 
     m_waterElements.append(element2);
-    m_waterElements.append(element3);
+//    m_waterElements.append(element3);
 
 
        // glUniform3f(glGetUniformLocation(m_shader, "allWhite"), 0, 0, 0); // not white
@@ -253,8 +253,6 @@ void Scene::init()
     m_lightningShape->calcVerts();
     m_lightningShape->updateGL(m_solidShader);
     m_lightningShape->cleanUp();
-
-
 
     m_waterShape = new MusicShape(150, 70, 0.15f);
     m_waterShape->calcVerts();

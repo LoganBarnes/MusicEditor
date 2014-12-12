@@ -48,12 +48,17 @@ INCLUDEPATH += glm lib ui scene camera shapes networking
 DEPENDPATH += glm lib ui scene camera shapes networking
 DEFINES += TIXML_USE_STL
 OTHER_FILES += \
+    # default shader
     shaders/shader.frag shaders/shader.vert\
     shaders/shader.gsh shaders/cube.gsh\
-    shaders/cubemap.frag shader/cubemap.vert\
-    shaders/glass.frag shaders/glass.vert\
+    # water shader
+    shaders/water.frag shaders/water.vert\
+    # lighting shaders
     shaders/bolt.frag shaders/bolt.vert\
-#    shaders/metal.frag shaders/metal.vert\
+    shaders/bold.gsh shaders/boltcube.gsh\
+    # cube map shaders
+    shaders/cubemap.frag shader/cubemap.vert\
+    # images for cube maps
     images/front.png images/back.png images/top.png\
     images/bottom.png images/left.png images/right.png\
     images/posx.jpg images/negx.jpg images/posy.jpg\

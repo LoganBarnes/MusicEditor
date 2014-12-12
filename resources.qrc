@@ -4,12 +4,14 @@
         <file alias="default.vert">shaders/shader.vert</file>
         <file alias="default.gsh">shaders/shader.gsh</file>
         <file alias="cube.gsh">shaders/cube.gsh</file>
-        <file alias="glass.frag">shaders/glass.frag</file>
-        <file alias="glass.vert">shaders/glass.vert</file>
+        <file alias="water.frag">shaders/water.frag</file>
+        <file alias="water.vert">shaders/water.vert</file>
         <file alias="cube.frag">shaders/cubemap.frag</file>
         <file alias="cube.vert">shaders/cubemap.vert</file>
-	<file alias="bolt.frag">shaders/bolt.frag</file>
+        <file alias="bolt.frag">shaders/bolt.frag</file>
         <file alias="bolt.vert">shaders/bolt.vert</file>
+        <file alias="bolt.gsh">shaders/bolt.gsh</file>
+        <file alias="boltcube.gsh">shaders/boltcube.gsh</file>
     </qresource>
     <qresource prefix="/images">
         <file alias="front.png">images/front.png</file>

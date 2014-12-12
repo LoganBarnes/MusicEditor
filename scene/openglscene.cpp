@@ -73,7 +73,7 @@ void OpenGLScene::init()
                 ":/shaders/default.vert",
                 ":/shaders/default.gsh",
                 ":/shaders/default.frag");
-    m_testShader = ResourceLoader::loadShadersWithGeom(
+    m_solidCubeShader = ResourceLoader::loadShadersWithGeom(
                 ":/shaders/default.vert",
                 ":/shaders/cube.gsh",
                 ":/shaders/default.frag");
@@ -81,10 +81,15 @@ void OpenGLScene::init()
                 ":/shaders/cube.vert",
                 ":/shaders/cube.frag");
     m_waterShader = ResourceLoader::loadShaders(
-                ":/shaders/glass.vert",
-                ":/shaders/glass.frag");
-    m_boltShader = ResourceLoader::loadShaders(
+                ":/shaders/water.vert",
+                ":/shaders/water.frag");
+    m_boltShader = ResourceLoader::loadShadersWithGeom(
                 ":/shaders/bolt.vert",
+                ":/shaders/bolt.gsh",
+                ":/shaders/bolt.frag");
+    m_boltCubeShader = ResourceLoader::loadShadersWithGeom(
+                ":/shaders/bolt.vert",
+                ":/shaders/boltcube.gsh",
                 ":/shaders/bolt.frag");
 
     m_room = new Room(25.f);
@@ -126,11 +131,11 @@ void OpenGLScene::render(Camera *cam, bool test)
     // solids
     GLuint shader;
     if (test) {
-        shader = m_testShader;
+        shader = m_solidCubeShader;
         glUseProgram(shader);
         m_room->setImages();
         m_room->bindFakeTexture();
-        m_room->setProjections(shader);
+        m_room->setProjections(shader, m_waterElements.value(0)->inv);
     }
     else {
         shader = m_solidShader;
@@ -151,16 +156,20 @@ void OpenGLScene::render(Camera *cam, bool test)
     renderLightning(shader);
 
 
-    if (!test) {
+    if (test) {
+        shader = m_boltCubeShader;
+        glUseProgram(shader);
+        m_room->setProjections(shader, m_waterElements.value(0)->inv);
+    } else {
         shader = m_boltShader;
         glUseProgram(shader);
-        glUniformMatrix4fv(glGetUniformLocation(shader, "view"), 1, GL_FALSE,
-                glm::value_ptr(viewMatrix));
-        glUniformMatrix4fv(glGetUniformLocation(shader, "projection"), 1, GL_FALSE,
-                glm::value_ptr(projMatrix));
-
-        renderBolts();
     }
+    glUniformMatrix4fv(glGetUniformLocation(shader, "view"), 1, GL_FALSE,
+            glm::value_ptr(viewMatrix));
+    glUniformMatrix4fv(glGetUniformLocation(shader, "projection"), 1, GL_FALSE,
+            glm::value_ptr(projMatrix));
+
+    renderBolts();
 
     // water
     if (!test) {

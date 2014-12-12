@@ -3,7 +3,8 @@
 Camera::Camera()
 {
     m_aspectRatio = 1;
-    m_angleX = m_angleY = 0;
+    m_angleX = 15.f;
+    m_angleY = 0;
     m_zoomZ = -5;
 }
 
@@ -54,7 +55,7 @@ void Camera::updateViewMatrix()
 {
     m_viewMatrix =
             glm::translate(glm::vec3(0.f, -0.0f, m_zoomZ)) *
-            glm::rotate(glm::radians(0.f), glm::vec3(1.f, 0.f, 0.f)) *
+            glm::rotate(glm::radians(m_angleX), glm::vec3(1.f, 0.f, 0.f)) *
             glm::rotate(glm::radians(m_angleY), glm::vec3(0.f, 1.f, 0.f));
     m_eye = glm::inverse(m_viewMatrix) * glm::vec4(0, 0, 0, 1);
 }

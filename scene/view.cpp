@@ -7,6 +7,8 @@
 
 using namespace std;
 
+const int cube_s = 1024;
+
 View::View(QGLFormat format, QWidget *parent) : QGLWidget(format, parent)
 {
     // View needs all mouse move events, not just mouse drag events
@@ -46,8 +48,8 @@ void View::initializeGL()
     glGetError(); // Clear errors after call to glewInit
     if (GLEW_OK != err)
     {
-      // Problem: glewInit failed, something is seriously wrong.
-      fprintf(stderr, "Error initializing glew: %s\n", glewGetErrorString(err));
+        // Problem: glewInit failed, something is seriously wrong.
+        fprintf(stderr, "Error initializing glew: %s\n", glewGetErrorString(err));
     }
 
     // Initialize scene
@@ -103,9 +105,9 @@ void View::paintGL()
 
         // Update the scene camera.
         if (m_sceneChanged) {
-            glViewport(0, 0, 128, 128);
+            glViewport(0, 0, cube_s, cube_s);
             m_scene->render(m_camera, true); // set cube map
-            m_sceneChanged = false;
+//            m_sceneChanged = false;
         }
 
         glViewport(0, 0, width(), height());
@@ -336,8 +338,7 @@ void View::tick()
 //    float seconds = time.restart() * 0.001f;
 
     // TODO: Implement the demo update here
-    if (false)
-        m_camera->swing();
+//    m_camera->swing();
 
     m_scene->sendMusicData(m_camera->getEye4());
     // Flag this view for repainting (Qt will call paintGL() soon after)

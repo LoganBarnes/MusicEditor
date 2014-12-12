@@ -16,7 +16,7 @@
 #define BACK ":/images/posz.jpg"
 #define FRONT ":/images/negz.jpg"
 
-const int cube_s = 128;
+const int cube_s = 1024;
 
 Room::Room(float radius)
 {
@@ -132,9 +132,10 @@ void Room::bindTexture()
 }
 
 
-void Room::setProjections(GLuint shader)
+void Room::setProjections(GLuint shader, glm::mat4 trans)
 {
     glUniformMatrix4fv(glGetUniformLocation(shader, "shadowMapProjections"), 6, GL_FALSE, glm::value_ptr(shadowMapProjections[0]));
+    glUniformMatrix4fv(glGetUniformLocation(shader, "waterModel"), 1, GL_FALSE, glm::value_ptr(trans));
 }
 
 

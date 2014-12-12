@@ -1,4 +1,4 @@
-#version 330
+#version 410
 
 in vec3 vertex;         // The position of the vertex, in eye space!
 in vec3 vertexToEye;    // Vector from the vertex to the eye
