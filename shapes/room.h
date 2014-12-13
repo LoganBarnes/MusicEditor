@@ -15,6 +15,7 @@ public:
 
     void render();
     void setModel(GLuint shader, glm::vec4 eye);
+    void bindTexture();
 
 private:
     bool loadTexture(GLuint tex, GLenum side, const QString &filename,

@@ -105,9 +105,9 @@ void View::paintGL()
 
         // Update the scene camera.
         if (m_sceneChanged) {
-//            glViewport(0, 0, cube_s, cube_s);
-//            m_scene->setCubeMaps(m_camera); // set cube map
-//            m_sceneChanged = false;
+            glViewport(0, 0, cube_s, cube_s);
+            m_scene->setCubeMaps(m_camera); // set cube map
+            m_sceneChanged = false;
         }
 
         glViewport(0, 0, width(), height());

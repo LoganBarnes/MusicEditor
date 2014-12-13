@@ -4,6 +4,7 @@
 #include "musicshape.h"
 #include "udphandler.h"
 #include "glm/gtx/vector_angle.hpp"
+#include "cubemap.h"
 
 glm::vec4 lightDirection = glm::normalize(glm::vec4(0.5f, -0.8f, 1.f, 0.f));
 
@@ -269,6 +270,13 @@ void Scene::init()
     }
 
     m_initialized = true;
+
+    int count = 0;
+    foreach(SceneElement *e, m_waterElements) {
+        e->cube = new CubeMap();
+        e->cube->makeCubeMap(m_images);
+        cout << count++ << endl;
+    }
 }
 
 
@@ -370,7 +378,9 @@ void Scene::addObject(PrimitiveType typ) {
             element->linked = false;
             element->link = -1;
 
-            prim->type = LIGHTNING_TYPE;
+            prim->type = WATER_TYPE;
+            element->cube = new CubeMap();
+            element->cube->makeCubeMap(m_images);
             element->primitive = prim;
             element->trans = glm::mat4(1.0f);
             element->inv = glm::inverse(element->trans);
@@ -502,9 +512,9 @@ void Scene::renderTransparents(GLuint shader)
 
     for (int i = 0; i < m_waterElements.size(); ++i) {
 
-        glActiveTexture(GL_TEXTURE1);
+//        glActiveTexture(GL_TEXTURE1);
 //        m_waterElements.value(i)->cube->bindTexture();
-        glActiveTexture(GL_TEXTURE0);
+//        glActiveTexture(GL_TEXTURE0);
 
         glUniform1i(glGetUniformLocation(shader, "functionSize"), m_f1.size());
         glUniform1fv(glGetUniformLocation(shader, "function"), m_f1.size(), m_f1.data());
