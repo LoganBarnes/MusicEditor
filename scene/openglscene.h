@@ -57,8 +57,11 @@ public:
     // Override this to do any initialization for the scene.
     virtual void init();
 
+    // prepare cube maps for water shapes
+    void setCubeMaps(Camera *cam);
+
     // Render the scene.
-    void render(Camera *cam, bool test);
+    void render(Camera *cam);
 
     virtual void sendMusicData(glm::vec4 eye) = 0;
 

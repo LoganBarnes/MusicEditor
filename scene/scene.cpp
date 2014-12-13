@@ -501,6 +501,11 @@ void Scene::renderTransparents(GLuint shader)
 //    m_waterShape->transformAndRender(shader, glm::translate(glm::vec3(0, 0, 2)));
 
     for (int i = 0; i < m_waterElements.size(); ++i) {
+
+        glActiveTexture(GL_TEXTURE1);
+//        m_waterElements.value(i)->cube->bindTexture();
+        glActiveTexture(GL_TEXTURE0);
+
         glUniform1i(glGetUniformLocation(shader, "functionSize"), m_f1.size());
         glUniform1fv(glGetUniformLocation(shader, "function"), m_f1.size(), m_f1.data());
         m_waterShape->transformAndRender(m_waterShader, m_waterElements.at(i)->trans);

@@ -105,8 +105,8 @@ void View::paintGL()
 
         // Update the scene camera.
         if (m_sceneChanged) {
-            glViewport(0, 0, cube_s, cube_s);
-            m_scene->render(m_camera, true); // set cube map
+//            glViewport(0, 0, cube_s, cube_s);
+//            m_scene->setCubeMaps(m_camera); // set cube map
 //            m_sceneChanged = false;
         }
 
@@ -114,7 +114,7 @@ void View::paintGL()
         m_camera->setAspectRatio((float)width() / (float)height());
 
         // Render the scene.
-        m_scene->render(m_camera, false);
+        m_scene->render(m_camera);
         if (!m_transLightningOut) {
             m_scene->checkIntersects();
         }
