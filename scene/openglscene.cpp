@@ -134,10 +134,10 @@ void OpenGLScene::render(Camera *cam)
     m_room->setModel(shader, cam->getEye4());
     glUniform1i(glGetUniformLocation(shader, "envMap"), 1);
 
-    glActiveTexture(GL_TEXTURE1);
-    m_waterElements.value(0)->cube->bindTexture();
-//    m_cm->bindTexture();
-    glActiveTexture(GL_TEXTURE0);
+//    glActiveTexture(GL_TEXTURE1);
+//    m_waterElements.value(0)->cube->bindTexture();
+////    m_cm->bindTexture();
+//    glActiveTexture(GL_TEXTURE0);
 
     m_room->render();
 

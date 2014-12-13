@@ -338,7 +338,6 @@ void View::mouseMoveEvent(QMouseEvent *event)
         m_oldY = event->y();
     }
     else {
-        std::cout << " IN DRAGGED OUT " << std::endl;
         if (m_clicked) {
             m_clicked = false;
             if (m_currMove.prim == WATER_TYPE) {

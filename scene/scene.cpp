@@ -201,15 +201,15 @@ void Scene::setUp()
 
 //    glm::mat4x4 rots = glm::rotate(glm::mat4(), (float) (M_PI / 4.0), glm::vec3(1, 1, -.1f));
 
-    SceneElement *element2 = new SceneElement();
-    element2->dragged = false;
-    element2->render = true;
-    element2->link = -1;
-    element2->linked = false;
-    prim->type = WATER_TYPE;
-    element2->primitive = prim;
-    element2->trans = (glm::translate(glm::mat4(), glm::vec3(2, 0, 0)) * glm::rotate(glm::mat4(), (float)(M_PI/2.0f), glm::vec3(0.0f, 0.0f, 1.0f)));
-    element2->inv = glm::inverse(element2->trans);
+//    SceneElement *element2 = new SceneElement();
+//    element2->dragged = false;
+//    element2->render = true;
+//    element2->link = -1;
+//    element2->linked = false;
+//    prim->type = WATER_TYPE;
+//    element2->primitive = prim;
+//    element2->trans = (glm::translate(glm::mat4(), glm::vec3(2, 0, 0)) * glm::rotate(glm::mat4(), (float)(M_PI/2.0f), glm::vec3(0.0f, 0.0f, 1.0f)));
+//    element2->inv = glm::inverse(element2->trans);
 
     SceneElement *element3 = new SceneElement();
     element3->dragged = false;
@@ -221,8 +221,8 @@ void Scene::setUp()
     element3->trans = glm::translate(glm::mat4(), glm::vec3(-2, 0, 0));
     element3->inv = glm::inverse(element3->trans);
 
-    m_waterElements.append(element2);
-//    m_waterElements.append(element3);
+//    m_waterElements.append(element2);
+    m_waterElements.append(element3);
 
 
        // glUniform3f(glGetUniformLocation(m_shader, "allWhite"), 0, 0, 0); // not white
@@ -253,11 +253,13 @@ void Scene::init()
     m_lightningShape->calcVerts();
     m_lightningShape->updateGL(m_solidShader);
     m_lightningShape->cleanUp();
+    m_lightningShape->m_isWater = false;
 
     m_waterShape = new MusicShape(150, 70, 0.15f);
     m_waterShape->calcVerts();
     m_waterShape->updateGL(m_waterShader);
     m_waterShape->cleanUp();
+    m_waterShape->m_isWater = true;
 
     CS123SceneMaterial& mat = m_waterElements.at(0)->primitive->material;
     int texId = loadTexture(QString::fromStdString(mat.textureMap->filename));
@@ -290,7 +292,6 @@ void Scene::renderSetting()
 }
 
 void Scene::deleteObject(PrimitiveType typ, int ind) {
-    std::cout << " DELETING THIS INDDDEX " << ind << " AND THIS TYPE " << typ << std::endl;
     if (typ == WATER_TYPE) {
         if (m_waterElements.size() == 1) {
             return;
@@ -643,7 +644,9 @@ void Scene::checkIntersects() {
                         }
                     }
                     else {
+
                         m_lightningElements.at(l)->trans = m_waterElements.at(w)->trans;
+                        m_lightningElements.at(l)->inv = m_waterElements.at(w)->inv;
                         m_lightningElements.at(l)->render = false;
                         m_waterElements.at(w)->link = l;
                         m_waterElements.at(w)->linked = true;
@@ -786,7 +789,6 @@ IntersectElement Scene::shapeClickIntersect(glm::vec4 ey, glm::vec4 dr) {
 
 
         float tempDist = m_waterShape->calcIntersect(eye3, dir3);
-        std::cout << " IND " << i << " DIST TO INTERS " << tempDist << std::endl;
 
         
         if (tempDist > 0.0f) {

@@ -36,7 +36,7 @@ public:
     void recursiveBolt(glm::vec3 prevPos, int recCount, glm::vec3 finPos, int ind, float variation);
     void updateLightning(GLuint shader);
     void calcBoltVerts(QVector<float> function);
-
+    bool m_isWater;
 
 protected:
 
