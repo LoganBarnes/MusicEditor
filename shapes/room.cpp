@@ -178,15 +178,13 @@ void Room::generateProjections(float zmin, float zmax) {
         GL_TEXTURE_CUBE_MAP_NEGATIVE_X - GL_TEXTURE_CUBE_MAP_POSITIVE_X
     ] = proj * view;
 
-    view = glm::rotate(half, y_axis) *
-            glm::rotate(quarter, x_axis);
+    view = glm::rotate(-quarter, x_axis);
 //    gluLookAt(0.0, 0.0, 0.0,  0.0, 1.0, 0.0,  0.0, 0.0, 1.0); // +Y
     shadowMapProjections[
         GL_TEXTURE_CUBE_MAP_POSITIVE_Y - GL_TEXTURE_CUBE_MAP_POSITIVE_X
     ] = proj * view;
 
-    view = glm::rotate(half, y_axis) *
-            glm::rotate(-quarter, x_axis);
+    view = glm::rotate(quarter, x_axis);
 //    gluLookAt(0.0, 0.0, 0.0,  0.0,-1.0, 0.0,  0.0, 0.0,-1.0); // -Y
     shadowMapProjections[
         GL_TEXTURE_CUBE_MAP_NEGATIVE_Y - GL_TEXTURE_CUBE_MAP_POSITIVE_X
