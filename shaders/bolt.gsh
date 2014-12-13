@@ -7,7 +7,7 @@ in vec4 pos[2];
 
  void main()
 {
-     for(int i = 0; i < 3; ++i) {
+     for(int i = 0; i < 2; ++i) {
          gl_Position = gl_in[i].gl_Position;
          EmitVertex();
      }

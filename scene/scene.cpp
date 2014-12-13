@@ -73,66 +73,43 @@ void Scene::sendMusicData(glm::vec4 eye)
 {
     glm::vec3 e = glm::vec3(eye);
 
-//    int num = m_water
-
-    QList<glm::vec3> list;
-    list.append(glm::vec3(0.f, 0.f, 2.f));
-    list.append(glm::vec3(0.f, 0.f, -2.f));
-    list.append(glm::vec3(-2.f, 1.f, 0.f));
-    list.append(glm::vec3(2.f, -1.f, 0.f));
-
-    glm::vec2 d1, d2, d3, d4;
-    d1.x = glm::distance(list.value(0), e);
-    d2.x = glm::distance(list.value(1), e);
-    d3.x = glm::distance(list.value(2), e);
-    d4.x = glm::distance(list.value(3), e);
-
-    glm::vec3 v1 = list.value(0) - e;
+    int num = m_waterElements.size();
+    glm::vec2 d;
+    glm::vec3 v1;
     glm::vec3 v2 = glm::vec3(0) - e;
     v1.y = 0;
-    v2.y = 0;
-    d1.y = glm::angle(glm::normalize(v1), glm::normalize(v2));
-    d1.y /= (M_PI / 2.f);
-    int cross = (glm::cross(v1, v2).y > 0 ? 1 : -1);
-    d1.y = .5 + (cross * d1.y);
+    for (int i = 0; i < num; i++) {
+        d.x = glm::distance(glm::vec3(m_waterElements.value(i)->trans[3]), e);
 
-    v1 = list.value(1) - e;
-    v1.y = 0;
-    d2.y = glm::angle(glm::normalize(v1), glm::normalize(v2));
-    d2.y /= (M_PI / 2.f);
-    cross = (glm::cross(v1, v2).y > 0 ? 1 : -1);
-    d2.y = .5 + (cross * d2.y);
+        v1 = glm::vec3(m_waterElements.value(i)->trans[3]) - e;
+        v2.y = 0;
+        d.y = glm::angle(glm::normalize(v1), glm::normalize(v2));
+        d.y /= (M_PI / 2.f);
+        int cross = (glm::cross(v1, v2).y > 0 ? 1 : -1);
+        d.y = .5 + (cross * d.y);
+        d.x = glm::clamp(1.f - d.x / 10.f, 0.f, 1.f);
 
-    v1 = list.value(2) - e;
-    v1.y = 0;
-    d3.y = glm::angle(glm::normalize(v1), glm::normalize(v2));
-    d3.y /= (M_PI / 2.f);
-    cross = (glm::cross(v1, v2).y > 0 ? 1 : -1);
-    d3.y = .5 + (cross * d3.y);
-
-    v1 = list.value(3) - e;
-    v1.y = 0;
-    d4.y = glm::angle(glm::normalize(v1), glm::normalize(v2));
-    d4.y /= (M_PI / 2.f);
-    cross = (glm::cross(v1, v2).y > 0 ? 1 : -1);
-    d4.y = .5 + (cross * d4.y);
-//    cout << d1.y << endl;
-//    cout << (glm::cross(v1, v2).y > 0) << endl;
-
-    d1.x = glm::clamp(1.f - d1.x / 10.f, 0.f, 1.f);
-    d2.x = glm::clamp(1.f - d2.x / 10.f, 0.f, 1.f);
-    d3.x = glm::clamp(1.f - d3.x / 10.f, 0.f, 1.f);
-    d4.x = glm::clamp(1.f - d4.x / 10.f, 0.f, 1.f);
-
-//    cout << "1: " << glm::to_string(d1) << endl;
-//    cout << "2: " << glm::to_string(d2) << endl;
-//    cout << "3: " << glm::to_string(d3) << endl;
-//    cout << "4: " << glm::to_string(d4) << endl;
-
-    m_udp1->sendInfo(d1.x, d1.y);
-    m_udp2->sendInfo(d2.x, d2.y);
-    m_udp3->sendInfo(d3.x, d3.y);
-    m_udp4->sendInfo(d4.x, d4.y);
+        if (i == 0) {
+            m_udp1->sendInfo(d.x, d.y);
+        }
+        if (i == 1) {
+            m_udp2->sendInfo(d.x, d.y);
+        }
+        if (i == 2) {
+            m_udp3->sendInfo(d.x, d.y);
+        }
+        if (i == 3) {
+            m_udp4->sendInfo(d.x, d.y);
+        }
+    }
+    if (num < 1)
+        m_udp1->sendInfo(0.f, 0.5f);
+    if (num < 2)
+        m_udp2->sendInfo(0.f, 0.5f);
+    if (num < 3)
+        m_udp3->sendInfo(0.f, 0.5f);
+    if (num < 4)
+        m_udp4->sendInfo(0.f, 0.5f);
 }
 
 
@@ -201,28 +178,28 @@ void Scene::setUp()
 
 //    glm::mat4x4 rots = glm::rotate(glm::mat4(), (float) (M_PI / 4.0), glm::vec3(1, 1, -.1f));
 
-//    SceneElement *element2 = new SceneElement();
-//    element2->dragged = false;
-//    element2->render = true;
-//    element2->link = -1;
-//    element2->linked = false;
-//    prim->type = WATER_TYPE;
-//    element2->primitive = prim;
-//    element2->trans = (glm::translate(glm::mat4(), glm::vec3(2, 0, 0)) * glm::rotate(glm::mat4(), (float)(M_PI/2.0f), glm::vec3(0.0f, 0.0f, 1.0f)));
-//    element2->inv = glm::inverse(element2->trans);
-
-    SceneElement *element3 = new SceneElement();
-    element3->dragged = false;
-    element3->render = true;
-    element3->link = -1;
-    element3->linked = false;
+    SceneElement *element2 = new SceneElement();
+    element2->dragged = false;
+    element2->render = true;
+    element2->link = -1;
+    element2->linked = false;
     prim->type = WATER_TYPE;
-    element3->primitive = prim;
-    element3->trans = glm::translate(glm::mat4(), glm::vec3(-2, 0, 0));
-    element3->inv = glm::inverse(element3->trans);
+    element2->primitive = prim;
+    element2->trans = glm::translate(glm::vec3(0.0f, 0.0f, 2.0f));
+    element2->inv = glm::inverse(element2->trans);
 
-//    m_waterElements.append(element2);
-    m_waterElements.append(element3);
+//    SceneElement *element3 = new SceneElement();
+//    element3->dragged = false;
+//    element3->render = true;
+//    element3->link = -1;
+//    element3->linked = false;
+//    prim->type = WATER_TYPE;
+//    element3->primitive = prim;
+//    element3->trans = glm::translate(glm::vec3(-2, 0, 0));
+//    element3->inv = glm::inverse(element3->trans);
+
+    m_waterElements.append(element2);
+//    m_waterElements.append(element3);
 
 
        // glUniform3f(glGetUniformLocation(m_shader, "allWhite"), 0, 0, 0); // not white
@@ -508,8 +485,8 @@ void Scene::renderTransparents(GLuint shader)
     glUniform4fv(glGetUniformLocation(shader, "lightPosition"), 1, glm::value_ptr(m_lights.value(0)->pos));
 //    m_room->bindTexture();
 
-    glUniform1i(glGetUniformLocation(shader, "functionSize"), m_f1.size());
-    glUniform1fv(glGetUniformLocation(shader, "function"), m_f1.size(), m_f1.data());
+//    glUniform1i(glGetUniformLocation(shader, "functionSize"), m_f1.size());
+//    glUniform1fv(glGetUniformLocation(shader, "function"), m_f1.size(), m_f1.data());
 //    m_waterShape->transformAndRender(shader, m_elements.at(0)->trans);
 //    m_waterShape->transformAndRender(shader, glm::translate(glm::vec3(0, 0, 2)));
 
@@ -519,8 +496,22 @@ void Scene::renderTransparents(GLuint shader)
         m_waterElements.value(i)->cube->bindTexture();
         glActiveTexture(GL_TEXTURE0);
 
-        glUniform1i(glGetUniformLocation(shader, "functionSize"), m_f1.size());
-        glUniform1fv(glGetUniformLocation(shader, "function"), m_f1.size(), m_f1.data());
+        if (i == 0) {
+            glUniform1i(glGetUniformLocation(shader, "functionSize"), m_f1.size());
+            glUniform1fv(glGetUniformLocation(shader, "function"), m_f1.size(), m_f1.data());
+        }
+        if (i == 1) {
+            glUniform1i(glGetUniformLocation(shader, "functionSize"), m_f2.size());
+            glUniform1fv(glGetUniformLocation(shader, "function"), m_f2.size(), m_f2.data());
+        }
+        if (i == 2) {
+            glUniform1i(glGetUniformLocation(shader, "functionSize"), m_f3.size());
+            glUniform1fv(glGetUniformLocation(shader, "function"), m_f3.size(), m_f3.data());
+        }
+        if (i == 3) {
+            glUniform1i(glGetUniformLocation(shader, "functionSize"), m_f4.size());
+            glUniform1fv(glGetUniformLocation(shader, "function"), m_f4.size(), m_f4.data());
+        }
         m_waterShape->transformAndRender(m_waterShader, m_waterElements.at(i)->trans);
 
 //    glUniform1i(glGetUniformLocation(shader, "functionSize"), m_f3.size());
