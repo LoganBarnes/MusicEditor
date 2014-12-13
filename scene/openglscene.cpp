@@ -177,11 +177,11 @@ void OpenGLScene::render(Camera *cam)
     glUniformMatrix4fv(glGetUniformLocation(shader, "projection"), 1, GL_FALSE, glm::value_ptr(projMatrix));
     glUniform1i(glGetUniformLocation(shader, "envMap"), 1);
 
-    glActiveTexture(GL_TEXTURE1);
-//    m_room->bindTexture();
-    m_waterElements.value(0)->cube->bindTexture();
-//    m_cm->bindTexture();
-    glActiveTexture(GL_TEXTURE0);
+//    glActiveTexture(GL_TEXTURE1);
+////    m_room->bindTexture();
+//    m_waterElements.value()->cube->bindTexture();
+////    m_cm->bindTexture();
+//    glActiveTexture(GL_TEXTURE0);
 
     renderTransparents(shader);
 
