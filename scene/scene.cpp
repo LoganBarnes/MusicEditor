@@ -432,7 +432,7 @@ void Scene::addObject(PrimitiveType typ) {
 }
 
 
-void Scene::renderLightning(GLuint shader)
+void Scene::renderLightning(GLuint shader, Camera *cam)
 {
 
     if (!m_initialized)
@@ -449,6 +449,8 @@ void Scene::renderLightning(GLuint shader)
     // Draw the shapes.
     for (int i = 0; i < m_lightningElements.size(); ++i) {
         if (m_lightningElements.at(i)->render) {
+            glm::vec3 cent = glm::vec3((m_lightningElements.at(i)->trans * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f)));
+            glUniform3fv(glGetUniformLocation(shader, "centr"), 1, glm::value_ptr(cent));
             glUniform3f(glGetUniformLocation(m_solidShader, "allWhite"), 0, 0, 0); // not white
             glUniform1i(glGetUniformLocation(shader, "functionSize"), m_f1.size());
             glUniform1fv(glGetUniformLocation(shader, "function"), m_f1.size(), m_f1.data());

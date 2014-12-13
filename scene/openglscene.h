@@ -85,7 +85,7 @@ protected:
     virtual void renderSetting() = 0;
 
     // Render solid geometry for Shapes and Sceneview.
-    virtual void renderLightning(GLuint shader) = 0;
+    virtual void renderLightning(GLuint shader, Camera *cam) = 0;
 
     // Render see-through shapes
     virtual void renderTransparents(GLuint shader) = 0;
@@ -111,6 +111,7 @@ protected:
     GLuint m_testShader;
     GLuint m_waterShader;
     GLuint m_boltShader;
+    GLuint m_orbShader;
 
     CS123SceneGlobalData m_global;
     QList<CS123SceneLightData*> m_lights;

@@ -86,6 +86,9 @@ void OpenGLScene::init()
     m_boltShader = ResourceLoader::loadShaders(
                 ":/shaders/bolt.vert",
                 ":/shaders/bolt.frag");
+//    m_orbShader = ResourceLoader::loadShaders(
+//                ":/shaders/orb.vert",
+//                ":/shaders/orb.frag");
 
     // solids
     m_solidUniforms["projection"]= glGetUniformLocation(m_solidShader, "projection");
@@ -178,13 +181,15 @@ void OpenGLScene::render(Camera *cam, bool test)
     setLights(viewMatrix, shader);
     glUniform1i(glGetUniformLocation(shader, "useLighting"), m_useLighting);
     glUniform1i(glGetUniformLocation(shader, "useArrowOffsets"), GL_FALSE);
+    glUniform3fv(glGetUniformLocation(shader, "eyeV"), 1, glm::value_ptr(cam->getEye()));
+    glUniform1f(glGetUniformLocation(shader, "rad"), 0.15f);
     glUniformMatrix4fv(glGetUniformLocation(shader, "projection"), 1, GL_FALSE,
             glm::value_ptr(projMatrix));
     glUniformMatrix4fv(glGetUniformLocation(shader, "view"), 1, GL_FALSE,
             glm::value_ptr(viewMatrix));
     glUniform3f(glGetUniformLocation(shader, "allBlack"), 1, 1, 1);
 
-    renderLightning(shader);
+    renderLightning(shader, cam);
 
 
     glUseProgram(m_boltShader);

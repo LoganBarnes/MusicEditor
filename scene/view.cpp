@@ -325,6 +325,18 @@ void View::mouseMoveEvent(QMouseEvent *event)
         m_oldX = event->x();
         m_oldY = event->y();
     }
+    else {
+        std::cout << " IN DRAGGED OUT " << std::endl;
+        if (m_clicked) {
+            m_clicked = false;
+            if (m_currMove.prim == WATER_TYPE) {
+                m_scene->m_waterElements.at(m_currMove.indx)->dragged = false;
+            }
+            else if (m_currMove.prim == LIGHTNING_TYPE) {
+                m_scene->m_lightningElements.at(m_currMove.indx)->dragged = false;
+            }
+        }
+    }
 
 }
 

@@ -41,7 +41,7 @@ protected:
     virtual void renderSetting();
 
     // Render geometry for Shapes and Sceneview.
-    virtual void renderLightning(GLuint shader);
+    virtual void renderLightning(GLuint shader, Camera *cam);
 
     void renderBolts();
 
