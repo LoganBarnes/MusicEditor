@@ -7,6 +7,11 @@ Shape::Shape()
     m_vertexData = NULL;
     m_vaoID = 0;
     m_vboID = 0;
+    m_lnumVerts = 0;
+    m_lvertexData = NULL;
+    m_lvaoID = 0;
+    m_lvboID = 0;
+
 
     setParamMax(-1, -1, -1.f);
 }
@@ -18,6 +23,11 @@ Shape::~Shape()
         glDeleteVertexArrays(1, &m_vaoID);
     if (m_vboID)
         glDeleteBuffers(1, &m_vboID);
+    cleanUp();
+    if (m_lvaoID)
+        glDeleteVertexArrays(1, &m_lvaoID);
+    if (m_lvboID)
+        glDeleteBuffers(1, &m_lvboID);
 }
 
 
@@ -299,6 +309,10 @@ void Shape::cleanUp()
     if (m_vertexData) {
         delete[] m_vertexData;
         m_vertexData = NULL;
+    }
+    if (m_lvertexData) {
+        delete[] m_lvertexData;
+        m_lvertexData = NULL;
     }
 }
 
