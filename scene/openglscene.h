@@ -21,6 +21,7 @@ struct SceneElement
     CS123ScenePrimitive *primitive;
     glm::mat4 trans;
     glm::mat4 inv;
+
     int link;
     bool render;
     bool linked;
@@ -120,11 +121,16 @@ protected:
 
 private:
 
+    void generateProjections(float zmin, float zmax);
+
     std::map<string, GLint> m_solidUniforms;
     std::map<string, GLint> m_cubeUniforms;
     std::map<string, GLint> m_waterUniforms;
     std::map<string, GLint> m_boltUniforms;
 
+    QHash<GLenum, QImage> m_images;
+
+    glm::mat4 shadowMapProjections[6];
 
     bool m_drawWireframe;
     bool m_useLighting;

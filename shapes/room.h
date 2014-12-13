@@ -11,17 +11,16 @@ public:
     virtual ~Room();
 
     void init();
-    void makeCubeMaps();
+    QHash<GLenum, QImage> makeCubeMaps();
 
     void render();
     void bindFramebuffer();
     void bindFakeTexture();
     void bindTexture();
-    void setProjections(GLuint shader, glm::mat4 trans);
+    void setModel(GLuint shader, glm::mat4 trans);
     void setImages();
 
 private:
-    void generateProjections(float zmin, float zmax);
     bool loadTexture(GLuint tex, GLenum side, const QString &filename);
 
     GLuint m_vaoID; // The vertex array object ID, which is passed to glBindVertexArray.

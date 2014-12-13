@@ -92,9 +92,11 @@ void OpenGLScene::init()
                 ":/shaders/boltcube.gsh",
                 ":/shaders/bolt.frag");
 
+    generateProjections(.1f, 50.f);
+
     m_room = new Room(25.f);
     m_room->init();
-    m_room->makeCubeMaps();
+    m_images = m_room->makeCubeMaps();
 }
 
 void OpenGLScene::render(Camera *cam, bool test)
@@ -135,7 +137,8 @@ void OpenGLScene::render(Camera *cam, bool test)
         glUseProgram(shader);
         m_room->setImages();
         m_room->bindFakeTexture();
-        m_room->setProjections(shader, m_waterElements.value(0)->trans);
+        glUniformMatrix4fv(glGetUniformLocation(shader, "shadowMapProjections"), 6, GL_FALSE, glm::value_ptr(shadowMapProjections[0]));
+        m_room->setModel(shader, m_waterElements.value(0)->trans);
     }
     else {
         shader = m_solidShader;
@@ -159,7 +162,7 @@ void OpenGLScene::render(Camera *cam, bool test)
     if (test) {
         shader = m_boltCubeShader;
         glUseProgram(shader);
-        m_room->setProjections(shader, m_waterElements.value(0)->trans);
+        m_room->setModel(shader, m_waterElements.value(0)->trans);
     } else {
         shader = m_boltShader;
         glUseProgram(shader);
@@ -296,4 +299,55 @@ int OpenGLScene::loadTexture(const QString &filename)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
     return id;
+}
+
+
+void OpenGLScene::generateProjections(float zmin, float zmax) {
+
+    glm::mat4 proj = glm::perspective(glm::radians(90.f), 1.f, zmin, zmax);
+    glm::mat4 view;
+
+    float quarter = glm::radians(90.f);
+    float half = glm::radians(180.f);
+
+    glm::vec3 y_axis = glm::vec3(0.f, 1.f, 0.f);
+    glm::vec3 x_axis = glm::vec3(1.f, 0.f, 0.f);
+
+    // +X
+    view = glm::rotate(quarter, y_axis) *
+            glm::rotate(half, x_axis);
+    shadowMapProjections[
+        GL_TEXTURE_CUBE_MAP_POSITIVE_X - GL_TEXTURE_CUBE_MAP_POSITIVE_X
+    ] = proj * view;
+
+    // -X
+    view = glm::rotate(-quarter, y_axis) *
+            glm::rotate(half, x_axis);
+    shadowMapProjections[
+        GL_TEXTURE_CUBE_MAP_NEGATIVE_X - GL_TEXTURE_CUBE_MAP_POSITIVE_X
+    ] = proj * view;
+
+    // +Y
+    view = glm::rotate(-quarter, x_axis);
+    shadowMapProjections[
+        GL_TEXTURE_CUBE_MAP_POSITIVE_Y - GL_TEXTURE_CUBE_MAP_POSITIVE_X
+    ] = proj * view;
+
+    // -Y
+    view = glm::rotate(quarter, x_axis);
+    shadowMapProjections[
+        GL_TEXTURE_CUBE_MAP_NEGATIVE_Y - GL_TEXTURE_CUBE_MAP_POSITIVE_X
+    ] = proj * view;
+
+    // +Z
+    view = glm::rotate(half, x_axis);
+    shadowMapProjections[
+        GL_TEXTURE_CUBE_MAP_POSITIVE_Z - GL_TEXTURE_CUBE_MAP_POSITIVE_X
+    ] = proj * view;
+
+    // -Z
+    view = glm::rotate(half, glm::vec3(0.f, 0.f, 1.f));
+    shadowMapProjections[
+        GL_TEXTURE_CUBE_MAP_NEGATIVE_Z - GL_TEXTURE_CUBE_MAP_POSITIVE_X
+    ] = proj * view;
 }

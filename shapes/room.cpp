@@ -63,7 +63,7 @@ void Room::init()
 }
 
 
-void Room::makeCubeMaps()
+QHash<GLenum, QImage> Room::makeCubeMaps()
 {
     glActiveTexture (GL_TEXTURE0);
     glGenTextures(1, &m_texID);
@@ -97,8 +97,6 @@ void Room::makeCubeMaps()
 
     glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, m_fakeID, 0);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-    generateProjections(.1f, 50.f);
 }
 
 
@@ -132,11 +130,10 @@ void Room::bindTexture()
 }
 
 
-void Room::setProjections(GLuint shader, glm::mat4 trans)
+void Room::setModel(GLuint shader, glm::mat4 trans)
 {
     glm::mat4 inv = glm::mat4();
     inv[3] = glm::vec4(-glm::vec3(trans[3]), 1.f);
-    glUniformMatrix4fv(glGetUniformLocation(shader, "shadowMapProjections"), 6, GL_FALSE, glm::value_ptr(shadowMapProjections[0]));
     glUniformMatrix4fv(glGetUniformLocation(shader, "waterModel"), 1, GL_FALSE, glm::value_ptr(inv));
 }
 
@@ -154,56 +151,6 @@ void Room::setImages()
     }
 }
 
-
-void Room::generateProjections(float zmin, float zmax) {
-
-    glm::mat4 proj = glm::perspective(glm::radians(90.f), 1.f, zmin, zmax);
-    glm::mat4 view;
-
-    float quarter = glm::radians(90.f);
-    float half = glm::radians(180.f);
-
-    glm::vec3 y_axis = glm::vec3(0.f, 1.f, 0.f);
-    glm::vec3 x_axis = glm::vec3(1.f, 0.f, 0.f);
-
-    view = glm::rotate(quarter, y_axis) *
-            glm::rotate(half, x_axis);
-//    gluLookAt(0.0, 0.0, 0.0,  1.0, 0.0, 0.0,  0.0,-1.0, 0.0); // +X
-    shadowMapProjections[
-        GL_TEXTURE_CUBE_MAP_POSITIVE_X - GL_TEXTURE_CUBE_MAP_POSITIVE_X
-    ] = proj * view;
-
-    view = glm::rotate(-quarter, y_axis) *
-            glm::rotate(half, x_axis);
-//    gluLookAt(0.0, 0.0, 0.0, -1.0, 0.0, 0.0,  0.0,-1.0, 0.0); // -X
-    shadowMapProjections[
-        GL_TEXTURE_CUBE_MAP_NEGATIVE_X - GL_TEXTURE_CUBE_MAP_POSITIVE_X
-    ] = proj * view;
-
-    view = glm::rotate(-quarter, x_axis);
-//    gluLookAt(0.0, 0.0, 0.0,  0.0, 1.0, 0.0,  0.0, 0.0, 1.0); // +Y
-    shadowMapProjections[
-        GL_TEXTURE_CUBE_MAP_POSITIVE_Y - GL_TEXTURE_CUBE_MAP_POSITIVE_X
-    ] = proj * view;
-
-    view = glm::rotate(quarter, x_axis);
-//    gluLookAt(0.0, 0.0, 0.0,  0.0,-1.0, 0.0,  0.0, 0.0,-1.0); // -Y
-    shadowMapProjections[
-        GL_TEXTURE_CUBE_MAP_NEGATIVE_Y - GL_TEXTURE_CUBE_MAP_POSITIVE_X
-    ] = proj * view;
-
-    view = glm::rotate(half, x_axis);
-//    gluLookAt(0.0, 0.0, 0.0,  0.0, 0.0, 1.0,  0.0,-1.0, 0.0); // +Z
-    shadowMapProjections[
-        GL_TEXTURE_CUBE_MAP_POSITIVE_Z - GL_TEXTURE_CUBE_MAP_POSITIVE_X
-    ] = proj * view;
-
-    view = glm::rotate(half, glm::vec3(0.f, 0.f, 1.f));
-//    gluLookAt(0.0, 0.0, 0.0,  0.0, 0.0,-1.0,  0.0,-1.0, 0.0); // -Z
-    shadowMapProjections[
-        GL_TEXTURE_CUBE_MAP_NEGATIVE_Z - GL_TEXTURE_CUBE_MAP_POSITIVE_X
-    ] = proj * view;
-}
 
 bool Room::loadTexture(GLuint tex, GLenum side, const QString &filename)
 {
