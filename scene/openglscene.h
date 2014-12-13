@@ -21,6 +21,7 @@ struct SceneElement
     CS123ScenePrimitive *primitive;
     glm::mat4 trans;
     glm::mat4 inv;
+
     int link;
     bool render;
     bool linked;
@@ -56,8 +57,11 @@ public:
     // Override this to do any initialization for the scene.
     virtual void init();
 
+    // prepare cube maps for water shapes
+    void setCubeMaps(Camera *cam);
+
     // Render the scene.
-    void render(Camera *cam, bool test);
+    void render(Camera *cam);
 
     virtual void sendMusicData(glm::vec4 eye) = 0;
 
@@ -108,7 +112,8 @@ protected:
     // The program ID for OpenGL.
     GLuint m_solidShader;
     GLuint m_cubeShader;
-    GLuint m_testShader;
+    GLuint m_solidCubeShader;
+    GLuint m_boltCubeShader;
     GLuint m_waterShader;
     GLuint m_boltShader;
     GLuint m_orbShader;
@@ -120,11 +125,16 @@ protected:
 
 private:
 
+    void generateProjections(float zmin, float zmax);
+
     std::map<string, GLint> m_solidUniforms;
     std::map<string, GLint> m_cubeUniforms;
     std::map<string, GLint> m_waterUniforms;
     std::map<string, GLint> m_boltUniforms;
 
+    QHash<GLenum, QImage> m_images;
+
+    glm::mat4 shadowMapProjections[6];
 
     bool m_drawWireframe;
     bool m_useLighting;

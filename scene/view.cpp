@@ -7,6 +7,8 @@
 
 using namespace std;
 
+const int cube_s = 1024;
+
 View::View(QGLFormat format, QWidget *parent) : QGLWidget(format, parent)
 {
     // View needs all mouse move events, not just mouse drag events
@@ -46,8 +48,8 @@ void View::initializeGL()
     glGetError(); // Clear errors after call to glewInit
     if (GLEW_OK != err)
     {
-      // Problem: glewInit failed, something is seriously wrong.
-      fprintf(stderr, "Error initializing glew: %s\n", glewGetErrorString(err));
+        // Problem: glewInit failed, something is seriously wrong.
+        fprintf(stderr, "Error initializing glew: %s\n", glewGetErrorString(err));
     }
 
     // Initialize scene
@@ -103,16 +105,16 @@ void View::paintGL()
 
         // Update the scene camera.
         if (m_sceneChanged) {
-            glViewport(0, 0, 128, 128);
-            m_scene->render(m_camera, true); // set cube map
-            m_sceneChanged = false;
+//            glViewport(0, 0, cube_s, cube_s);
+//            m_scene->setCubeMaps(m_camera); // set cube map
+//            m_sceneChanged = false;
         }
 
         glViewport(0, 0, width(), height());
         m_camera->setAspectRatio((float)width() / (float)height());
 
         // Render the scene.
-        m_scene->render(m_camera, false);
+        m_scene->render(m_camera);
         if (!m_transLightningOut) {
             m_scene->checkIntersects();
         }
@@ -278,6 +280,15 @@ void View::mouseMoveEvent(QMouseEvent *event)
     if ((event->x() > 0 && event->x() < width()) && (event->y() > 0 && event->y() < height())) {
         if (m_clicked) {
             m_scene->checkAsserts(true);
+            m_sceneChanged = true;
+//            float xTot = (m_currMove.xMax - m_currMove.xMin);
+//            float yTot = (m_currMove.yMax - m_currMove.yMin);
+//            float xRat = ((1.0f * width()) / xTot);
+//            float yRat = ((1.0f * height()) / yTot);
+//            if ((isinf(xRat) == 1) || xRat == 0.0f) {
+//                xRat = 1.0f;
+//                deltX = 0.0f;
+//            }
 
 //            int lInd = -1;
 //            if (m_currMove.prim == WATER_TYPE) {
@@ -393,8 +404,7 @@ void View::tick()
 //    float seconds = time.restart() * 0.001f;
 
     // TODO: Implement the demo update here
-    if (false)
-        m_camera->swing();
+//    m_camera->swing();
 
     m_scene->sendMusicData(m_camera->getEye4());
     // Flag this view for repainting (Qt will call paintGL() soon after)

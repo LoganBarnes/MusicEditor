@@ -1,6 +1,7 @@
 #version 410 core
 
 uniform mat4 shadowMapProjections[6];
+uniform mat4 waterModel;
 
 layout(triangles, invocations = 1) in;
 layout(triangle_strip, max_vertices = 18) out;
@@ -20,10 +21,16 @@ out float divir;
      for(int j = 0; j < 6; ++j) {
          gl_Layer = j;
          for(int i = 0; i < 3; ++i) {
+<<<<<<< HEAD
 //             clr = color[i];
 //             texcoords = texc[i];
              divir = divisr[i];
              gl_Position = shadowMapProjections[j] * pos[i];
+=======
+             clr = color[i];
+             texcoords = texc[i];
+             gl_Position = shadowMapProjections[j] * waterModel * pos[i];
+>>>>>>> 202dbecd840c8251131853fcd70f40af48024fc6
              EmitVertex();
          }
          EndPrimitive();

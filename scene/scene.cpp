@@ -72,6 +72,8 @@ void Scene::sendMusicData(glm::vec4 eye)
 {
     glm::vec3 e = glm::vec3(eye);
 
+//    int num = m_water
+
     QList<glm::vec3> list;
     list.append(glm::vec3(0.f, 0.f, 2.f));
     list.append(glm::vec3(0.f, 0.f, -2.f));
@@ -219,7 +221,7 @@ void Scene::setUp()
     element3->inv = glm::inverse(element3->trans);
 
     m_waterElements.append(element2);
-    m_waterElements.append(element3);
+//    m_waterElements.append(element3);
 
 
        // glUniform3f(glGetUniformLocation(m_shader, "allWhite"), 0, 0, 0); // not white
@@ -250,8 +252,6 @@ void Scene::init()
     m_lightningShape->calcVerts();
     m_lightningShape->updateGL(m_solidShader);
     m_lightningShape->cleanUp();
-
-
 
     m_waterShape = new MusicShape(150, 70, 0.15f);
     m_waterShape->calcVerts();
@@ -449,12 +449,16 @@ void Scene::renderLightning(GLuint shader, Camera *cam)
     // Draw the shapes.
     for (int i = 0; i < m_lightningElements.size(); ++i) {
         if (m_lightningElements.at(i)->render) {
+<<<<<<< HEAD
             glm::vec3 cent = glm::vec3((m_lightningElements.at(i)->trans * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f)));
             glUniform3fv(glGetUniformLocation(shader, "centr"), 1, glm::value_ptr(cent));
             glUniform3f(glGetUniformLocation(m_solidShader, "allWhite"), 0, 0, 0); // not white
+=======
+            glUniform3f(glGetUniformLocation(shader, "allWhite"), 0, 0, 0); // not white
+>>>>>>> 202dbecd840c8251131853fcd70f40af48024fc6
             glUniform1i(glGetUniformLocation(shader, "functionSize"), m_f1.size());
             glUniform1fv(glGetUniformLocation(shader, "function"), m_f1.size(), m_f1.data());
-            m_lightningShape->transformAndRender(m_solidShader, m_lightningElements.at(i)->trans);
+            m_lightningShape->transformAndRender(shader, m_lightningElements.at(i)->trans);
         }
 
     }
@@ -503,6 +507,11 @@ void Scene::renderTransparents(GLuint shader)
 //    m_waterShape->transformAndRender(shader, glm::translate(glm::vec3(0, 0, 2)));
 
     for (int i = 0; i < m_waterElements.size(); ++i) {
+
+        glActiveTexture(GL_TEXTURE1);
+//        m_waterElements.value(i)->cube->bindTexture();
+        glActiveTexture(GL_TEXTURE0);
+
         glUniform1i(glGetUniformLocation(shader, "functionSize"), m_f1.size());
         glUniform1fv(glGetUniformLocation(shader, "function"), m_f1.size(), m_f1.data());
         m_waterShape->transformAndRender(m_waterShader, m_waterElements.at(i)->trans);

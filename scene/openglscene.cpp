@@ -73,7 +73,7 @@ void OpenGLScene::init()
                 ":/shaders/default.vert",
                 ":/shaders/default.gsh",
                 ":/shaders/default.frag");
-    m_testShader = ResourceLoader::loadShadersWithGeom(
+    m_solidCubeShader = ResourceLoader::loadShadersWithGeom(
                 ":/shaders/default.vert",
                 ":/shaders/cube.gsh",
                 ":/shaders/default.frag");
@@ -81,62 +81,33 @@ void OpenGLScene::init()
                 ":/shaders/cube.vert",
                 ":/shaders/cube.frag");
     m_waterShader = ResourceLoader::loadShaders(
-                ":/shaders/glass.vert",
-                ":/shaders/glass.frag");
-    m_boltShader = ResourceLoader::loadShaders(
+                ":/shaders/water.vert",
+                ":/shaders/water.frag");
+    m_boltShader = ResourceLoader::loadShadersWithGeom(
                 ":/shaders/bolt.vert",
+                ":/shaders/bolt.gsh",
+                ":/shaders/bolt.frag");
+    m_boltCubeShader = ResourceLoader::loadShadersWithGeom(
+                ":/shaders/bolt.vert",
+                ":/shaders/boltcube.gsh",
                 ":/shaders/bolt.frag");
 //    m_orbShader = ResourceLoader::loadShaders(
 //                ":/shaders/orb.vert",
 //                ":/shaders/orb.frag");
 
-    // solids
-    m_solidUniforms["projection"]= glGetUniformLocation(m_solidShader, "projection");
-    m_solidUniforms["view"]= glGetUniformLocation(m_solidShader, "view");
-    m_solidUniforms["model"]= glGetUniformLocation(m_solidShader, "model");
-    m_solidUniforms["ambient_color"] = glGetUniformLocation(m_solidShader, "ambient_color");
-    m_solidUniforms["diffuse_color"] = glGetUniformLocation(m_solidShader, "diffuse_color");
-    m_solidUniforms["specular_color"] = glGetUniformLocation(m_solidShader, "specular_color");
-    m_solidUniforms["shininess"] = glGetUniformLocation(m_solidShader, "shininess");
-    m_solidUniforms["repeatU"] = glGetUniformLocation(m_solidShader, "repeatU");
-    m_solidUniforms["repeatV"] = glGetUniformLocation(m_solidShader, "repeatV");
-    m_solidUniforms["useLighting"]= glGetUniformLocation(m_solidShader, "useLighting");
-    m_solidUniforms["useArrowOffsets"] = glGetUniformLocation(m_solidShader, "useArrowOffsets");
-    m_solidUniforms["allBlack"]= glGetUniformLocation(m_solidShader, "allBlack");
-    m_solidUniforms["allWhite"]= glGetUniformLocation(m_solidShader, "allWhite");
-    m_solidUniforms["functionSize"]= glGetUniformLocation(m_solidShader, "functionSize");
-    m_solidUniforms["function"]= glGetUniformLocation(m_solidShader, "function");
-    m_solidUniforms["tex"] = glGetUniformLocation(m_solidShader, "tex");
-    m_solidUniforms["useTexture"] = glGetUniformLocation(m_solidShader, "useTexture");
-
-    // cube
-    m_cubeUniforms["projection"] = glGetUniformLocation(m_cubeShader, "projection");
-    m_cubeUniforms["view"] = glGetUniformLocation(m_cubeShader, "view");
-    m_cubeUniforms["envMap"] = glGetUniformLocation(m_cubeShader, "envMap");
-
-    // water
-    m_waterUniforms["view"] = glGetUniformLocation(m_waterShader, "view");
-    m_waterUniforms["projection"] = glGetUniformLocation(m_waterShader, "projection");
-    m_waterUniforms["model"] = glGetUniformLocation(m_waterShader, "model");
-    m_waterUniforms["functionSize"] = glGetUniformLocation(m_waterShader, "functionSize");
-    m_waterUniforms["function"] = glGetUniformLocation(m_waterShader, "function");
-    m_waterUniforms["r0"] = glGetUniformLocation(m_waterShader, "r0");
-    m_waterUniforms["eta"] = glGetUniformLocation(m_waterShader, "eta");
-
-//    m_test = new Test();
-//    m_test->init();
+    generateProjections(.1f, 50.f);
 
     m_room = new Room(25.f);
     m_room->init();
-    m_room->makeCubeMaps();
+    m_images = m_room->makeCubeMaps();
 }
 
-void OpenGLScene::render(Camera *cam, bool test)
+
+void OpenGLScene::render(Camera *cam)
 {
     // Clear the screen in preparation for the next frame. (Use a gray background instead of a
     // black one for drawing wireframe or normals so they will show up against the background.)
-    if (test) m_room->bindFramebuffer();
-    else glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     glClearColor(0, 0, 0, 0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -147,34 +118,24 @@ void OpenGLScene::render(Camera *cam, bool test)
     glm::mat4 projMatrix = cam->getProjectionMatrix();
 
     // cubemap
-    if (!test) {
-        glUseProgram(m_cubeShader);
-        glDepthMask(GL_FALSE);
+    GLuint shader = m_cubeShader;
+    glUseProgram(shader);
+    glDepthMask(GL_FALSE);
 
-        glUniformMatrix4fv(glGetUniformLocation(m_cubeShader, "projection"), 1, GL_FALSE,
-                glm::value_ptr(projMatrix));
-        glUniformMatrix4fv(glGetUniformLocation(m_cubeShader, "view"), 1, GL_FALSE,
-                           glm::value_ptr(viewMatrix));
-        glUniform1i(glGetUniformLocation(m_cubeShader, "envMap"), 1);
+    glUniformMatrix4fv(glGetUniformLocation(shader, "projection"), 1, GL_FALSE,
+            glm::value_ptr(projMatrix));
+    glUniformMatrix4fv(glGetUniformLocation(shader, "view"), 1, GL_FALSE,
+                       glm::value_ptr(viewMatrix));
+    m_room->setModel(shader, cam->getEye4());
+    glUniform1i(glGetUniformLocation(shader, "envMap"), 1);
 
-        m_room->render();
+    m_room->render();
 
-        glDepthMask(GL_TRUE);
-    }
+    glDepthMask(GL_TRUE);
 
     // solids
-    GLuint shader;
-    if (test) {
-        shader = m_testShader;
-        glUseProgram(shader);
-        m_room->setImages();
-        m_room->bindFakeTexture();
-        m_room->setProjections(shader);
-    }
-    else {
-        shader = m_solidShader;
-        glUseProgram(shader);
-    }
+    shader = m_solidShader;
+    glUseProgram(shader);
 
     // Set scene uniforms.
     clearLights(shader);
@@ -191,39 +152,78 @@ void OpenGLScene::render(Camera *cam, bool test)
 
     renderLightning(shader, cam);
 
+    // lighting bolts
+    shader = m_boltShader;
+    glUseProgram(shader);
 
-    glUseProgram(m_boltShader);
-    glUniformMatrix4fv(glGetUniformLocation(m_boltShader, "view"), 1, GL_FALSE, glm::value_ptr(viewMatrix));
-    glUniformMatrix4fv(glGetUniformLocation(m_boltShader, "projection"), 1, GL_FALSE, glm::value_ptr(projMatrix));
+    glUniformMatrix4fv(glGetUniformLocation(shader, "view"), 1, GL_FALSE,
+            glm::value_ptr(viewMatrix));
+    glUniformMatrix4fv(glGetUniformLocation(shader, "projection"), 1, GL_FALSE,
+            glm::value_ptr(projMatrix));
 
     renderBolts();
 
-//    if (m_drawWireframe)
-//    {
-//        glUniform3f(m_solidUniforms["allBlack"], 0, 0, 0);
-//        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
-//        renderSolids();
-
-//        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-//    }
-
     // water
-    if (!test) {
-        shader = m_waterShader;
-        glUseProgram(shader);
+    shader = m_waterShader;
+    glUseProgram(shader);
 
-        // water stuffs
-        glUniformMatrix4fv(glGetUniformLocation(shader, "view"), 1, GL_FALSE, glm::value_ptr(viewMatrix));
-        glUniformMatrix4fv(glGetUniformLocation(shader, "projection"), 1, GL_FALSE, glm::value_ptr(projMatrix));
-        glUniform1i(glGetUniformLocation(shader, "envMap"), 1);
+    // water stuffs
+    glUniformMatrix4fv(glGetUniformLocation(shader, "view"), 1, GL_FALSE, glm::value_ptr(viewMatrix));
+    glUniformMatrix4fv(glGetUniformLocation(shader, "projection"), 1, GL_FALSE, glm::value_ptr(projMatrix));
+    glUniform1i(glGetUniformLocation(shader, "envMap"), 1);
 
-        glActiveTexture(GL_TEXTURE1);
-        m_room->bindFakeTexture();
-        glActiveTexture(GL_TEXTURE0);
+    renderTransparents(shader);
 
-        renderTransparents(shader);
-    }
+    glUseProgram(0);
+}
+
+void OpenGLScene::setCubeMaps(Camera *cam)
+{
+    // Clear the screen in preparation for the next frame. (Use a gray background instead of a
+    // black one for drawing wireframe or normals so they will show up against the background.)
+//    m_room->bindFramebuffer();
+
+    glClearColor(0, 0, 0, 0);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    // Get the view matrix from the camera
+    assert(cam);
+    glm::mat4 viewMatrix = cam->getViewMatrix();
+    glm::mat4 projMatrix = cam->getProjectionMatrix();
+
+    // solids
+    GLuint shader;
+    shader = m_solidCubeShader;
+    glUseProgram(shader);
+//        m_room->setImages();
+//        m_room->bindFakeTexture();
+    glUniformMatrix4fv(glGetUniformLocation(shader, "shadowMapProjections"), 6, GL_FALSE, glm::value_ptr(shadowMapProjections[0]));
+//        m_room->setModel(shader, m_waterElements.value(0)->trans);
+
+    // Set scene uniforms.
+    clearLights(shader);
+    setLights(viewMatrix, shader);
+    glUniform1i(glGetUniformLocation(shader, "useLighting"), m_useLighting);
+    glUniform1i(glGetUniformLocation(shader, "useArrowOffsets"), GL_FALSE);
+    glUniformMatrix4fv(glGetUniformLocation(shader, "projection"), 1, GL_FALSE,
+            glm::value_ptr(projMatrix));
+    glUniformMatrix4fv(glGetUniformLocation(shader, "view"), 1, GL_FALSE,
+            glm::value_ptr(viewMatrix));
+    glUniform3f(glGetUniformLocation(shader, "allBlack"), 1, 1, 1);
+
+    renderLightning(shader);
+
+
+    shader = m_boltCubeShader;
+    glUseProgram(shader);
+//        m_room->setModel(shader, m_waterElements.value(0)->trans);
+
+    glUniformMatrix4fv(glGetUniformLocation(shader, "view"), 1, GL_FALSE,
+            glm::value_ptr(viewMatrix));
+    glUniformMatrix4fv(glGetUniformLocation(shader, "projection"), 1, GL_FALSE,
+            glm::value_ptr(projMatrix));
+
+    renderBolts();
     glUseProgram(0);
 }
 
@@ -333,4 +333,55 @@ int OpenGLScene::loadTexture(const QString &filename)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
     return id;
+}
+
+
+void OpenGLScene::generateProjections(float zmin, float zmax) {
+
+    glm::mat4 proj = glm::perspective(glm::radians(90.f), 1.f, zmin, zmax);
+    glm::mat4 view;
+
+    float quarter = glm::radians(90.f);
+    float half = glm::radians(180.f);
+
+    glm::vec3 y_axis = glm::vec3(0.f, 1.f, 0.f);
+    glm::vec3 x_axis = glm::vec3(1.f, 0.f, 0.f);
+
+    // +X
+    view = glm::rotate(quarter, y_axis) *
+            glm::rotate(half, x_axis);
+    shadowMapProjections[
+        GL_TEXTURE_CUBE_MAP_POSITIVE_X - GL_TEXTURE_CUBE_MAP_POSITIVE_X
+    ] = proj * view;
+
+    // -X
+    view = glm::rotate(-quarter, y_axis) *
+            glm::rotate(half, x_axis);
+    shadowMapProjections[
+        GL_TEXTURE_CUBE_MAP_NEGATIVE_X - GL_TEXTURE_CUBE_MAP_POSITIVE_X
+    ] = proj * view;
+
+    // +Y
+    view = glm::rotate(-quarter, x_axis);
+    shadowMapProjections[
+        GL_TEXTURE_CUBE_MAP_POSITIVE_Y - GL_TEXTURE_CUBE_MAP_POSITIVE_X
+    ] = proj * view;
+
+    // -Y
+    view = glm::rotate(quarter, x_axis);
+    shadowMapProjections[
+        GL_TEXTURE_CUBE_MAP_NEGATIVE_Y - GL_TEXTURE_CUBE_MAP_POSITIVE_X
+    ] = proj * view;
+
+    // +Z
+    view = glm::rotate(half, x_axis);
+    shadowMapProjections[
+        GL_TEXTURE_CUBE_MAP_POSITIVE_Z - GL_TEXTURE_CUBE_MAP_POSITIVE_X
+    ] = proj * view;
+
+    // -Z
+    view = glm::rotate(half, glm::vec3(0.f, 0.f, 1.f));
+    shadowMapProjections[
+        GL_TEXTURE_CUBE_MAP_NEGATIVE_Z - GL_TEXTURE_CUBE_MAP_POSITIVE_X
+    ] = proj * view;
 }

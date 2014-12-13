@@ -3,7 +3,10 @@
 Camera::Camera()
 {
     m_aspectRatio = 1;
-    m_angleX = m_angleY = 0;
+    m_angleX = 15.f;
+    m_angleY = 0;
+    m_angleX = 50.0f;
+    m_angleY = 10.0f;
     m_zoomZ = -5;
 }
 
@@ -52,8 +55,6 @@ void Camera::updateProjectionMatrix()
 
 void Camera::updateViewMatrix()
 {
-    m_angleX = 50.0f;
-    m_angleY = 10.0f;
     m_viewMatrix =
             glm::translate(glm::vec3(0.f, -0.0f, m_zoomZ)) *
             glm::rotate(glm::radians(m_angleX), glm::vec3(1.f, 0.f, 0.f)) *
