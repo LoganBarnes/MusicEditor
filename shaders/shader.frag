@@ -1,7 +1,7 @@
 #version 410 core
 
-in vec3 clr;
-in vec2 texcoords;
+in float divir;
+
 
 out vec4 fragColor;
 
@@ -9,7 +9,8 @@ uniform sampler2D tex;
 uniform int useTexture = 0;
 
 void main(){
-    vec3 texColor = texture(tex, texcoords).rgb;
-    texColor = clamp(texColor + vec3(1-useTexture), vec3(0), vec3(1));
-    fragColor = vec4(clr * texColor, 1);
+//    vec3 texColor = texture(tex, texcoords).rgb;
+//    texColor = clamp(texColor + vec3(1-useTexture), vec3(0), vec3(1));
+    //fragColor = vec4(clr * texColor, 1);
+    fragColor = (vec4(1.0, 1.0, 1.0, 1.0) * divir);
 }

@@ -133,7 +133,7 @@ void Shape::calcBoltVerts()
         float x = (sinf(ang1) * cosf(ang2));
         float y = (sinf(ang1) * sinf(ang2));
         float z = cosf(ang1);
-        float len = 1.0f + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(1.5f - 0.5f)));
+        float len = 0.5f + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(3.5f - 0.5f)));
 
         glm::vec3 dir = (len * glm::normalize(glm::vec3(x, y, z)));
         recursiveBolt(glm::vec3(0.0f, 0.0f, 0.0f), refCount, dir, i, 0.05);

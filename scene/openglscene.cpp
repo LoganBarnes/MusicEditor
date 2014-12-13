@@ -93,6 +93,9 @@ void OpenGLScene::init()
                 ":/shaders/bolt.vert",
                 ":/shaders/boltcube.gsh",
                 ":/shaders/bolt.frag");
+//    m_orbShader = ResourceLoader::loadShaders(
+//                ":/shaders/orb.vert",
+//                ":/shaders/orb.frag");
 
     m_room = new Room(25.f);
     m_room->init();
@@ -149,6 +152,8 @@ void OpenGLScene::render(Camera *cam)
     setLights(viewMatrix, shader);
     glUniform1i(glGetUniformLocation(shader, "useLighting"), m_useLighting);
     glUniform1i(glGetUniformLocation(shader, "useArrowOffsets"), GL_FALSE);
+    glUniform3fv(glGetUniformLocation(shader, "eyeV"), 1, glm::value_ptr(cam->getEye()));
+    glUniform1f(glGetUniformLocation(shader, "rad"), 0.15f);
     glUniformMatrix4fv(glGetUniformLocation(shader, "projection"), 1, GL_FALSE,
             glm::value_ptr(projMatrix));
     glUniformMatrix4fv(glGetUniformLocation(shader, "view"), 1, GL_FALSE,

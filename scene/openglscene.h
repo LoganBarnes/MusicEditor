@@ -117,6 +117,7 @@ protected:
     GLuint m_boltCubeShader;
     GLuint m_waterShader;
     GLuint m_boltShader;
+    GLuint m_orbShader;
 
     CS123SceneGlobalData m_global;
     QList<CS123SceneLightData*> m_lights;
