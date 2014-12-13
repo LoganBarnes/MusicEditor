@@ -133,7 +133,7 @@ void Shape::calcBoltVerts()
         float x = (sinf(ang1) * cosf(ang2));
         float y = (sinf(ang1) * sinf(ang2));
         float z = cosf(ang1);
-        float len = 0.5f + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(3.5f - 0.5f)));
+        float len = 0.35f + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(1.75f - 0.35f)));
 
         glm::vec3 dir = (len * glm::normalize(glm::vec3(x, y, z)));
         recursiveBolt(glm::vec3(0.0f, 0.0f, 0.0f), refCount, dir, i, 0.05);
@@ -164,7 +164,7 @@ void Shape::updateLightning(GLuint shader)
     glGenBuffers(1, &m_lvboID);
     glBindBuffer(GL_ARRAY_BUFFER, m_lvboID);
 
-    calcBoltVerts();
+//    calcBoltVerts();
 
     glBufferData(GL_ARRAY_BUFFER,  3 * m_lnumVerts * sizeof(GLfloat), m_lvertexData, GL_STATIC_DRAW);
 

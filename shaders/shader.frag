@@ -1,6 +1,6 @@
 #version 410 core
 
-in float divir;
+in float divisr;
 
 
 out vec4 fragColor;
@@ -12,5 +12,5 @@ void main(){
 //    vec3 texColor = texture(tex, texcoords).rgb;
 //    texColor = clamp(texColor + vec3(1-useTexture), vec3(0), vec3(1));
     //fragColor = vec4(clr * texColor, 1);
-    fragColor = (vec4(1.0, 1.0, 1.0, 1.0) * divir);
+    fragColor = (vec4(1.0, 1.0, 1.0, 1.0) * divisr);
 }
