@@ -89,7 +89,7 @@ protected:
     virtual void renderSetting() = 0;
 
     // Render solid geometry for Shapes and Sceneview.
-    virtual void renderLightning(GLuint shader, Camera *cam) = 0;
+    virtual void renderLightning(GLuint shader) = 0;
 
     // Render see-through shapes
     virtual void renderTransparents(GLuint shader) = 0;

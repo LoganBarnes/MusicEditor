@@ -57,7 +57,6 @@ OTHER_FILES += \
     shaders/water.frag shaders/water.vert\
     # lighting shaders
     shaders/bolt.frag shaders/bolt.vert\
-
     shaders/bold.gsh shaders/boltcube.gsh\
     # cube map shaders
     shaders/cubemap.frag shader/cubemap.vert\

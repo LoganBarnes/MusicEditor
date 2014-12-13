@@ -27,6 +27,7 @@ View::View(QGLFormat format, QWidget *parent) : QGLWidget(format, parent)
     m_transZ = false;
     m_transLightningOut = false;
     m_delete = false;
+    m_rotate = false;
 
     // The game loop is implemented using a timer
     connect(&timer, SIGNAL(timeout()), this, SLOT(tick()));
@@ -374,13 +375,31 @@ void View::keyPressEvent(QKeyEvent *event)
     // TODO: Handle keyboard presses here
     if (event->key() == Qt::Key_Shift) {
         m_transZ = true;
+        m_transLightningOut = false;
+        m_delete = false;
+
     }
     if (event->key() == Qt::Key_Control) {
         m_transLightningOut = true;
+        m_transZ = false;
+        m_delete = false;
+    }
+    if (event->key() == Qt::Key_R) {
+        if (m_rotate) {
+            m_rotate = false;
+        }
+        else {
+            m_rotate = true;
+        }
+        m_transLightningOut = false;
+        m_transZ = false;
+        m_delete = false;
     }
 
     if (event->key() == Qt::Key_D) {
         m_delete = true;
+        m_transLightningOut = false;
+        m_transZ = false;
     }
     if (event->key() == Qt::Key_L) {
         m_scene->addObject(LIGHTNING_TYPE);
@@ -404,7 +423,9 @@ void View::tick()
 //    float seconds = time.restart() * 0.001f;
 
     // TODO: Implement the demo update here
-//    m_camera->swing();
+    if (m_rotate) {
+        m_camera->swing();
+    }
 
     m_scene->sendMusicData(m_camera->getEye4());
     // Flag this view for repainting (Qt will call paintGL() soon after)

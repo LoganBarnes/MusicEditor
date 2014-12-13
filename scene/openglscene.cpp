@@ -150,7 +150,7 @@ void OpenGLScene::render(Camera *cam)
             glm::value_ptr(viewMatrix));
     glUniform3f(glGetUniformLocation(shader, "allBlack"), 1, 1, 1);
 
-    renderLightning(shader, cam);
+    renderLightning(shader);
 
     // lighting bolts
     shader = m_boltShader;

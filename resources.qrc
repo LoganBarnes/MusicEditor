@@ -10,13 +10,8 @@
         <file alias="cube.vert">shaders/cubemap.vert</file>
         <file alias="bolt.frag">shaders/bolt.frag</file>
         <file alias="bolt.vert">shaders/bolt.vert</file>
-<<<<<<< HEAD
-	<file alias="orb.frag">shaders/orb.frag</file>
-        <file alias="orb.vert">shaders/orb.vert</file>
-=======
         <file alias="bolt.gsh">shaders/bolt.gsh</file>
         <file alias="boltcube.gsh">shaders/boltcube.gsh</file>
->>>>>>> 202dbecd840c8251131853fcd70f40af48024fc6
     </qresource>
     <qresource prefix="/images">
         <file alias="front.png">images/front.png</file>

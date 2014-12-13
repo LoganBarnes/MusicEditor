@@ -45,6 +45,7 @@ private:
     bool m_transZ;
     bool m_transLightningOut;
     bool m_delete;
+    bool m_rotate;
 
     bool m_sceneChanged;
 
