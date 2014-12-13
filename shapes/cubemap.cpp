@@ -12,11 +12,11 @@ CubeMap::~CubeMap()
 
 void CubeMap::makeCubeMap(QHash<GLenum, QImage> images)
 {
-    glActiveTexture (GL_TEXTURE0);
-    glGenTextures(1, &m_texID);
-
     glGenFramebuffers(1, &m_framebuffer);
     glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer);
+
+    glActiveTexture (GL_TEXTURE0);
+    glGenTextures(1, &m_texID);
 
     setImages(images);
 
@@ -52,6 +52,8 @@ void CubeMap::setImages(QHash<GLenum, QImage> images)
     for (int i = 0; i < 6; i++) {
         side = GL_TEXTURE_CUBE_MAP_POSITIVE_X + i;
         texture = images.value(side);
+
+//        cout << texture.width() << endl;
         glTexImage2D(side, 0, GL_RGBA, texture.width(), texture.height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, texture.bits());
     }
 }

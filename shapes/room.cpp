@@ -70,12 +70,12 @@ QHash<GLenum, QImage> Room::makeCubeMaps()
 
     QHash<GLenum, QImage> images;
 
-    assert(loadTexture(m_texID, GL_TEXTURE_CUBE_MAP_POSITIVE_X, QString::fromStdString(RIGHT), images));
-    assert(loadTexture(m_texID, GL_TEXTURE_CUBE_MAP_NEGATIVE_X, QString::fromStdString(LEFT), images));
-    assert(loadTexture(m_texID, GL_TEXTURE_CUBE_MAP_POSITIVE_Y, QString::fromStdString(TOP), images));
-    assert(loadTexture(m_texID, GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, QString::fromStdString(BOTTOM), images));
-    assert(loadTexture(m_texID, GL_TEXTURE_CUBE_MAP_POSITIVE_Z, QString::fromStdString(BACK), images));
-    assert(loadTexture(m_texID, GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, QString::fromStdString(FRONT), images));
+    assert(loadTexture(m_texID, GL_TEXTURE_CUBE_MAP_POSITIVE_X, QString::fromStdString(RIGHT), &images));
+    assert(loadTexture(m_texID, GL_TEXTURE_CUBE_MAP_NEGATIVE_X, QString::fromStdString(LEFT), &images));
+    assert(loadTexture(m_texID, GL_TEXTURE_CUBE_MAP_POSITIVE_Y, QString::fromStdString(TOP), &images));
+    assert(loadTexture(m_texID, GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, QString::fromStdString(BOTTOM), &images));
+    assert(loadTexture(m_texID, GL_TEXTURE_CUBE_MAP_POSITIVE_Z, QString::fromStdString(BACK), &images));
+    assert(loadTexture(m_texID, GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, QString::fromStdString(FRONT), &images));
 
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -89,9 +89,9 @@ QHash<GLenum, QImage> Room::makeCubeMaps()
 
 void Room::render()
 {
-//    glActiveTexture(GL_TEXTURE1);
-//    glBindTexture(GL_TEXTURE_CUBE_MAP, m_texID);
-//    glActiveTexture(GL_TEXTURE0);
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, m_texID);
+    glActiveTexture(GL_TEXTURE0);
 
     glBindVertexArray(m_vaoID);
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 14);
@@ -114,7 +114,7 @@ void Room::setModel(GLuint shader, glm::vec4 eye)
 }
 
 
-bool Room::loadTexture(GLuint tex, GLenum side, const QString &filename, QHash<GLenum, QImage> images)
+bool Room::loadTexture(GLuint tex, GLenum side, const QString &filename, QHash<GLenum, QImage> *images)
 {
     // make sure file exists
     QFile file(filename);
@@ -128,7 +128,7 @@ bool Room::loadTexture(GLuint tex, GLenum side, const QString &filename, QHash<G
     QImage texture = QGLWidget::convertToGLFormat(image);
     QImage textureSmall = QGLWidget::convertToGLFormat(image.scaled(cube_s, cube_s));
 
-    images.insert(side, textureSmall);
+    images->insert(side, textureSmall);
 
     // make the texture
     glBindTexture(GL_TEXTURE_CUBE_MAP, tex);
