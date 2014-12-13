@@ -111,7 +111,7 @@ void Room::bindFramebuffer()
 void Room::render()
 {
     glActiveTexture(GL_TEXTURE1);
-    bindFakeTexture();
+    bindTexture();
     glActiveTexture(GL_TEXTURE0);
 
     glBindVertexArray(m_vaoID);
@@ -134,8 +134,10 @@ void Room::bindTexture()
 
 void Room::setProjections(GLuint shader, glm::mat4 trans)
 {
+    glm::mat4 inv = glm::mat4();
+    inv[3] = glm::vec4(-glm::vec3(trans[3]), 1.f);
     glUniformMatrix4fv(glGetUniformLocation(shader, "shadowMapProjections"), 6, GL_FALSE, glm::value_ptr(shadowMapProjections[0]));
-    glUniformMatrix4fv(glGetUniformLocation(shader, "waterModel"), 1, GL_FALSE, glm::value_ptr(trans));
+    glUniformMatrix4fv(glGetUniformLocation(shader, "waterModel"), 1, GL_FALSE, glm::value_ptr(inv));
 }
 
 

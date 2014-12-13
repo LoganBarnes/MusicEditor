@@ -135,7 +135,7 @@ void OpenGLScene::render(Camera *cam, bool test)
         glUseProgram(shader);
         m_room->setImages();
         m_room->bindFakeTexture();
-        m_room->setProjections(shader, m_waterElements.value(0)->inv);
+        m_room->setProjections(shader, m_waterElements.value(0)->trans);
     }
     else {
         shader = m_solidShader;
@@ -159,7 +159,7 @@ void OpenGLScene::render(Camera *cam, bool test)
     if (test) {
         shader = m_boltCubeShader;
         glUseProgram(shader);
-        m_room->setProjections(shader, m_waterElements.value(0)->inv);
+        m_room->setProjections(shader, m_waterElements.value(0)->trans);
     } else {
         shader = m_boltShader;
         glUseProgram(shader);
