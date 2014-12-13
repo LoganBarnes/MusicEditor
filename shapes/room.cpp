@@ -89,9 +89,9 @@ QHash<GLenum, QImage> Room::makeCubeMaps()
 
 void Room::render()
 {
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_CUBE_MAP, m_texID);
-    glActiveTexture(GL_TEXTURE0);
+//    glActiveTexture(GL_TEXTURE1);
+//    glBindTexture(GL_TEXTURE_CUBE_MAP, m_texID);
+//    glActiveTexture(GL_TEXTURE0);
 
     glBindVertexArray(m_vaoID);
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 14);
