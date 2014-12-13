@@ -472,17 +472,17 @@ void Scene::renderLightning(GLuint shader)
 
 void Scene::renderBolts()
 {
-    m_lightningShape->calcBoltVerts();
-    m_lightningShape->updateLightning(m_boltShader);
     for (int i = 0; i < m_lightningElements.size(); ++i) {
         if (m_lightningElements.at(i)->render) {
+            m_lightningShape->calcBoltVerts(m_f1);
+            m_lightningShape->updateLightning(m_boltShader);
             m_lightningShape->renderLightning(m_boltShader, m_lightningElements.at(i)->trans);
         }
     }
 
     for (int i = 0; i < m_waterElements.size(); ++i) {
         if (m_waterElements.at(i)->linked) {
-            m_waterShape->calcBoltVerts();
+            m_waterShape->calcBoltVerts(m_f1);
             m_waterShape->updateLightning(m_boltShader);
             m_waterShape->renderLightning(m_boltShader, m_waterElements.at(i)->trans);
         }

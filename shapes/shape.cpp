@@ -117,7 +117,7 @@ void Shape::recursiveBolt(glm::vec3 prevPos, int recCount, glm::vec3 finPos, int
     }
 }
 
-void Shape::calcBoltVerts()
+void Shape::calcBoltVerts(QVector<float> function)
 {
     int numRef = 8;
     int refSize = ((numRef * 2) - 2);
@@ -133,7 +133,8 @@ void Shape::calcBoltVerts()
         float x = (sinf(ang1) * cosf(ang2));
         float y = (sinf(ang1) * sinf(ang2));
         float z = cosf(ang1);
-        float len = 0.5f + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(3.5f - 0.5f)));
+        float len = f(glm::normalize(glm::vec3(x, y, z)) * .15f, function);
+//        float len = 0.5f + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(3.5f - 0.5f)));
 
         glm::vec3 dir = (len * glm::normalize(glm::vec3(x, y, z)));
         recursiveBolt(glm::vec3(0.0f, 0.0f, 0.0f), refCount, dir, i, 0.05);
@@ -164,7 +165,7 @@ void Shape::updateLightning(GLuint shader)
     glGenBuffers(1, &m_lvboID);
     glBindBuffer(GL_ARRAY_BUFFER, m_lvboID);
 
-    calcBoltVerts();
+//    calcBoltVerts();
 
     glBufferData(GL_ARRAY_BUFFER,  3 * m_lnumVerts * sizeof(GLfloat), m_lvertexData, GL_STATIC_DRAW);
 
@@ -239,6 +240,53 @@ void Shape::updateGL(GLuint shader)
     // Unbind buffers.
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
+}
+
+
+float Shape::f(glm::vec3 v, QVector<float> function){
+
+    if (function.size() == 0) {
+        return glm::distance(glm::vec3(), v);
+    }
+
+    float angle = glm::acos(glm::dot(glm::normalize(v), glm::vec3(0, -1, 0)));
+
+    double sizeMinus = function.size() - 1.0;
+    double di = (angle / M_PI) * m_function.size() - 0.5f;
+    float f = modf(di, &di);
+    int li, ri;
+    float t;
+    glm::vec2 mid, left, right;
+    if (f < 0.5) {
+        t = f + 0.5;
+
+        left.x = di - 0.5;
+        mid.x = di;
+        right.x = di + 0.5;
+
+        li = int(glm::max(0.0, di - 1.0));
+        ri = int(glm::min(di + 1.0, sizeMinus));
+    } else {
+        t = f - 0.5;
+
+        left.x = di + 0.5;
+        mid.x = di + 1.;
+        right.x = di + 1.5;
+
+        li = int(glm::max(0.0, di));
+        ri = int(glm::min(di + 2.0, sizeMinus));
+        di = glm::min(di + 1.0, sizeMinus);
+    }
+    mid.y = function.value(int(di));
+    left.y = (function.value(li) + mid.y) / 2.f;
+    right.y = (mid.y+ function.value(ri)) / 2.f;
+
+    float t_1 = 1.0 - t;
+    float curve = t_1 * (t_1 * left.y + t * mid.y) + t * (t_1 * mid.y + t * right.y);
+    v += glm::normalize(v) * curve * 2.f;
+
+    return glm::distance(glm::vec3(), v);
+//    return curve;
 }
 
 void Shape::cleanUp()
