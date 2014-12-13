@@ -53,7 +53,6 @@ void CubeMap::setImages(QHash<GLenum, QImage> images)
         side = GL_TEXTURE_CUBE_MAP_POSITIVE_X + i;
         texture = images.value(side);
 
-//        cout << texture.width() << endl;
         glTexImage2D(side, 0, GL_RGBA, texture.width(), texture.height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, texture.bits());
     }
 }

@@ -21,13 +21,13 @@ out vec3 posit;
  void main()
 {
 
+     lookPos = normalize(-vec3(waterModel[3]) - centr);
      for(int j = 0; j < 6; ++j) {
          gl_Layer = j;
          for(int i = 0; i < 3; ++i) {
 //             clr = color[i];
 //             texcoords = texc[i];
              posit = posish[i];
-             lookPos = normalize(-vec3(waterModel[3]) - centr);
              gl_Position = shadowMapProjections[j] * waterModel * pos[i];
              EmitVertex();
          }

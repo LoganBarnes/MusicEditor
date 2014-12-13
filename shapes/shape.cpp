@@ -133,10 +133,11 @@ void Shape::calcBoltVerts(QVector<float> function)
         float x = (sinf(ang1) * cosf(ang2));
         float y = (sinf(ang1) * sinf(ang2));
         float z = cosf(ang1);
-        float len = f(glm::normalize(glm::vec3(x, y, z)) * .15f, function);
+        glm::vec3 dir = glm::vec3(x, y, z) * .15f;
+        float len = f(&dir, function);
 //        float len = 0.5f + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(3.5f - 0.5f)));
 
-        glm::vec3 dir = (len * glm::normalize(glm::vec3(x, y, z)));
+//        glm::vec3 dir = (len * glm::normalize(glm::vec3(x, y, z)));
         recursiveBolt(glm::vec3(0.0f, 0.0f, 0.0f), refCount, dir, i, 0.05);
 
 //        m_lvertexData[i] = 0.0f;
@@ -243,13 +244,13 @@ void Shape::updateGL(GLuint shader)
 }
 
 
-float Shape::f(glm::vec3 v, QVector<float> function){
+float Shape::f(glm::vec3 *v, QVector<float> function){
 
     if (function.size() == 0) {
-        return glm::distance(glm::vec3(), v);
+        return glm::distance(glm::vec3(), *v);
     }
 
-    float angle = glm::acos(glm::dot(glm::normalize(v), glm::vec3(0, -1, 0)));
+    float angle = glm::acos(glm::dot(glm::normalize(*v), glm::vec3(0, -1, 0)));
 
     double sizeMinus = function.size() - 1.0;
     double di = (angle / M_PI) * m_function.size() - 0.5f;
@@ -283,9 +284,9 @@ float Shape::f(glm::vec3 v, QVector<float> function){
 
     float t_1 = 1.0 - t;
     float curve = t_1 * (t_1 * left.y + t * mid.y) + t * (t_1 * mid.y + t * right.y);
-    v += glm::normalize(v) * curve * 2.f;
+    *v += glm::normalize(*v) * curve * 2.f;
 
-    return glm::distance(glm::vec3(), v);
+    return glm::distance(glm::vec3(), *v);
 //    return curve;
 }
 

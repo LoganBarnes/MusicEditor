@@ -65,7 +65,7 @@ protected:
     QVector<float> m_function;
 
 private:
-    float f(glm::vec3 v, QVector<float> function);
+    float f(glm::vec3 *v, QVector<float> function);
 
     int m_p1max;
     int m_p2max;
