@@ -90,26 +90,26 @@ void Scene::sendMusicData(glm::vec4 eye)
         d.x = glm::clamp(1.f - d.x / 10.f, 0.f, 1.f);
 
         if (i == 0) {
-            m_udp1->sendInfo(d.x, d.y);
+            m_udp1->sendInfo(d.x, d.y, m_waterElements.value(i)->linked);
         }
         if (i == 1) {
-            m_udp2->sendInfo(d.x, d.y);
+            m_udp2->sendInfo(d.x, d.y, m_waterElements.value(i)->linked);
         }
         if (i == 2) {
-            m_udp3->sendInfo(d.x, d.y);
+            m_udp3->sendInfo(d.x, d.y, m_waterElements.value(i)->linked);
         }
         if (i == 3) {
-            m_udp4->sendInfo(d.x, d.y);
+            m_udp4->sendInfo(d.x, d.y, m_waterElements.value(i)->linked);
         }
     }
     if (num < 1)
-        m_udp1->sendInfo(0.f, 0.5f);
+        m_udp1->sendInfo(0.f, 0.5f, false);
     if (num < 2)
-        m_udp2->sendInfo(0.f, 0.5f);
+        m_udp2->sendInfo(0.f, 0.5f, false);
     if (num < 3)
-        m_udp3->sendInfo(0.f, 0.5f);
+        m_udp3->sendInfo(0.f, 0.5f, false);
     if (num < 4)
-        m_udp4->sendInfo(0.f, 0.5f);
+        m_udp4->sendInfo(0.f, 0.5f, false);
 }
 
 
@@ -450,9 +450,11 @@ void Scene::renderLightning(GLuint shader)
 
 void Scene::renderBolts()
 {
+    QVector<float> f1 = QVector<float>(m_f1);
+    f1.clear();
     for (int i = 0; i < m_lightningElements.size(); ++i) {
         if (m_lightningElements.at(i)->render) {
-            m_lightningShape->calcBoltVerts(m_f1);
+            m_lightningShape->calcBoltVerts(f1);
             m_lightningShape->updateLightning(m_boltShader);
             m_lightningShape->renderLightning(m_boltShader, m_lightningElements.at(i)->trans);
         }
@@ -460,7 +462,7 @@ void Scene::renderBolts()
 
     for (int i = 0; i < m_waterElements.size(); ++i) {
         if (m_waterElements.at(i)->linked) {
-            m_waterShape->calcBoltVerts(m_f1);
+            m_waterShape->calcBoltVerts(f1);
             m_waterShape->updateLightning(m_boltShader);
             m_waterShape->renderLightning(m_boltShader, m_waterElements.at(i)->trans);
         }

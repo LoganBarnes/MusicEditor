@@ -18,7 +18,7 @@ public:
 
     int getFunctionSize();
     QVector<float> getFunction();
-    void sendInfo(float volume, float panning);
+    void sendInfo(float volume, float panning, bool electric);
 
 signals:
     void sendFunction(QVector<float> function);

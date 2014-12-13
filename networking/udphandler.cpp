@@ -40,7 +40,7 @@ QVector<float> UDPHandler::getFunction()
 }
 
 
-void UDPHandler::sendInfo(float volume, float panning)
+void UDPHandler::sendInfo(float volume, float panning, bool electric)
 {
     QByteArray data;
     data.append("port ");
@@ -49,6 +49,8 @@ void UDPHandler::sendInfo(float volume, float panning)
     data.append(QByteArray::number(volume));
     data.append(" ");
     data.append(QByteArray::number(panning));
+    data.append(" ");
+    data.append(QByteArray::number(electric));
 
     m_socket->writeDatagram(data.data(), QHostAddress::LocalHost, PORT_SEND);
 }
