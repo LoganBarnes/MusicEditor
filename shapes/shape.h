@@ -35,9 +35,8 @@ public:
     float euclideanDist(glm::vec3 p1, glm::vec3 p2);
     void recursiveBolt(glm::vec3 prevPos, int recCount, glm::vec3 finPos, int ind, float variation);
     void updateLightning(GLuint shader);
-    void calcBoltVerts();
-
-
+    void calcBoltVerts(QVector<float> function);
+    bool m_isWater;
 
 protected:
 
@@ -66,6 +65,8 @@ protected:
     QVector<float> m_function;
 
 private:
+    float f(glm::vec3 v, QVector<float> function);
+
     int m_p1max;
     int m_p2max;
     float m_p3max;

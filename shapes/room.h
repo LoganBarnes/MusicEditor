@@ -15,10 +15,11 @@ public:
 
     void render();
     void setModel(GLuint shader, glm::vec4 eye);
+    void bindTexture();
 
 private:
     bool loadTexture(GLuint tex, GLenum side, const QString &filename,
-                     QHash<GLenum, QImage> images);
+                     QHash<GLenum, QImage> *images);
 
     GLuint m_vaoID; // The vertex array object ID, which is passed to glBindVertexArray.
     GLuint m_vboID;

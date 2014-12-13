@@ -2,6 +2,7 @@
 
 uniform mat4 shadowMapProjections[6];
 uniform mat4 waterModel;
+uniform vec3 centr;
 
 layout(triangles, invocations = 1) in;
 layout(triangle_strip, max_vertices = 18) out;
@@ -9,9 +10,11 @@ layout(triangle_strip, max_vertices = 18) out;
 in vec4 pos[3];
 //in vec3 color[3];
 //in vec2 texc[3];
-in float divisr[3];
+in vec3 lokpos[3];
+in vec3 posish[3];
 
-out float divir;
+out vec3 lookPos;
+out vec3 posit;
 //out vec3 clr;
 //out vec2 texcoords;
 
@@ -23,7 +26,8 @@ out float divir;
          for(int i = 0; i < 3; ++i) {
 //             clr = color[i];
 //             texcoords = texc[i];
-             divir = divisr[i];
+             posit = posish[i];
+             lookPos = normalize(-vec3(waterModel[3]) - centr);
              gl_Position = shadowMapProjections[j] * waterModel * pos[i];
              EmitVertex();
          }

@@ -12,7 +12,7 @@
 class View;
 class Camera;
 class Room;
-class Test;
+class CubeMap;
 
 using std::string;
 
@@ -21,7 +21,7 @@ struct SceneElement
     CS123ScenePrimitive *primitive;
     glm::mat4 trans;
     glm::mat4 inv;
-
+    CubeMap *cube;
     int link;
     bool render;
     bool linked;
@@ -108,6 +108,7 @@ protected:
 
 //    Test *m_test;
     Room *m_room;
+    CubeMap *m_cm;
 
     // The program ID for OpenGL.
     GLuint m_solidShader;
@@ -121,7 +122,7 @@ protected:
     CS123SceneGlobalData m_global;
     QList<CS123SceneLightData*> m_lights;
 
-
+    QHash<GLenum, QImage> m_images;
 
 private:
 
@@ -132,7 +133,6 @@ private:
     std::map<string, GLint> m_waterUniforms;
     std::map<string, GLint> m_boltUniforms;
 
-    QHash<GLenum, QImage> m_images;
 
     glm::mat4 shadowMapProjections[6];
 

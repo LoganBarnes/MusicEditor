@@ -9,7 +9,8 @@ in float arrowOffset; // Sideways offset for billboarded normal arrows
 //out vec3 color; // Computed color for this vertex
 //out vec2 texc;
 out vec4 pos;
-out float divisr;
+out vec3 lokpos;
+out vec3 posish;
 
 // Transformation matrices
 uniform mat4 projection;
@@ -113,18 +114,18 @@ uniform float function[25]; // max/msp doesn't send data larger than 25
 void main(){
 
 
-    vec3 posish = vec3(position);
+    posish = vec3(position);
 
     vec4 position_worldSpace = model * vec4(posish, 1.0);
 
     pos = position_worldSpace;
 
     gl_Position = projection*view*model*(vec4(position,1.0));
-    float div = ((3.0 * rad)/4.0);
-    vec3 lookPos = (normalize((eyeV - centr)) * div);
-    float distIn = (((lookPos.x - position.x) * (lookPos.x - position.x)) + ((lookPos.y - position.y) * (lookPos.y - position.y)) + ((lookPos.z - position.z) * (lookPos.z - position.z)));
-    float eucDist = sqrt(distIn);
-    divisr = clamp((eucDist/rad), 0.0, 1.0);
+//    float div = ((3.0 * rad)/4.0);
+    lokpos = normalize((eyeV - centr));// * div);
+//    float distIn = (((lookPos.x - position.x) * (lookPos.x - position.x)) + ((lookPos.y - position.y) * (lookPos.y - position.y)) + ((lookPos.z - position.z) * (lookPos.z - position.z)));
+//    float eucDist = sqrt(distIn);
+//    divisr = clamp((eucDist/rad), 0.0, 1.0);
 //    if (useLighting) {
 //        color = ambient_color.xyz; // Add ambient component
 
