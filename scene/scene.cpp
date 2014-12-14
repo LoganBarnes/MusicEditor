@@ -72,17 +72,18 @@ void Scene::setF4(QVector<float> f)
 void Scene::sendMusicData(glm::vec4 eye)
 {
     glm::vec3 e = glm::vec3(eye);
+    e.y = 0;
 
     int num = m_waterElements.size();
     glm::vec2 d;
     glm::vec3 v1;
     glm::vec3 v2 = glm::vec3(0) - e;
-    v1.y = 0;
+    v2.y = 0;
     for (int i = 0; i < num; i++) {
         d.x = glm::distance(glm::vec3(m_waterElements.value(i)->trans[3]), e);
 
         v1 = glm::vec3(m_waterElements.value(i)->trans[3]) - e;
-        v2.y = 0;
+        v1.y = 0;
         d.y = glm::angle(glm::normalize(v1), glm::normalize(v2));
         d.y /= (M_PI / 2.f);
         int cross = (glm::cross(v1, v2).y > 0 ? 1 : -1);
