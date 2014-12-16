@@ -12,6 +12,8 @@ uniform float m;        // roughness of material
 uniform mat4 view;
 uniform mat4 model;
 
+uniform vec3 whiterer = vec3(0);
+
 uniform samplerCube envMap;
 
 out vec4 fragColor;
@@ -23,7 +25,7 @@ void main()
     
 //    fragColor = vec4(0.0);
 
-    fragColor = vec4(vec3(.01), 1);
+    fragColor = vec4(vec3(.01) + whiterer, 1);
     fragColor += vec4(vec3(.05), 1) * max(0, dot(n, vertexToLight));
 
     float F = r0 + (1.0 - r0) * pow(1.0 - dot(n, normalize(-eyeToVertex)), 5.0);

@@ -101,8 +101,8 @@ void OpenGLScene::init()
     m_room->init();
     m_images = m_room->makeCubeMaps();
 
-//    m_cm = new CubeMap();
-//    m_cm->makeCubeMap(m_images);
+    m_cm = new CubeMap();
+    m_cm->makeCubeMap(m_images);
 
     generateProjections(.1f, 50.f);
 }

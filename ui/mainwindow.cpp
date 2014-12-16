@@ -17,12 +17,6 @@ MainWindow::MainWindow(QWidget *parent) :
     QGridLayout *gridLayout = new QGridLayout(ui->view);
     View *view = new View(qglFormat, this);
     gridLayout->addWidget(view, 0, 1);
-
-
-
-//    QSettings qtSettings("CS123");
-//    restoreGeometry(qtSettings.value("geometry").toByteArray());
-//    restoreState(qtSettings.value("windowState").toByteArray());
 }
 
 MainWindow::~MainWindow()

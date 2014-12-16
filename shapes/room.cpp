@@ -23,7 +23,7 @@
 #define BACK ":/images/posz.bmp"
 #define FRONT ":/images/negz.bmp"
 
-const int cube_s = 1024;
+const int cube_s = 4;
 
 Room::Room(float radius)
 {

@@ -12,6 +12,7 @@
 class View;
 class Camera;
 class Room;
+class CubeMap;
 //class UDPHandler;
 
 using std::string;
@@ -112,7 +113,7 @@ protected:
 
 //    Test *m_test;
     Room *m_room;
-//    CubeMap *m_cm;
+    CubeMap *m_cm;
 
     // The program ID for OpenGL.
     GLuint m_solidShader;

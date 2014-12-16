@@ -63,6 +63,9 @@ void Scene::sendMusicData(glm::vec4 eye)
     glm::vec3 e = glm::vec3(eye);
     e.y = 0;
 
+    bool drumOneOff = true;
+    bool drumTwoOff = true;
+
     SceneElement *element;
     int num = m_waterElements.size();
     glm::vec2 d;
@@ -83,9 +86,11 @@ void Scene::sendMusicData(glm::vec4 eye)
 
         switch (element->port) {
         case 7001:
+            drumOneOff = false;
             m_udp1->sendInfo(d.x, d.y, element->linked);
             break;
         case 7002:
+            drumTwoOff = false;
             m_udp2->sendInfo(d.x, d.y, element->linked);
             break;
         case 7005:
@@ -115,6 +120,11 @@ void Scene::sendMusicData(glm::vec4 eye)
     d.y = .5 + (cross * d.y);
     d.x = glm::clamp(1.f - d.x / 10.f, 0.f, 1.f);
     m_udp3->sendInfo(d.x, d.y, element->linked);
+
+    if (drumOneOff)
+        m_udp1->sendInfo(0.f, 0.5f, false);
+    if (drumTwoOff)
+        m_udp2->sendInfo(0.f, 0.5f, false);
 
     foreach (int port, m_unused) {
         switch (port) {
@@ -191,7 +201,7 @@ void Scene::setUp()
     prim->type = LIGHTNING_TYPE;
     element->primitive = prim;
 //    element->trans = glm::rotate(glm::mat4(), (float) (M_PI / 4.0), glm::vec3(1, 1, -.1f));
-    element->trans = glm::translate(glm::vec3(-2.f, -2.f, 0.f));
+    element->trans = glm::translate(glm::vec3(0.f, 8.f, -25.f));
 //    element->trans = glm::mat4();
 //    element->inv = glm::mat4();
     element->inv = glm::inverse(element->trans);
@@ -318,7 +328,9 @@ void Scene::deleteObject(PrimitiveType typ, int ind) {
 //            m_lightningElements.at(lInd)->trans = m_waterElements.at(ind)->trans;
 //        }
         m_deleteElements.append(m_waterElements.value(ind));
-        m_unused.append(m_waterElements.value(ind)->port);
+        int port = m_waterElements.value(ind)->port;
+        if (port != 7001 && port != 7002 && port != 7003 && port != 7004)
+            m_unused.append(m_waterElements.value(ind)->port);
         m_waterElements.removeAt(ind);
 //        delete e->primitive->material.bumpMap;
 //        delete e->primitive->material.textureMap;
@@ -545,10 +557,6 @@ void Scene::renderTransparents(GLuint shader)
     glUniform1f(glGetUniformLocation(shader, "m"), 0.02f);
     glUniform4fv(glGetUniformLocation(shader, "lightPosition"), 1, glm::value_ptr(m_lights.value(0)->pos));
 
-    glActiveTexture(GL_TEXTURE1);
-    m_room->bindTexture();
-    glActiveTexture(GL_TEXTURE0);
-
 //    glUniform1i(glGetUniformLocation(shader, "functionSize"), m_f1.size());
 //    glUniform1fv(glGetUniformLocation(shader, "function"), m_f1.size(), m_f1.data());
 //    m_waterShape->transformAndRender(shader, m_elements.at(0)->trans);
@@ -558,6 +566,16 @@ void Scene::renderTransparents(GLuint shader)
     for (int i = 0; i < m_waterElements.size(); ++i) {
 
         element = m_waterElements.value(i);
+
+        glActiveTexture(GL_TEXTURE1);
+        if (element->linked) {
+            m_cm->bindTexture();
+            glUniform3f(glGetUniformLocation(shader, "whiterer"), .1f, .1f, .1f);
+        } else {
+            m_room->bindTexture();
+            glUniform3f(glGetUniformLocation(shader, "whiterer"), 0.f, 0.f, 0.f);
+        }
+        glActiveTexture(GL_TEXTURE0);
 //        m_waterElements.value(i)->cube->bindTexture();
 
         switch (element->port) {
