@@ -70,7 +70,7 @@ public:
     virtual void checkAsserts(bool durClick) = 0;
     virtual void addObject(PrimitiveType typ) = 0;
     virtual void deleteObject(PrimitiveType typ, int ind) = 0;
-    virtual void checkFilters() = 0;
+//    virtual void checkFilters() = 0;
 
     virtual void checkIntersects() = 0;
     QList<SceneElement *> m_waterElements;
@@ -88,6 +88,9 @@ protected:
 
     // Render cubemap
     virtual void renderSetting() = 0;
+
+    // Render solid geometry for Shapes and Sceneview.
+    virtual void renderFilter(GLuint shader) = 0;
 
     // Render solid geometry for Shapes and Sceneview.
     virtual void renderLightning(GLuint shader) = 0;

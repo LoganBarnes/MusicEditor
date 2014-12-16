@@ -162,6 +162,23 @@ void OpenGLScene::render(Camera *cam)
 
     renderLightning(shader);
 
+    // solids
+    shader = m_solidShader;
+    glUseProgram(shader);
+
+    // Set scene uniforms.
+    clearLights(shader);
+    setLights(viewMatrix, shader);
+    glUniform1i(glGetUniformLocation(shader, "useLighting"), m_useLighting);
+    glUniform1i(glGetUniformLocation(shader, "useArrowOffsets"), GL_FALSE);
+    glUniformMatrix4fv(glGetUniformLocation(shader, "projection"), 1, GL_FALSE,
+                       glm::value_ptr(projMatrix));
+    glUniformMatrix4fv(glGetUniformLocation(shader, "view"), 1, GL_FALSE,
+                       glm::value_ptr(viewMatrix));
+    glUniform3f(glGetUniformLocation(shader, "allBlack"), 1, 1, 1);
+
+    renderFilter(shader);
+
     // lighting bolts
     shader = m_boltShader;
     glUseProgram(shader);

@@ -2,6 +2,7 @@
 #include "room.h"
 #include "grid.h"
 #include "musicshape.h"
+#include "filtershape.h"
 #include "udphandler.h"
 #include "glm/gtx/vector_angle.hpp"
 #include "cubemap.h"
@@ -20,6 +21,7 @@ Scene::Scene(QObject *parent)
     m_grid = NULL;
     m_lightningShape = NULL;
     m_waterShape = NULL;
+    m_filter = NULL;
 
     m_lights.clear();
     m_waterElements.clear();
@@ -269,15 +271,20 @@ void Scene::init()
     m_waterShape->cleanUp();
     m_waterShape->m_isWater = true;
 
-    CS123SceneMaterial& mat = m_waterElements.at(0)->primitive->material;
-    int texId = loadTexture(QString::fromStdString(mat.textureMap->filename));
-    if (texId == -1) {
-        cout << "Texture '" << mat.textureMap->filename << "' does not exist" << endl;
-        mat.textureMap->isUsed = 0;
-    } else {
-        mat.textureMap->texid = texId;
-        mat.textureMap->isUsed = true;
-    }
+    m_filter = new FilterShape(50, 50, 20, 0.3f);
+    m_filter->calcVerts();
+    m_filter->updateGL(m_solidShader);
+    m_filter->cleanUp();
+
+//    CS123SceneMaterial& mat = m_waterElements.at(0)->primitive->material;
+//    int texId = loadTexture(QString::fromStdString(mat.textureMap->filename));
+//    if (texId == -1) {
+//        cout << "Texture '" << mat.textureMap->filename << "' does not exist" << endl;
+//        mat.textureMap->isUsed = 0;
+//    } else {
+//        mat.textureMap->texid = texId;
+//        mat.textureMap->isUsed = true;
+//    }
 
     m_initialized = true;
 
@@ -461,6 +468,14 @@ void Scene::addObject(PrimitiveType typ) {
             m_lightningElements.append(element);
         }
     }
+}
+
+
+void Scene::renderFilter(GLuint shader)
+{
+//    applyMaterial(m_filterMaterial, shader);
+//    m_filter->transformAndRender();
+
 }
 
 
@@ -869,65 +884,65 @@ IntersectElement Scene::shapeClickIntersect(glm::vec4 ey, glm::vec4 dr) {
 }
 
 
-void Scene::checkFilters()
-{
+//void Scene::checkFilters()
+//{
 
-//    cout << "size: " << m_waterElements.size() << endl;
+////    cout << "size: " << m_waterElements.size() << endl;
 
-    glm::vec3 wpos, lpos;
-    float dist;
-    foreach (SceneElement *we, m_waterElements)
-    {
-//        cout << "we: " << glm::to_string(we->trans[3]) << endl;
-        wpos = glm::vec3(we->trans[3]);
-        foreach (SceneElement *le, m_lightningElements)
-        {
-//            cout << "le: " << glm::to_string(le->trans[3]) << endl;
-            lpos = glm::vec3(le->trans[3]);
-            dist = glm::distance(wpos, lpos);
-//            cout << dist << endl;
-            if (dist > 0.65f)
-                continue;
-            else
-                cout << "blah" << endl;
-            if (lpos.y - 0.15f > wpos.y + .5f) {
-                cout << lpos.y - 0.15f << ", " << wpos.y + .5f << endl;
-                continue;
-            } else {
-                cout << "blah2" << endl;
-            }
-            if (lpos.y + 0.15f < wpos.y - 0.5f)
-                continue;
-            else
-                cout << "blah3" << endl;
+//    glm::vec3 wpos, lpos;
+//    float dist;
+//    foreach (SceneElement *we, m_waterElements)
+//    {
+////        cout << "we: " << glm::to_string(we->trans[3]) << endl;
+//        wpos = glm::vec3(we->trans[3]);
+//        foreach (SceneElement *le, m_lightningElements)
+//        {
+////            cout << "le: " << glm::to_string(le->trans[3]) << endl;
+//            lpos = glm::vec3(le->trans[3]);
+//            dist = glm::distance(wpos, lpos);
+////            cout << dist << endl;
+//            if (dist > 0.65f)
+//                continue;
+//            else
+//                cout << "blah" << endl;
+//            if (lpos.y - 0.15f > wpos.y + .5f) {
+//                cout << lpos.y - 0.15f << ", " << wpos.y + .5f << endl;
+//                continue;
+//            } else {
+//                cout << "blah2" << endl;
+//            }
+//            if (lpos.y + 0.15f < wpos.y - 0.5f)
+//                continue;
+//            else
+//                cout << "blah3" << endl;
 
-            switch(we->port)
-            {
-            case 7001:
-                m_udp1->sendFilter(.25f, .01f);
-                break;
-            case 7002:
-                m_udp2->sendFilter(.25f, .5f);
-                break;
-            case 7005:
-                m_udp5->sendFilter(.25f, .5f);
-                break;
-            case 7006:
-                m_udp6->sendFilter(.25f, .5f);
-                break;
-            case 7007:
-                m_udp7->sendFilter(.25f, .5f);
-                break;
-            case 7008:
-                m_udp8->sendFilter(.25f, .5f);
-                break;
-            default:
-                break;
-            }
+//            switch(we->port)
+//            {
+//            case 7001:
+//                m_udp1->sendFilter(.25f, .01f);
+//                break;
+//            case 7002:
+//                m_udp2->sendFilter(.25f, .5f);
+//                break;
+//            case 7005:
+//                m_udp5->sendFilter(.25f, .5f);
+//                break;
+//            case 7006:
+//                m_udp6->sendFilter(.25f, .5f);
+//                break;
+//            case 7007:
+//                m_udp7->sendFilter(.25f, .5f);
+//                break;
+//            case 7008:
+//                m_udp8->sendFilter(.25f, .5f);
+//                break;
+//            default:
+//                break;
+//            }
 
 
-        }
-    }
-}
+//        }
+//    }
+//}
 
 

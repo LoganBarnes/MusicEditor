@@ -105,3 +105,23 @@ void FilterShape::make3Dslice(int *index, float phiL, float phiR, bool first, bo
 
 }
 
+float FilterShape::calcIntersect(glm::vec3 eye, glm::vec3 dir)
+{
+    return 0;
+}
+
+float FilterShape::collisionDetector(glm::vec3 cent1, glm::vec3 cent2, float rad1, float rad2)
+{
+    return 0;
+}
+
+float FilterShape::getRadius()
+{
+    return 0.5f;
+}
+
+void FilterShape::setRadius(float rad)
+{
+
+}
+

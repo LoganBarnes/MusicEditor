@@ -39,7 +39,7 @@ public:
     void addObject(PrimitiveType typ);
     void deleteObject(PrimitiveType typ, int ind);
 
-    void checkFilters();
+//    void checkFilters();
 
 
 
@@ -50,6 +50,8 @@ protected:
 
     // Render cubemap
     virtual void renderSetting();
+
+    virtual void renderFilter(GLuint shader);
 
     // Render geometry for Shapes and Sceneview.
     virtual void renderLightning(GLuint shader);
@@ -72,16 +74,15 @@ public slots:
 private:
     bool m_initialized;
 
-//    Room *m_room;
     Grid *m_grid;
     Shape *m_waterShape;
     Shape *m_lightningShape;
     Shape *m_waterLightningShape;
+    Shape *m_filter;
 
     CS123SceneMaterial *m_lightningMaterial;
 
     QList<int> m_unused;
-
 
     UDPHandler *m_udp1;
     UDPHandler *m_udp2;

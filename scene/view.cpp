@@ -426,7 +426,7 @@ void View::tick()
         m_camera->swing();
     }
 
-    m_scene->checkFilters();
+//    m_scene->checkFilters();
 
     m_scene->sendMusicData(m_camera->getEye4());
     // Flag this view for repainting (Qt will call paintGL() soon after)

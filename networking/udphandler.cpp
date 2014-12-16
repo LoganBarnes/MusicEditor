@@ -45,7 +45,8 @@ void UDPHandler::sendInfo(float volume, float panning, bool electric)
     QByteArray data;
     data.append("port ");
     data.append(QByteArray::number(m_port));
-    data.append(" volume ");
+    data.append(" ");
+//    data.append(" volume ");
     data.append(QByteArray::number(volume));
     data.append(" ");
     data.append(QByteArray::number(panning));
