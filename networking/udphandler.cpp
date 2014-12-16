@@ -45,12 +45,36 @@ void UDPHandler::sendInfo(float volume, float panning, bool electric)
     QByteArray data;
     data.append("port ");
     data.append(QByteArray::number(m_port));
-    data.append(" ");
+    data.append(" volume ");
     data.append(QByteArray::number(volume));
     data.append(" ");
     data.append(QByteArray::number(panning));
     data.append(" ");
     data.append(QByteArray::number(electric));
+
+    m_socket->writeDatagram(data.data(), QHostAddress::LocalHost, PORT_SEND);
+}
+
+
+void UDPHandler::sendAddition(int num)
+{
+    QByteArray data;
+    data.append("add ");
+    data.append(QByteArray::number(num));
+
+    m_socket->writeDatagram(data.data(), QHostAddress::LocalHost, PORT_SEND);
+}
+
+
+void UDPHandler::sendFilter(float freq, float q)
+{
+    QByteArray data;
+    data.append("port ");
+    data.append(QByteArray::number(m_port));
+    data.append(" filter ");
+    data.append(QByteArray::number(freq));
+    data.append(" ");
+    data.append(QByteArray::number(q));
 
     m_socket->writeDatagram(data.data(), QHostAddress::LocalHost, PORT_SEND);
 }

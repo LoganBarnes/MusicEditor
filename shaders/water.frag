@@ -21,7 +21,11 @@ void main()
     vec3 n = normalize(eyeNormal);
     vec3 eyeToVertex = -vertexToEye; //remember we are in eye space!
     
-    fragColor = vec4(0.0);    
+//    fragColor = vec4(0.0);
+
+    fragColor = vec4(vec3(.01), 1);
+    fragColor += vec4(vec3(.05), 1) * max(0, dot(n, vertexToLight));
+
     float F = r0 + (1.0 - r0) * pow(1.0 - dot(n, normalize(-eyeToVertex)), 5.0);
 
     mat4 inv = inverse(view);
@@ -37,14 +41,13 @@ void main()
     // sample cube
     vec4 reflectColor = texture(envMap, normalize(reflectVec).xyz);
 
-    vec4 refractColor = vec4(1);
-    refractColor.r = texture(envMap, normalize(refractVecR).xyz).r;
-    refractColor.g = texture(envMap, normalize(refractVecG).xyz).g;
-    refractColor.b = texture(envMap, normalize(refractVecB).xyz).b;
+//    vec4 refractColor = vec4(1);
+//    refractColor.r = texture(envMap, normalize(refractVecR).xyz).r;
+//    refractColor.g = texture(envMap, normalize(refractVecG).xyz).g;
+//    refractColor.b = texture(envMap, normalize(refractVecB).xyz).b;
     
     // combine
-    fragColor = mix(refractColor, reflectColor, F);
-    fragColor.b *= 1.15; // add a slight blue hue
+//    fragColor *= 1.15; // add a slight blue hue
 
     // specular
     vec3 h = normalize(vertexToLight + vertexToEye);
@@ -61,6 +64,8 @@ void main()
     float k_s = max(0.0, D * F * G / eDotN);
 
     fragColor += k_s * vec4(1.0);
+
+    fragColor += mix(fragColor, reflectColor, F);
 
     fragColor = clamp(fragColor, 0.0, 1.0);
 //    fragColor = vec4(1);

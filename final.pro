@@ -25,7 +25,8 @@ SOURCES += \
     networking/udphandler.cpp \
     shapes/grid.cpp \
     shapes/room.cpp \
-    shapes/cubemap.cpp
+    shapes/cubemap.cpp \
+    shapes/filtershape.cpp
 
 HEADERS += \
     lib/Common.h \
@@ -41,7 +42,8 @@ HEADERS += \
     networking/udphandler.h \
     shapes/grid.h \
     shapes/room.h \
-    shapes/cubemap.h
+    shapes/cubemap.h \
+    shapes/filtershape.h
 
 FORMS += ui/mainwindow.ui
 
@@ -52,10 +54,11 @@ DEFINES += TIXML_USE_STL
 OTHER_FILES += \
     # default shader
     shaders/shader.frag shaders/shader.vert\
-    shaders/shader.gsh shaders/cube.gsh\
     # water shader
     shaders/water.frag shaders/water.vert\
     # lighting shaders
+    shaders/orb.frag shaders/orb.vert\
+    shader/shader.gsh shaders/cube.gsh\
     shaders/bolt.frag shaders/bolt.vert\
     shaders/bolt.gsh shaders/boltcube.gsh\
     # cube map shaders
@@ -64,7 +67,9 @@ OTHER_FILES += \
     images/front.png images/back.png images/top.png\
     images/bottom.png images/left.png images/right.png\
     images/posx.jpg images/negx.jpg images/posy.jpg\
-    images/negy.jpg images/posz.jpg images/negz.jpg
+    images/negy.jpg images/posz.jpg images/negz.jpg\
+    images/posx.bmp images/negx.bmp images/posy.bmp\
+    images/negy.bmp images/posz.bmp images/negz.bmp
 
 # Don't add the -pg flag unless you know what you are doing. It makes QThreadPool freeze on Mac OS X
 QMAKE_CXXFLAGS_RELEASE -= -O2

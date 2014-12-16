@@ -8,6 +8,8 @@
         <file alias="water.vert">shaders/water.vert</file>
         <file alias="cube.frag">shaders/cubemap.frag</file>
         <file alias="cube.vert">shaders/cubemap.vert</file>
+        <file alias="orb.frag">shaders/orb.frag</file>
+        <file alias="orb.vert">shaders/orb.vert</file>
         <file alias="bolt.frag">shaders/bolt.frag</file>
         <file alias="bolt.vert">shaders/bolt.vert</file>
         <file alias="bolt.gsh">shaders/bolt.gsh</file>
@@ -26,5 +28,11 @@
         <file alias="posx.jpg">images/posx.jpg</file>
         <file alias="posy.jpg">images/posy.jpg</file>
         <file alias="posz.jpg">images/posz.jpg</file>
+        <file alias="negx.bmp">images/negx.bmp</file>
+        <file alias="negy.bmp">images/negy.bmp</file>
+        <file alias="negz.bmp">images/negz.bmp</file>
+        <file alias="posx.bmp">images/posx.bmp</file>
+        <file alias="posy.bmp">images/posy.bmp</file>
+        <file alias="posz.bmp">images/posz.bmp</file>
     </qresource>
 </RCC>

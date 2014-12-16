@@ -105,11 +105,11 @@ void View::paintGL()
         }
 
         // Update the scene camera.
-        if (m_sceneChanged) {
-            glViewport(0, 0, cube_s, cube_s);
-            m_scene->setCubeMaps(m_camera); // set cube map
+//        if (m_sceneChanged) {
+//            glViewport(0, 0, cube_s, cube_s);
+//            m_scene->setCubeMaps(m_camera); // set cube map
 //            m_sceneChanged = false;
-        }
+//        }
 
         glViewport(0, 0, width(), height());
         m_camera->setAspectRatio((float)width() / (float)height());
@@ -425,6 +425,8 @@ void View::tick()
     if (m_rotate) {
         m_camera->swing();
     }
+
+    m_scene->checkFilters();
 
     m_scene->sendMusicData(m_camera->getEye4());
     // Flag this view for repainting (Qt will call paintGL() soon after)

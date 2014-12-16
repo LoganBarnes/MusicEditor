@@ -12,7 +12,7 @@
 class View;
 class Camera;
 class Room;
-class CubeMap;
+//class UDPHandler;
 
 using std::string;
 
@@ -21,7 +21,7 @@ struct SceneElement
     CS123ScenePrimitive *primitive;
     glm::mat4 trans;
     glm::mat4 inv;
-    CubeMap *cube;
+    int port;
     int link;
     bool render;
     bool linked;
@@ -70,6 +70,7 @@ public:
     virtual void checkAsserts(bool durClick) = 0;
     virtual void addObject(PrimitiveType typ) = 0;
     virtual void deleteObject(PrimitiveType typ, int ind) = 0;
+    virtual void checkFilters() = 0;
 
     virtual void checkIntersects() = 0;
     QList<SceneElement *> m_waterElements;
@@ -94,7 +95,7 @@ protected:
     // Render see-through shapes
     virtual void renderTransparents(GLuint shader) = 0;
 
-    virtual void renderBolts() = 0;
+    virtual void renderBolts(GLuint shader) = 0;
 
 
     // Set the necessary uniforms to switch materials.
@@ -108,12 +109,12 @@ protected:
 
 //    Test *m_test;
     Room *m_room;
-    CubeMap *m_cm;
+//    CubeMap *m_cm;
 
     // The program ID for OpenGL.
     GLuint m_solidShader;
     GLuint m_cubeShader;
-    GLuint m_solidCubeShader;
+    GLuint m_orbCubeShader;
     GLuint m_boltCubeShader;
     GLuint m_waterShader;
     GLuint m_boltShader;
@@ -124,14 +125,11 @@ protected:
 
     QHash<GLenum, QImage> m_images;
 
+    SceneElement *m_input;
+
 private:
 
     void generateProjections(float zmin, float zmax);
-
-    std::map<string, GLint> m_solidUniforms;
-    std::map<string, GLint> m_cubeUniforms;
-    std::map<string, GLint> m_waterUniforms;
-    std::map<string, GLint> m_boltUniforms;
 
 
     glm::mat4 shadowMapProjections[6];

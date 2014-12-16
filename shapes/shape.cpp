@@ -148,7 +148,7 @@ void Shape::calcBoltVerts(QVector<float> function)
         float y = (sinf(ang1) * sinf(ang2));
         float z = cosf(ang1);
         glm::vec3 dir = glm::vec3(x, y, z) * .15f;
-        float len = f(&dir, function);
+        f(&dir, function);
 //        float len = 0.5f + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(3.5f - 0.5f)));
 
 //        glm::vec3 dir = (len * glm::normalize(glm::vec3(x, y, z)));

@@ -6,7 +6,7 @@
 #include "glm/gtx/vector_angle.hpp"
 #include "cubemap.h"
 
-glm::vec4 lightDirection = glm::normalize(glm::vec4(0.5f, -0.8f, 1.f, 0.f));
+glm::vec4 lightDirection = glm::normalize(glm::vec4(1.f, -1.f, 1.f, 0.f));
 
 Scene::Scene(QObject *parent)
 {
@@ -29,7 +29,15 @@ Scene::Scene(QObject *parent)
     m_udp1 = new UDPHandler(this, SLOT(setF1(QVector<float>)), 7001);
     m_udp2 = new UDPHandler(this, SLOT(setF2(QVector<float>)), 7002);
     m_udp3 = new UDPHandler(this, SLOT(setF3(QVector<float>)), 7003);
-    m_udp4 = new UDPHandler(this, SLOT(setF4(QVector<float>)), 7004);
+    m_udp5 = new UDPHandler(this, SLOT(setF5(QVector<float>)), 7005);
+    m_udp6 = new UDPHandler(this, SLOT(setF6(QVector<float>)), 7006);
+    m_udp7 = new UDPHandler(this, SLOT(setF7(QVector<float>)), 7007);
+    m_udp8 = new UDPHandler(this, SLOT(setF8(QVector<float>)), 7008);
+
+    m_unused.append(7005);
+    m_unused.append(7006);
+    m_unused.append(7007);
+    m_unused.append(7008);
 
     setUp();
 
@@ -41,31 +49,10 @@ Scene::~Scene()
     delete m_udp1;
     delete m_udp2;
     delete m_udp3;
-    delete m_udp4;
-}
-
-
-void Scene::setF1(QVector<float> f)
-{
-    m_f1 = QVector<float>(f);
-}
-
-
-void Scene::setF2(QVector<float> f)
-{
-    m_f2 = QVector<float>(f);
-}
-
-
-void Scene::setF3(QVector<float> f)
-{
-    m_f3 = QVector<float>(f);
-}
-
-
-void Scene::setF4(QVector<float> f)
-{
-    m_f4 = QVector<float>(f);
+    delete m_udp5;
+    delete m_udp6;
+    delete m_udp7;
+    delete m_udp8;
 }
 
 
@@ -74,15 +61,17 @@ void Scene::sendMusicData(glm::vec4 eye)
     glm::vec3 e = glm::vec3(eye);
     e.y = 0;
 
+    SceneElement *element;
     int num = m_waterElements.size();
     glm::vec2 d;
     glm::vec3 v1;
     glm::vec3 v2 = glm::vec3(0) - e;
     v2.y = 0;
     for (int i = 0; i < num; i++) {
-        d.x = glm::distance(glm::vec3(m_waterElements.value(i)->trans[3]), e);
+        element = m_waterElements.value(i);
+        d.x = glm::distance(glm::vec3(element->trans[3]), e);
 
-        v1 = glm::vec3(m_waterElements.value(i)->trans[3]) - e;
+        v1 = glm::vec3(element->trans[3]) - e;
         v1.y = 0;
         d.y = glm::angle(glm::normalize(v1), glm::normalize(v2));
         d.y /= (M_PI / 2.f);
@@ -90,27 +79,57 @@ void Scene::sendMusicData(glm::vec4 eye)
         d.y = .5 + (cross * d.y);
         d.x = glm::clamp(1.f - d.x / 10.f, 0.f, 1.f);
 
-        if (i == 0) {
-            m_udp1->sendInfo(d.x, d.y, m_waterElements.value(i)->linked);
-        }
-        if (i == 1) {
-            m_udp2->sendInfo(d.x, d.y, m_waterElements.value(i)->linked);
-        }
-        if (i == 2) {
-            m_udp3->sendInfo(d.x, d.y, m_waterElements.value(i)->linked);
-        }
-        if (i == 3) {
-            m_udp4->sendInfo(d.x, d.y, m_waterElements.value(i)->linked);
+        switch (element->port) {
+        case 7001:
+            m_udp1->sendInfo(d.x, d.y, element->linked);
+            break;
+        case 7002:
+            m_udp2->sendInfo(d.x, d.y, element->linked);
+            break;
+        case 7005:
+            m_udp5->sendInfo(d.x, d.y, element->linked);
+            break;
+        case 7006:
+            m_udp6->sendInfo(d.x, d.y, element->linked);
+            break;
+        case 7007:
+            m_udp7->sendInfo(d.x, d.y, element->linked);
+            break;
+        case 7008:
+            m_udp8->sendInfo(d.x, d.y, element->linked);
+            break;
+        default:
+            break;
+       }
+    }
+    element = m_input;
+    d.x = glm::distance(glm::vec3(element->trans[3]), e);
+
+    v1 = glm::vec3(element->trans[3]) - e;
+    v1.y = 0;
+    d.y = glm::angle(glm::normalize(v1), glm::normalize(v2));
+    d.y /= (M_PI / 2.f);
+    int cross = (glm::cross(v1, v2).y > 0 ? 1 : -1);
+    d.y = .5 + (cross * d.y);
+    d.x = glm::clamp(1.f - d.x / 10.f, 0.f, 1.f);
+    m_udp3->sendInfo(d.x, d.y, element->linked);
+
+    foreach (int port, m_unused) {
+        switch (port) {
+        case 7005:
+            m_udp5->sendInfo(0.f, 0.5f, false);
+            break;
+        case 7006:
+            m_udp6->sendInfo(0.f, 0.5f, false);
+            break;
+        case 7007:
+            m_udp7->sendInfo(0.f, 0.5f, false);
+            break;
+        case 7008:
+            m_udp8->sendInfo(0.f, 0.5f, false);
+            break;
         }
     }
-    if (num < 1)
-        m_udp1->sendInfo(0.f, 0.5f, false);
-    if (num < 2)
-        m_udp2->sendInfo(0.f, 0.5f, false);
-    if (num < 3)
-        m_udp3->sendInfo(0.f, 0.5f, false);
-    if (num < 4)
-        m_udp4->sendInfo(0.f, 0.5f, false);
 }
 
 
@@ -155,7 +174,7 @@ void Scene::setUp()
     light->type = LIGHT_POINT;
 //    light->pos = glm::vec4(-5.f, 8.f, -10.f, 1.f);
 //    light->color.r = light->color.g = light->color.b = 1.f;
-    light->pos = glm::vec4(-9.f, 0.f, 12.f, 1);
+    light->pos = glm::vec4(-10.f, 10.f, -10.f, 1);
     light->color.r = 1.0f;
     light->color.g = 0.7f;
     light->color.b = 0.5f;
@@ -179,29 +198,40 @@ void Scene::setUp()
 
 //    glm::mat4x4 rots = glm::rotate(glm::mat4(), (float) (M_PI / 4.0), glm::vec3(1, 1, -.1f));
 
-    SceneElement *element2 = new SceneElement();
-    element2->dragged = false;
-    element2->render = true;
-    element2->link = -1;
-    element2->linked = false;
+    element = new SceneElement();
+    element->dragged = false;
+    element->render = true;
+    element->link = -1;
+    element->linked = false;
+    element->port = 7001;
     prim->type = WATER_TYPE;
-    element2->primitive = prim;
-    element2->trans = glm::translate(glm::vec3(0.0f, 0.0f, 2.0f));
-    element2->inv = glm::inverse(element2->trans);
+    element->primitive = prim;
+    element->trans = glm::translate(glm::vec3(-1.0f, 1.f, -5.5f));
+    element->inv = glm::inverse(element->trans);
+    m_waterElements.append(element);
 
-//    SceneElement *element3 = new SceneElement();
-//    element3->dragged = false;
-//    element3->render = true;
-//    element3->link = -1;
-//    element3->linked = false;
-//    prim->type = WATER_TYPE;
-//    element3->primitive = prim;
-//    element3->trans = glm::translate(glm::vec3(-2, 0, 0));
-//    element3->inv = glm::inverse(element3->trans);
+    element = new SceneElement();
+    element->dragged = false;
+    element->render = true;
+    element->link = -1;
+    element->linked = false;
+    element->port = 7002;
+    prim->type = WATER_TYPE;
+    element->primitive = prim;
+    element->trans = glm::translate(glm::vec3(1.f, 1.f, -5.5f));
+    element->inv = glm::inverse(element->trans);
+    m_waterElements.append(element);
 
-    m_waterElements.append(element2);
-//    m_waterElements.append(element3);
-
+    m_input = new SceneElement();
+    m_input->dragged = false;
+    m_input->render = true;
+    m_input->link = -1;
+    m_input->linked = false;
+    m_input->port = 7003;
+    prim->type = WATER_TYPE;
+    m_input->primitive = prim;
+    m_input->trans = glm::translate(glm::vec3(0, 0, 0));
+    m_input->inv = glm::inverse(m_input->trans);
 
        // glUniform3f(glGetUniformLocation(m_shader, "allWhite"), 0, 0, 0); // not white
      //   m_shape->transformAndRender(m_shader, glm::translate(glm::mat4(), glm::vec3(2, 0, 0)));
@@ -229,7 +259,7 @@ void Scene::init()
 
     m_lightningShape = new MusicShape(150, 70, 0.15f);
     m_lightningShape->calcVerts();
-    m_lightningShape->updateGL(m_solidShader);
+    m_lightningShape->updateGL(m_orbShader);
     m_lightningShape->cleanUp();
     m_lightningShape->m_isWater = false;
 
@@ -251,12 +281,10 @@ void Scene::init()
 
     m_initialized = true;
 
-    int count = 0;
-    foreach(SceneElement *e, m_waterElements) {
-        e->cube = new CubeMap();
-        e->cube->makeCubeMap(m_images);
-        cout << count++ << endl;
-    }
+//    foreach(SceneElement *e, m_waterElements) {
+//        e->cube = new CubeMap();
+//        e->cube->makeCubeMap(m_images);
+//    }
 }
 
 
@@ -271,9 +299,9 @@ void Scene::renderSetting()
 
 void Scene::deleteObject(PrimitiveType typ, int ind) {
     if (typ == WATER_TYPE) {
-        if (m_waterElements.size() == 1) {
-            return;
-        }
+//        if () {
+//            return;
+//        }
 //        if (m_waterElements.at(ind)->linked) {
 //            int lInd = m_waterElements.at(ind)->link;
 
@@ -282,7 +310,8 @@ void Scene::deleteObject(PrimitiveType typ, int ind) {
 //            m_waterElements.at(ind)->link = -1;
 //            m_lightningElements.at(lInd)->trans = m_waterElements.at(ind)->trans;
 //        }
-        m_deleteElements.append(m_waterElements.at(ind));
+        m_deleteElements.append(m_waterElements.value(ind));
+        m_unused.append(m_waterElements.value(ind)->port);
         m_waterElements.removeAt(ind);
 //        delete e->primitive->material.bumpMap;
 //        delete e->primitive->material.textureMap;
@@ -313,7 +342,7 @@ void Scene::deleteObject(PrimitiveType typ, int ind) {
 
 void Scene::addObject(PrimitiveType typ) {
     if (typ == WATER_TYPE) {
-        if (m_waterElements.size() >= 5) {
+        if (m_unused.isEmpty()) {
             return;
         }
         else {
@@ -350,16 +379,31 @@ void Scene::addObject(PrimitiveType typ) {
             mat.bumpMap->repeatV = 1;
             mat.bumpMap->texid = 0;
 
-
             SceneElement *element = new SceneElement();
             element->dragged = false;
             element->render = true;
             element->linked = false;
             element->link = -1;
+            element->port = m_unused.takeLast();
+
+            switch (element->port) {
+            case 7005:
+                m_udp5->sendAddition(5);
+                break;
+            case 7006:
+                m_udp6->sendAddition(6);
+                break;
+            case 7007:
+                m_udp7->sendAddition(7);
+                break;
+            case 7008:
+                m_udp8->sendAddition(8);
+                break;
+            }
 
             prim->type = WATER_TYPE;
-            element->cube = new CubeMap();
-            element->cube->makeCubeMap(m_images);
+//            element->cube = new CubeMap();
+//            element->cube->makeCubeMap(m_images);
             element->primitive = prim;
             element->trans = glm::mat4(1.0f);
             element->inv = glm::inverse(element->trans);
@@ -404,7 +448,6 @@ void Scene::addObject(PrimitiveType typ) {
             mat.bumpMap->repeatV = 1;
             mat.bumpMap->texid = 0;
 
-
             SceneElement *element = new SceneElement();
             element->dragged = false;
             element->render = true;
@@ -427,7 +470,7 @@ void Scene::renderLightning(GLuint shader)
     if (!m_initialized)
         return;
 
-    applyMaterial(m_lightningElements.at(0)->primitive->material, shader);
+//    applyMaterial(m_lightningElements.at(0)->primitive->material, shader);
 
 ////     Draw the grid. CAN'T DRAW WITH CURRENT GEOMETRY SHADER SET TO TRIANGLES
 //    glUniform1i(glGetUniformLocation(shader, "functionSize"), 0);
@@ -438,7 +481,7 @@ void Scene::renderLightning(GLuint shader)
     // Draw the shapes.
     for (int i = 0; i < m_lightningElements.size(); ++i) {
         if (m_lightningElements.at(i)->render) {
-            glm::vec3 cent = glm::vec3((m_lightningElements.at(i)->trans * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f)));
+            glm::vec3 cent = glm::vec3((m_lightningElements.at(i)->trans[3]));
             glUniform3fv(glGetUniformLocation(shader, "centr"), 1, glm::value_ptr(cent));
             glUniform3f(glGetUniformLocation(shader, "allWhite"), 0, 0, 0); // not white
             glUniform1i(glGetUniformLocation(shader, "functionSize"), m_f1.size());
@@ -449,23 +492,23 @@ void Scene::renderLightning(GLuint shader)
     }
 }
 
-void Scene::renderBolts()
+void Scene::renderBolts(GLuint shader)
 {
     QVector<float> f1 = QVector<float>(m_f1);
     f1.clear();
     for (int i = 0; i < m_lightningElements.size(); ++i) {
         if (m_lightningElements.at(i)->render) {
             m_lightningShape->calcBoltVerts(f1);
-            m_lightningShape->updateLightning(m_boltShader);
-            m_lightningShape->renderLightning(m_boltShader, m_lightningElements.at(i)->trans);
+            m_lightningShape->updateLightning(shader);
+            m_lightningShape->renderLightning(shader, m_lightningElements.at(i)->trans);
         }
     }
 
     for (int i = 0; i < m_waterElements.size(); ++i) {
         if (m_waterElements.at(i)->linked) {
             m_waterShape->calcBoltVerts(f1);
-            m_waterShape->updateLightning(m_boltShader);
-            m_waterShape->renderLightning(m_boltShader, m_waterElements.at(i)->trans);
+            m_waterShape->updateLightning(shader);
+            m_waterShape->renderLightning(shader, m_waterElements.at(i)->trans);
         }
 
     }
@@ -482,55 +525,60 @@ void Scene::renderBolts()
 
 void Scene::renderTransparents(GLuint shader)
 {
-    glUniform1f(glGetUniformLocation(shader, "r0"), 0.1f);
+    glUniform1f(glGetUniformLocation(shader, "r0"), 0.9f);
     glUniform3f(glGetUniformLocation(shader, "eta"), 1.f / 1.3312f, 1.f / 1.333f, 1.f / 1.3381f); // water
     glUniform1f(glGetUniformLocation(shader, "m"), 0.02f);
     glUniform4fv(glGetUniformLocation(shader, "lightPosition"), 1, glm::value_ptr(m_lights.value(0)->pos));
-//    m_room->bindTexture();
+
+    glActiveTexture(GL_TEXTURE1);
+    m_room->bindTexture();
+    glActiveTexture(GL_TEXTURE0);
 
 //    glUniform1i(glGetUniformLocation(shader, "functionSize"), m_f1.size());
 //    glUniform1fv(glGetUniformLocation(shader, "function"), m_f1.size(), m_f1.data());
 //    m_waterShape->transformAndRender(shader, m_elements.at(0)->trans);
 //    m_waterShape->transformAndRender(shader, glm::translate(glm::vec3(0, 0, 2)));
 
+    SceneElement *element;
     for (int i = 0; i < m_waterElements.size(); ++i) {
 
-        glActiveTexture(GL_TEXTURE1);
-        m_waterElements.value(i)->cube->bindTexture();
-        glActiveTexture(GL_TEXTURE0);
+        element = m_waterElements.value(i);
+//        m_waterElements.value(i)->cube->bindTexture();
 
-        if (i == 0) {
+        switch (element->port) {
+        case 7001:
             glUniform1i(glGetUniformLocation(shader, "functionSize"), m_f1.size());
             glUniform1fv(glGetUniformLocation(shader, "function"), m_f1.size(), m_f1.data());
-        }
-        if (i == 1) {
+            break;
+        case 7002:
             glUniform1i(glGetUniformLocation(shader, "functionSize"), m_f2.size());
             glUniform1fv(glGetUniformLocation(shader, "function"), m_f2.size(), m_f2.data());
+            break;
+        case 7005:
+            glUniform1i(glGetUniformLocation(shader, "functionSize"), m_f5.size());
+            glUniform1fv(glGetUniformLocation(shader, "function"), m_f5.size(), m_f5.data());
+            break;
+        case 7006:
+            glUniform1i(glGetUniformLocation(shader, "functionSize"), m_f6.size());
+            glUniform1fv(glGetUniformLocation(shader, "function"), m_f6.size(), m_f6.data());
+            break;
+        case 7007:
+            glUniform1i(glGetUniformLocation(shader, "functionSize"), m_f7.size());
+            glUniform1fv(glGetUniformLocation(shader, "function"), m_f7.size(), m_f7.data());
+            break;
+        case 7008:
+            glUniform1i(glGetUniformLocation(shader, "functionSize"), m_f8.size());
+            glUniform1fv(glGetUniformLocation(shader, "function"), m_f8.size(), m_f8.data());
+            break;
+        default:
+            break;
         }
-        if (i == 2) {
-            glUniform1i(glGetUniformLocation(shader, "functionSize"), m_f3.size());
-            glUniform1fv(glGetUniformLocation(shader, "function"), m_f3.size(), m_f3.data());
-        }
-        if (i == 3) {
-            glUniform1i(glGetUniformLocation(shader, "functionSize"), m_f4.size());
-            glUniform1fv(glGetUniformLocation(shader, "function"), m_f4.size(), m_f4.data());
-        }
-        m_waterShape->transformAndRender(m_waterShader, m_waterElements.at(i)->trans);
-
-//    glUniform1i(glGetUniformLocation(shader, "functionSize"), m_f3.size());
-//    glUniform1fv(glGetUniformLocation(shader, "function"), m_f3.size(), m_f3.data());
-//    m_waterShape->transformAndRender(shader, glm::translate(glm::vec3(-2.f, 1.f, 0.f)));
-
-//        glUniform1i(m_waterUniforms["functionSize"], m_f2.size());
-//        glUniform1fv(m_waterUniforms["function"], m_f2.size(), m_f2.data());
-//        m_waterShape->transformAndRender(m_waterShader, glm::translate(
-//                                        glm::rotate(glm::mat4(), (float) M_PI / 4.f, glm::vec3(1, 0, 0)),
-//                                        glm::vec3(-2, 0, 0)));
-
-//        glUniform1i(m_waterUniforms["functionSize"], m_f3.size());
-//        glUniform1fv(m_waterUniforms["function"], m_f3.size(), m_f3.data());
-//        m_waterShape->transformAndRender(m_waterShader, glm::translate(glm::mat4(), glm::vec3(2, 0, 0)));
+        m_waterShape->transformAndRender(shader, element->trans);
     }
+    glUniform1i(glGetUniformLocation(shader, "functionSize"), m_f3.size());
+    glUniform1fv(glGetUniformLocation(shader, "function"), m_f3.size(), m_f3.data());
+    m_waterShape->transformAndRender(shader, m_input->trans);
+
 }
 
 
@@ -818,6 +866,68 @@ IntersectElement Scene::shapeClickIntersect(glm::vec4 ey, glm::vec4 dr) {
     intrRet.mHit = (ey + (dr * finDist));
     intrRet.prim = prm;
     return intrRet;
+}
+
+
+void Scene::checkFilters()
+{
+
+//    cout << "size: " << m_waterElements.size() << endl;
+
+    glm::vec3 wpos, lpos;
+    float dist;
+    foreach (SceneElement *we, m_waterElements)
+    {
+//        cout << "we: " << glm::to_string(we->trans[3]) << endl;
+        wpos = glm::vec3(we->trans[3]);
+        foreach (SceneElement *le, m_lightningElements)
+        {
+//            cout << "le: " << glm::to_string(le->trans[3]) << endl;
+            lpos = glm::vec3(le->trans[3]);
+            dist = glm::distance(wpos, lpos);
+//            cout << dist << endl;
+            if (dist > 0.65f)
+                continue;
+            else
+                cout << "blah" << endl;
+            if (lpos.y - 0.15f > wpos.y + .5f) {
+                cout << lpos.y - 0.15f << ", " << wpos.y + .5f << endl;
+                continue;
+            } else {
+                cout << "blah2" << endl;
+            }
+            if (lpos.y + 0.15f < wpos.y - 0.5f)
+                continue;
+            else
+                cout << "blah3" << endl;
+
+            switch(we->port)
+            {
+            case 7001:
+                m_udp1->sendFilter(.25f, .01f);
+                break;
+            case 7002:
+                m_udp2->sendFilter(.25f, .5f);
+                break;
+            case 7005:
+                m_udp5->sendFilter(.25f, .5f);
+                break;
+            case 7006:
+                m_udp6->sendFilter(.25f, .5f);
+                break;
+            case 7007:
+                m_udp7->sendFilter(.25f, .5f);
+                break;
+            case 7008:
+                m_udp8->sendFilter(.25f, .5f);
+                break;
+            default:
+                break;
+            }
+
+
+        }
+    }
 }
 
 

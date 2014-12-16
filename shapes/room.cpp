@@ -9,12 +9,19 @@
 //#define LEFT ":/images/left.png"
 //#define RIGHT ":/images/right.png"
 
-#define RIGHT ":/images/posx.jpg"
-#define LEFT ":/images/negx.jpg"
-#define TOP ":/images/posy.jpg"
-#define BOTTOM ":/images/negy.jpg"
-#define BACK ":/images/posz.jpg"
-#define FRONT ":/images/negz.jpg"
+//#define RIGHT ":/images/posx.jpg"
+//#define LEFT ":/images/negx.jpg"
+//#define TOP ":/images/posy.jpg"
+//#define BOTTOM ":/images/negy.jpg"
+//#define BACK ":/images/posz.jpg"
+//#define FRONT ":/images/negz.jpg"
+
+#define RIGHT ":/images/posx.bmp"
+#define LEFT ":/images/negx.bmp"
+#define TOP ":/images/posy.bmp"
+#define BOTTOM ":/images/negy.bmp"
+#define BACK ":/images/posz.bmp"
+#define FRONT ":/images/negz.bmp"
 
 const int cube_s = 1024;
 
