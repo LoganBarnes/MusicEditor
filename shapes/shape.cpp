@@ -103,7 +103,7 @@ void Shape::recursiveBolt(glm::vec3 prevPos, int recCount, glm::vec3 finPos, int
 
         glm::vec3 dir = glm::normalize((finPos - prevPos));
 
-        float eDist = euclideanDist(finPos, prevPos);
+//        float eDist = euclideanDist(finPos, prevPos);
 
         float seg = 2.0f/15.0f;//eDist/recCount;
         if (m_isWater) {

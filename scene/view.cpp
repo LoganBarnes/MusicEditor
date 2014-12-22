@@ -7,7 +7,7 @@
 
 using namespace std;
 
-const int cube_s = 1024;
+//const int cube_s = 1024;
 
 View::View(QGLFormat format, QWidget *parent) : QGLWidget(format, parent)
 {
@@ -28,6 +28,7 @@ View::View(QGLFormat format, QWidget *parent) : QGLWidget(format, parent)
     m_transLightningOut = false;
     m_delete = false;
     m_rotate = false;
+    m_zVec = glm::vec4(1.f);
 
     // The game loop is implemented using a timer
     connect(&timer, SIGNAL(timeout()), this, SLOT(tick()));
@@ -268,9 +269,13 @@ void View::mouseMoveEvent(QMouseEvent *event)
     glm::vec3 translaVec = glm::vec3(0.0f, 0.0f, 0.0f);
     if (m_clicked) {
         if (m_transZ) {
-            glm::vec4 look = glm::vec4(m_camera->getLook(), 0.0f);
+            if (EQ(m_zVec.w, 1.f)) {
+                glm::vec4 farFilm = glm::vec4(event->x() * 2.0 / this->width() - 1.f, 1.f - event->y() * 2.0 / this->height(), -1.f, 1);
+                glm::vec4 farWorld = glm::inverse(m_camera->getM2() * m_camera->getViewMatrix())  * farFilm;
+                m_zVec = glm::normalize(farWorld - m_camera->getEye4());
+            }
             float tranSpeed = (deltY/15.0f);
-            translaVec = glm::vec3((look * tranSpeed));
+            translaVec = glm::vec3((m_zVec * tranSpeed));
         }
         else {
             translaVec = filmPlaneTrans(glm::vec2(event->x(), event->y()));
@@ -362,6 +367,7 @@ void View::mouseReleaseEvent(QMouseEvent *event)
         }
     }
     m_clicked = false;
+    m_zVec.w = 1.f;
 
     m_scene->checkAsserts(false);
 
@@ -376,6 +382,7 @@ void View::keyPressEvent(QKeyEvent *event)
         m_transZ = true;
         m_transLightningOut = false;
         m_delete = false;
+        m_zVec.w = 1.f;
 
     }
     if (event->key() == Qt::Key_Control) {

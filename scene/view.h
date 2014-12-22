@@ -46,6 +46,7 @@ private:
     bool m_transLightningOut;
     bool m_delete;
     bool m_rotate;
+    glm::vec4 m_zVec;
 
     bool m_sceneChanged;
 

@@ -78,11 +78,16 @@ void Scene::sendMusicData(glm::vec4 eye)
 
         v1 = glm::vec3(element->trans[3]) - e;
         v1.y = 0;
-        d.y = glm::angle(glm::normalize(v1), glm::normalize(v2));
-        d.y /= (M_PI / 2.f);
-        int cross = (glm::cross(v1, v2).y > 0 ? 1 : -1);
-        d.y = .5 + (cross * d.y);
-        d.x = glm::clamp(1.f - d.x / 10.f, 0.f, 1.f);
+
+        if (d.x < .1f)
+            d.y = 0.5f;
+        else {
+            d.y = glm::angle(glm::normalize(v1), glm::normalize(v2));
+            d.y /= (M_PI / 2.f);
+            int cross = (glm::cross(v1, v2).y > 0 ? 1 : -1);
+            d.y = .5 + (cross * d.y);
+            d.x = glm::clamp(1.f - d.x / 10.f, 0.f, 1.f);
+        }
 
         switch (element->port) {
         case 7001:
@@ -430,7 +435,7 @@ void Scene::addObject(PrimitiveType typ) {
         }
     }
     else if (typ == LIGHTNING_TYPE) {
-        if (m_lightningElements.size() >= 5) {
+        if (m_lightningElements.size() >= 15) {
             return;
         }
         else {
@@ -608,6 +613,8 @@ void Scene::renderTransparents(GLuint shader)
         }
         m_waterShape->transformAndRender(shader, element->trans);
     }
+    m_room->bindTexture();
+    glUniform3f(glGetUniformLocation(shader, "whiterer"), 0.f, 0.f, 0.f);
     glUniform1i(glGetUniformLocation(shader, "functionSize"), m_f3.size());
     glUniform1fv(glGetUniformLocation(shader, "function"), m_f3.size(), m_f3.data());
     m_waterShape->transformAndRender(shader, m_input->trans);
@@ -745,7 +752,7 @@ void Scene::checkIntersects() {
                     if (m_waterElements.at(w)->linked) {
                         if (!m_waterElements.at(wi)->linked) {
                             int lInd2;
-                            if ((lInd2 = m_lightningElements.size()) < 5) {
+                            if ((lInd2 = m_lightningElements.size()) < 15) {
 
                                 addObject(LIGHTNING_TYPE);
                                 m_lightningElements.at(lInd2)->trans = m_waterElements.at(wi)->trans;
@@ -759,7 +766,7 @@ void Scene::checkIntersects() {
                     else {
                         if (m_waterElements.at(wi)->linked) {
                             int lInd2;
-                            if ((lInd2 = m_lightningElements.size()) < 5) {
+                            if ((lInd2 = m_lightningElements.size()) < 15) {
 
                                 addObject(LIGHTNING_TYPE);
                                 m_lightningElements.at(lInd2)->trans = m_waterElements.at(w)->trans;
