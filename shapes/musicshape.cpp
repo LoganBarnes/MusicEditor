@@ -11,7 +11,8 @@ MusicShape::MusicShape(int p1, int p2, float radius, QObject *parent) :
     setParam1(p1);
     setParam2(p2);
 
-    m_radius = radius;
+//    m_radius = radius;
+    m_radius = .15f;
 }
 
 
@@ -23,11 +24,13 @@ MusicShape::~MusicShape()
 void MusicShape::calcVerts()
 {
     // ((slices * verts per slice) - first and last vert) * 2 for normals
-    m_numVerts = ((m_p2 * (m_p1 + 1) * 2) - 2);
+//    m_numVerts = ((m_p2 * (m_p1 + 1) * 2) - 2);
+    m_numVerts = ((3 * (m_p1 + 1) * 2) - 2);
     int size = m_numVerts * 8; // 3 points per vertex
     m_vertexData = new GLfloat[size];
 
-    float prev = 0;
+//    float prev = 0;
+    float prev = 1 * M_PI * 2.f / m_p2;
     float curr;
 
     int index = 0;
@@ -39,7 +42,7 @@ void MusicShape::calcVerts()
     glm::vec3 bottom = glm::vec3(0, -m_radius, 0);
 
     // iterate through the slices
-    for (int i = 1; i <= m_p2; i++) {
+    for (int i = 2; i <= 4; i++) {
         curr = i * M_PI * 2.f / m_p2;
 
         // top point
@@ -54,12 +57,22 @@ void MusicShape::calcVerts()
 
         // repeat the last point of this slice and the first point of the next
         // slice so the renderer won't connect the two points
-        if (i != m_p2) {
+        if (i != 5) {
             addVertex(&index, bottom, bottomN);
             addVertex(&index, top, topN);
         }
 
         prev = curr;
+    }
+
+    if (m_p2 < 11)
+    {
+        cout << "arrayStart" << endl;
+        int arraySize = ((3 * (m_p1 + 1) * 2) - 2) * 8;
+        for (int i = 0; i < arraySize; i++)
+        {
+            cout << i << ": " << m_vertexData[i] << endl;
+        }
     }
 }
 

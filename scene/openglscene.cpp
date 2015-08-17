@@ -122,6 +122,10 @@ void OpenGLScene::render(Camera *cam)
     glm::mat4 viewMatrix = cam->getViewMatrix();
     glm::mat4 projMatrix = cam->getProjectionMatrix();
 
+//    cout << "view and inv view: " << endl;
+//    cout << glm::to_string(viewMatrix) << endl;
+//    cout << glm::to_string(glm::transpose(glm::inverse(viewMatrix))) << endl;
+
     // cubemap
     GLuint shader = m_cubeShader;
     glUseProgram(shader);

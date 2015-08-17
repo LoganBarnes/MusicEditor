@@ -20,6 +20,9 @@ out vec4 fragColor;
 
 void main()
 {
+
+    fragColor = vec4(eyeNormal, 1.0);
+    return;
     vec3 n = normalize(eyeNormal);
     vec3 eyeToVertex = -vertexToEye; //remember we are in eye space!
     

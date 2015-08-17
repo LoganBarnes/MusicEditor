@@ -3,10 +3,10 @@
 in vec3 position;
 in vec3 normal;
 
-out vec3 vertex;	// The position of the vertex, in eye space
-out vec3 vertexToEye;	// Vector from the vertex to the eye
+//out vec3 vertex;	// The position of the vertex, in eye space
+//out vec3 vertexToEye;	// Vector from the vertex to the eye
 out vec3 eyeNormal;	// Normal of the vertex, in eye space
-out vec3 vertexToLight; // Vector from the vertex to the light
+//out vec3 vertexToLight; // Vector from the vertex to the light
 
 uniform mat4 view;
 uniform mat4 projection;
@@ -26,8 +26,8 @@ void calcVertex(inout vec3 v, inout vec3 n) {
 
     float angle = acos(dot(normalize(position), vec3(0, -1, 0)));
 
-    float sizeMinus = functionSize - 1.0;
-    float di = (angle / 3.1415926535897932384626433832795) * functionSize - 0.5;
+    float sizeMinus = float(functionSize) - 1.0;
+    float di = (angle / 3.1415926535897932384626433832795) * float(functionSize) - 0.5;
     float f = mod(di, 1.0);
     di -= f;
     int li, ri;
@@ -54,18 +54,19 @@ void calcVertex(inout vec3 v, inout vec3 n) {
         di = min(di + 1.0, sizeMinus);
     }
     mid.y = function[int(di)];
-    left.y = (function[li] + mid.y) / 2.f;
-    right.y = (mid.y+ function[ri]) / 2.f;
+    left.y = (function[li] + mid.y) / 2.0;
+    right.y = (mid.y+ function[ri]) / 2.0;
 
     float t_1 = 1.0 - t;
     float curve = t_1 * (t_1 * left.y + t * mid.y) + t * (t_1 * mid.y + t * right.y);
 
-    vec2 tangent = 2 * t_1 * (mid - left) + 2 * t * (right - mid);
+    v += n * curve;
+    return;
+
+    vec2 tangent = 2.0 * t_1 * (mid - left) + 2.0 * t * (right - mid);
     tangent.x /= sizeMinus;
 
     float a = atan(tangent.y, tangent.x);
-
-    v += n * curve;
 
     vec3 axis = normalize(cross(vec3(0, 1, 0), n));
 
@@ -88,10 +89,10 @@ void main()
 
     calcVertex(pos, norm);
 
-    vertex = ((view*model)*(vec4(pos, 1.0))).xyz;
-    vec4 camLightPos = view * model * lightPosition;
-    vertexToLight = normalize(camLightPos.xyz - vertex);
+//    vertex = ((view*model)*(vec4(pos, 1.0))).xyz;
+//    vec4 camLightPos = view * model * lightPosition;
+//    vertexToLight = normalize(camLightPos.xyz - vertex);
+//    vertexToEye = -normalize(vertex);
     eyeNormal = normalize(mat3(transpose(inverse(view*model))) * norm);
-    vertexToEye = -normalize(vertex);
     gl_Position = projection*view*model*vec4(pos,1.0);
 }

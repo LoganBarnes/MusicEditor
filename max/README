@@ -1,0 +1,33 @@
+
+Note: The graphics portion of this project has only been tested on OS X 10.9.5 and higher.
+
+This patch/app uses two programs that send data to each other. If more than one copy of the program is open the data will only be sent to the first program.
+
+1.
+Open the max patch: "barnes_final.maxpat"
+
+2.
+Turn on the audio in the patch (be careful about feedback without headphones).
+
+3.
+Mount the "final.dmg" disk image and run the "final" app.
+
+A floating orb representing the max input should appear. The two orbs in the back represent the two files located in the "sounds" folder. The sound playback is based on the orbs' location in space. Orbs on the right will play out of the right speaker and orbs on the left will play out of the left. Closer orbs will be louder and farther orbs will be softer.
+
+Usage:
+
+  Drag 			- 		Move shape around (except middle input orb).
+
+Shift + Drag 	- 		Move shape closer or farther away.
+
+	W 			- 		Replicate previously recorded loop.
+							- the new shape will appear in the middle and can be dragged elsewhere
+
+ D + click 		- 		Delete shape
+
+ 	L 			- 		Create electric orb at the center point
+
+Cmd + Drag 		- 		Drag electric orb out of music shape (if an orb is in there)
+
+	R 			- 		Toggle rotating camera
+

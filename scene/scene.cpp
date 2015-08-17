@@ -280,7 +280,8 @@ void Scene::init()
     m_lightningShape->cleanUp();
     m_lightningShape->m_isWater = false;
 
-    m_waterShape = new MusicShape(150, 70, 0.15f);
+//    m_waterShape = new MusicShape(150, 70, 0.15f);
+    m_waterShape = new MusicShape(4, 4, 0.15f);
     m_waterShape->calcVerts();
     m_waterShape->updateGL(m_waterShader);
     m_waterShape->cleanUp();
@@ -583,6 +584,15 @@ void Scene::renderTransparents(GLuint shader)
         glActiveTexture(GL_TEXTURE0);
 //        m_waterElements.value(i)->cube->bindTexture();
 
+        QVector<float> temp = QVector<float>();
+        for (int k = 0; k < 25; k++)
+            if (k < 5)
+                temp.append(0.0);
+            else
+                temp.append(1.0);
+
+//        cout << temp.size() << endl;
+
         switch (element->port) {
         case 7001:
             glUniform1i(glGetUniformLocation(shader, "functionSize"), m_f1.size());
@@ -605,8 +615,10 @@ void Scene::renderTransparents(GLuint shader)
             glUniform1fv(glGetUniformLocation(shader, "function"), m_f7.size(), m_f7.data());
             break;
         case 7008:
-            glUniform1i(glGetUniformLocation(shader, "functionSize"), m_f8.size());
-            glUniform1fv(glGetUniformLocation(shader, "function"), m_f8.size(), m_f8.data());
+//            glUniform1i(glGetUniformLocation(shader, "functionSize"), m_f8.size());
+//            glUniform1fv(glGetUniformLocation(shader, "function"), m_f8.size(), m_f8.data());
+            glUniform1i(glGetUniformLocation(shader, "functionSize"), temp.size());
+            glUniform1fv(glGetUniformLocation(shader, "function"), temp.size(), temp.data());
             break;
         default:
             break;
