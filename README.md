@@ -53,9 +53,3 @@ Skybox:
 
 Geometry Box:
 
-
-—————
-BUGS
-—————
-
-	Depending on which version of the audio program you are running along with our project, you may occasionally see a water sphere render strangely. Do not be alarmed, simply restart the program and it should render cleanly.
