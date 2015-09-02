@@ -1,55 +1,23 @@
-=======
-README
-=======
 
+![Audio Orbs](http://giant.gfycat.com/DismalThoughtfulKoi.gif)
 
-Controls:
+View the demo on <a href="https://www.youtube.com/watch?v=gGpCHjAKk-8" target="_blank">YouTube</a> or watch a performance on <a href="https://vimeo.com/117489883">Vimeo</a>.
 
-to move a shape on the current film plane, click and drag
+# Graphical Music Editor
 
-to combine electric and water drag an electric into a water shape that has no electric
+*Logan Barnes, Luke Fraker (Graphics), and Jake Shields (Performance)*
 
-to remove the electric, either hold Ctrl (Cmd for macs) and drag the electric out, or delete the water
+#### Overview
 
-to delete a shape, hold the d key and click on a shape (there must always be at least 1 shape of each type, and there can be no more than 5 of each shape type)
-	Be wary a multiple water shapes can significantly slow done the program (covered in more detail later)
+This Graphical Music Editor is a combined final project for Brown University's ***CSCI 1230 - Intro to Computer Graphics*** and ***MUSC 1210 - Seminar in Electronic Music: Real-Time Systems***. It is a multi-platform, spacially-based, sound visualizer/modifier created with a custom C++/OpenGL graphics engine and MaxMSP.
 
-to move a shape on the Z plane, hold shift, then click and drag up or down.
+#### Technical Features
+**Multiplatform** - The game utilizes the Qt Framework allowing it to be run on OS X and Linux.
 
-to add a water shape, type the w key (there can be a maximum of 5 water shapes)
+**Real-Time Sound Visualization** - Each audio track is analyzed using a Fast Forier Transform and visualized in the form of a smooth orb through the use of Bézier curves.
 
-to add a lightning shape, type the l key (there can be a maximum of 5 lightning shapes)
+**Networking** - The graphical program communicates with the MaxMSP patch through a UDP connection.
 
-to start/stop camera rotation, type R, (type again to stop rotation)
+**Modern OpenGL** - Using the newer OpenGL API's allowed for increased speed and shader control. Transparent objects were created by using a geometry shader to render the scene multiple times from differing perspectives.
 
-
-
-*******
-DESIGN
-*******
-
-The features we implemented were as follows:
-
-
-Piecewise Bezier Surfaces:
-
-	Used to smooth out the frequency input data into a smooth surface on the sphere.
-
-
-Collision Detection:
-
-	Used to determine when lightning/water combines, or when to translate objects away from collisions. (We do not highlight colliding objects, but rather the currently selected object is the aggressor in all collisions, and if you hold down Ctrl/Cmd (to translate out lightning shapes), collisions are ignored.
-
-
-Fractal Terrain:
-
-	We use a variation on the midpoint algorithm in order to generate fractal bolts of lightning for the electricity objects.
-
-
-Skybox:
-	
-	We implemented a skybox in order to give the water spheres a more realistic feel
-
-
-Geometry Box:
-
+**Original Music** - The music for the demo was written by Scott McGowan and Logan Barnes and the guitar music for the performance was written by Jake Shields.
