@@ -1,4 +1,4 @@
-![AudioOrbs](http://giant.gfycat.com/DismalThoughtfulKoi.gif)
+![AudioOrbs](images/DismalThoughtfulKoi.gif)
 
 View the demo on <a href="https://www.youtube.com/watch?v=gGpCHjAKk-8" target="_blank">YouTube</a> or watch a performance on <a href="https://vimeo.com/117489883">Vimeo</a>.
 
