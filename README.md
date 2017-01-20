@@ -1,6 +1,6 @@
 ![AudioOrbs](images/DismalThoughtfulKoi.gif)
 
-View the <a href="https://vimeo.com/181585320" target="_blank">demo</a> shown above or watch a <a href="https://vimeo.com/117489883">live performance</a>.
+View the <a href="https://vimeo.com/181585320" target="_blank">demo</a> shown above or watch a <a href="https://vimeo.com/117489883" target="_blank">live performance</a>.
 
 # Graphical Music Editor
 
