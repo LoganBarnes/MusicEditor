@@ -8,7 +8,7 @@ View the <a href="https://vimeo.com/181585320" target="_blank">demo</a> shown ab
 
 ## Overview
 
-This Graphical Music Editor is a combined final project for Brown University's ***CSCI 1230 - Intro to Computer Graphics*** and ***MUSC 1210 - Seminar in Electronic Music: Real-Time Systems***. It is a multi-platform, spacially-based, sound visualizer/modifier created with a custom C++/OpenGL graphics engine and MaxMSP.
+This Graphical Music Editor is a combined final project for Brown University's ***CSCI 1230 - Intro to Computer Graphics*** and ***MUSC 1210 - Seminar in Electronic Music: Real-Time Systems***. It is a multi-platform, spatially-based, sound visualizer/modifier created with a custom C++/OpenGL graphics engine and MaxMSP.
 
 ## Technical Features
 **Multiplatform** - The game utilizes the Qt Framework allowing it to be run on OS X and Linux.
