@@ -20,3 +20,5 @@ This Graphical Music Editor is a combined final project for Brown University's *
 **OpenGL Core Profile** - Using the newer OpenGL API's allowed for increased speed and shader control. Transparent objects were created by using a geometry shader to render the scene multiple times from differing perspectives.
 
 **Original Music** - The music for the demo was written by Scott McGowan and Logan Barnes and the guitar music for the performance was written by Jake Shields.
+
+*Note: This project is not actively mantained*
